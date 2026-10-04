@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hushmate Spec</title>
+<meta name="description" content="Visual review companion for devpost/spec.md (Markdown is canonical).">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  /* Tokens mirror planning/design-system/tokens.css. Fonts fall back offline. */
+  :root {
+    --bg: #121A33; --s1: #1A2342; --s2: #232D52; --line: #2E3A66; --ctl: #6874A6;
+    --text: #F3E9D2; --text2: #B8B4CF; --text3: #9A96BA; --night: #121A33;
+    --brand: #B9B4FF; --on-brand: #121A33;
+    --nudge: #FFB9A3; --ack: #A8E6CF; --streak: #FFE08A; --sky: #A9D3FF; --rose: #F4A9C8; --sage: #BFD8A6; --aqua: #9EE0DC; --orchid: #E3B5F0;
+    --agent: #A9D3FF; --verify: #FFE08A;
+    --display: "Fredoka", ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+    --ui: "Nunito", ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+    --ease: cubic-bezier(.22,1,.36,1);
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #F7F4EE; --s1: #FFFFFF; --s2: #EFEBE3; --line: #DDD7CB; --ctl: #8C8598;
+      --text: #121A33; --text2: #4E4B66; --text3: #615E7A; --brand: #5F57D4; --on-brand: #FFFFFF;
+      --agent: #2D69A8; --verify: #8A6400; color-scheme: light;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #F7F4EE; --s1: #FFFFFF; --s2: #EFEBE3; --line: #DDD7CB; --ctl: #8C8598;
+    --text: #121A33; --text2: #4E4B66; --text3: #615E7A; --brand: #5F57D4; --on-brand: #FFFFFF;
+    --agent: #2D69A8; --verify: #8A6400; color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 400 16px/1.6 var(--ui); }
+  main { max-width: 1020px; margin: 0 auto; padding: 28px 16px 72px; }
+  h1, h2, h3 { font-family: var(--display); font-weight: 600; line-height: 1.2; margin: 0; }
+  h1 { font-size: clamp(2rem, 5vw, 2.7rem); }
+  h2 { font-size: 1.4rem; margin-bottom: 14px; }
+  h3 { font-size: 1.05rem; margin-bottom: 8px; }
+  p { margin: 0 0 10px; }
+  a { color: var(--brand); }
+  code { font-family: var(--mono); font-size: .84em; background: var(--s2); padding: 1px 6px; border-radius: 6px; word-break: break-word; }
+  .muted { color: var(--text2); } .small { font-size: .9rem; }
+  section { margin-top: 36px; }
+  .card { background: var(--s1); border-radius: 16px; padding: 18px; }
+  .grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 800px) { .g2 { grid-template-columns: 1fr 1fr; } .g3 { grid-template-columns: repeat(3, 1fr); } }
+  .topbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+  .chip { display: inline-flex; padding: 3px 10px; border-radius: 999px; font: 700 12px/18px var(--ui); background: var(--s2); color: var(--text2); }
+  .chip.draft { background: var(--streak); color: var(--night); }
+  button { font: 700 14px/20px var(--ui); color: var(--text); background: transparent; border: 1.5px solid var(--ctl); border-radius: 999px; padding: 7px 14px; cursor: pointer; min-height: 36px; }
+  button:hover { border-color: var(--brand); }
+  button.on, button[aria-pressed="true"] { background: var(--brand); color: var(--on-brand); border-color: var(--brand); }
+  button:disabled { opacity: .4; cursor: default; }
+  button:focus-visible, summary:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+  .theme-btn { margin-left: auto; }
+  .lede { color: var(--text2); max-width: 64ch; margin-top: 8px; }
+  .tag { display: inline-block; font: 700 11px/16px var(--ui); padding: 1px 7px; border-radius: 6px; border: 1px solid currentColor; margin-left: 4px; vertical-align: 1px; white-space: nowrap; }
+  .t-agent { color: var(--agent); } .t-verify { color: var(--verify); }
+
+  /* plain-language pieces */
+  .piece .n { font: 600 2rem/1 var(--display); color: var(--brand); }
+  .piece h3 { margin-top: 6px; }
+  .piece .where { font: 700 12px var(--ui); color: var(--text3); letter-spacing: .06em; text-transform: uppercase; }
+
+  /* diagrams */
+  figure { margin: 0; }
+  figure svg { display: block; width: 100%; height: auto; margin: 0 auto; }
+  figcaption { text-align: center; color: var(--text2); font-size: .9rem; margin-top: 10px; }
+  .d-box { fill: var(--s2); }
+  .d-db { fill: var(--s2); stroke: var(--ctl); stroke-width: 1.2; }
+  .d-ext { fill: var(--s1); stroke: var(--ctl); stroke-width: 1.2; stroke-dasharray: 5 4; }
+  .d-t { fill: var(--text); font: 700 14px var(--ui); }
+  .d-s { fill: var(--text2); font: 400 12px var(--ui); }
+  .d-cap { fill: var(--text3); font: 700 11px var(--ui); letter-spacing: .08em; }
+  .d-ln { stroke: var(--text3); stroke-width: 1.5; fill: none; }
+  .d-push { stroke: var(--nudge); stroke-width: 2; fill: none; }
+  .d-hd { fill: var(--text3); } .d-hp { fill: var(--nudge); }
+  .d-lbl { fill: var(--text2); font: 700 11px var(--ui); }
+  .d-lblp { fill: var(--nudge); font: 700 11px var(--ui); }
+  .d-pill { fill: var(--bg); stroke: var(--line); }
+  .p-brand { fill: var(--brand); } .p-nudge { fill: var(--nudge); } .p-ack { fill: var(--ack); } .p-streak { fill: var(--streak); }
+  .d-tn { fill: var(--night); font: 700 14px var(--ui); } .d-sn { fill: var(--night); font: 400 12px var(--ui); opacity: .85; }
+  .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .scroll-x svg { min-width: 640px; }
+
+  /* stepper */
+  .seg { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .ctrls { display: none; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .js .ctrls { display: flex; }
+  .steps { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+  .steps li { counter-increment: s; position: relative; padding: 11px 14px 11px 50px; border-radius: 12px; background: var(--s1); margin-bottom: 8px; cursor: pointer; transition: background .24s var(--ease); }
+  .steps li::before { content: counter(s); position: absolute; left: 12px; top: 10px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font: 700 13px var(--ui); background: var(--s2); color: var(--text2); }
+  .steps li.cur { background: var(--s2); box-shadow: inset 0 0 0 1.5px var(--brand); }
+  .steps li.cur::before { background: var(--brand); color: var(--on-brand); }
+  .steps .via { display: block; font: 700 12px var(--ui); color: var(--text3); margin-top: 4px; }
+  .js .journey[hidden] { display: none; }
+
+  /* component reveals */
+  .filter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  details.cmp { background: var(--s1); border-radius: 14px; margin-bottom: 8px; }
+  details.cmp > summary { list-style: none; cursor: pointer; padding: 12px 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  details.cmp > summary::-webkit-details-marker { display: none; }
+  details.cmp > summary::after { content: "+"; margin-left: auto; color: var(--text2); font: 400 1.3rem var(--ui); }
+  details.cmp[open] > summary::after { content: "−"; }
+  .cmp-name { font: 600 1rem var(--display); }
+  .side { font: 700 11px var(--ui); padding: 2px 8px; border-radius: 6px; }
+  .side.fe { background: var(--sky); color: var(--night); }
+  .side.be { background: var(--sage); color: var(--night); }
+  .prd { font: 700 11px var(--ui); color: var(--text3); }
+  .cmp-body { padding: 0 16px 16px; display: grid; gap: 12px; grid-template-columns: 1fr; }
+  @media (min-width: 800px) { .cmp-body { grid-template-columns: 1.4fr 1fr; } }
+  .cmp-body h4 { margin: 0 0 6px; font: 700 12px/16px var(--ui); letter-spacing: .08em; text-transform: uppercase; color: var(--text3); }
+  .cmp-body ul { margin: 0; padding-left: 1.1em; } .cmp-body li { margin: 4px 0; }
+  .files { font-family: var(--mono); font-size: .82rem; background: var(--s2); border-radius: 10px; padding: 10px 12px; white-space: pre-wrap; color: var(--text2); }
+
+  /* tables */
+  .tbl { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .tbl th, .tbl td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .tbl th { font: 700 12px var(--ui); color: var(--text3); letter-spacing: .06em; text-transform: uppercase; }
+  .tbl-wrap { overflow-x: auto; }
+
+  /* cost */
+  .cost { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .cost .c { background: var(--s2); border-radius: 12px; padding: 12px; }
+  .cost .v { font: 600 1.6rem/1.1 var(--display); }
+  .cost .v.zero { color: var(--ack); }
+  .cost .k { font: 700 12px var(--ui); color: var(--text3); text-transform: uppercase; letter-spacing: .06em; }
+
+  pre.tree { font-family: var(--mono); font-size: .8rem; line-height: 1.5; background: var(--s1); border-radius: 14px; padding: 16px; overflow-x: auto; color: var(--text2); margin: 0; }
+  pre.tree b { color: var(--text); font-weight: 700; }
+  .open-q { box-shadow: inset 0 0 0 1.5px var(--verify); }
+  .open-q li { margin: 6px 0; }
+  footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--text3); font-size: .85rem; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="topbar">
+      <span class="chip" style="background:var(--ack);color:var(--night)">Approved · 2026-10-03 · build-readiness check passed</span>
+      <span class="chip">Technical spec</span>
+      <button type="button" class="theme-btn" id="themeBtn">Switch light / dark</button>
+    </div>
+    <h1>Hushmate: how it's built</h1>
+    <p class="lede">A mobile-first PWA (React on Vercel) talking to one always-on NestJS backend on Fly.io, which owns every rule, sends every push, and keeps Postgres on Supabase. No live sockets, no external schedulers. <strong>This spec is the complete architecture</strong>: implementers work from it alone. Research and sources are in <code>docs/forge/research/</code>.</p>
+    <p class="small muted">Legend: unlabelled = your decision (including accepted research defaults) · <span class="tag t-agent">agent detail</span> = derived · <span class="tag t-verify">verify early</span> = check in build slice 1.</p>
+  </header>
+
+  <section aria-labelledby="pl-h">
+    <h2 id="pl-h">In plain language: three pieces and a database</h2>
+    <div class="grid g3">
+      <div class="card piece"><div class="n">1</div><div class="where">app/frontend · Vercel</div><h3>The web app</h3><p class="small">React screens on your phone. A <strong>PWA without extras</strong>: a <em>service worker</em> (the one script the browser keeps alive for the site, so pushes can land) and a <em>manifest</em> (name and icon, so iPhone can add it to the Home Screen). No offline mode, no install prompts.</p></div>
+      <div class="card piece"><div class="n">2</div><div class="where">app/backend · Fly.io</div><h3>The backend API</h3><p class="small">NestJS on one always-on machine. It checks passwords and issues sign-in tokens, enforces every rule (anonymity, cooldown, demo locks), <strong>sends push notifications</strong>, and runs three timers: Demo nudges and bot acknowledgements, the 3 AM reset, and the heartbeat.</p></div>
+      <div class="card piece"><div class="n">3</div><div class="where">Supabase · Postgres</div><h3>The database</h3><p class="small">Eight tables only the backend reads and writes, reached through one encrypted Session-pooler connection. Locally it's a Postgres container, so experiments never touch the live demo.</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="ar-h">
+    <h2 id="ar-h">Architecture and the push path</h2>
+    <figure class="card scroll-x">
+      <svg viewBox="0 0 760 360" role="img" aria-labelledby="ar1 ar2">
+        <title id="ar1">Architecture</title>
+        <desc id="ar2">Phones run the web app from Vercel with a service worker. The web app calls the NestJS backend on Fly.io over HTTPS with a bearer token. The backend reads and writes Postgres on Supabase and runs timers. To deliver a nudge, the backend sends a signed declarative Web Push message to the browser's push service, which wakes the recipient phone's service worker to show a notification. On open, the app fetches pending nudges.</desc>
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10z" class="d-hd"/></marker>
+          <marker id="ahp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10z" class="d-hp"/></marker>
+        </defs>
+        <text x="100" y="24" text-anchor="middle" class="d-cap">PHONES</text>
+        <rect x="20" y="36" width="160" height="78" rx="14" class="d-box"/>
+        <text x="100" y="62" text-anchor="middle" class="d-t">B's phone</text>
+        <text x="100" y="82" text-anchor="middle" class="d-s">web app (React)</text>
+        <text x="100" y="100" text-anchor="middle" class="d-s">+ service worker</text>
+        <rect x="20" y="236" width="160" height="78" rx="14" class="d-box"/>
+        <text x="100" y="262" text-anchor="middle" class="d-t">A's phone</text>
+        <text x="100" y="282" text-anchor="middle" class="d-s">web app (React)</text>
+        <text x="100" y="300" text-anchor="middle" class="d-s">+ service worker</text>
+        <rect x="230" y="150" width="130" height="50" rx="12" class="d-ext"/>
+        <text x="295" y="172" text-anchor="middle" class="d-t">Vercel</text>
+        <text x="295" y="189" text-anchor="middle" class="d-s">serves the web app</text>
+        <path d="M230,165 C205,150 200,120 180,100" class="d-ln" marker-end="url(#ah)"/>
+        <path d="M230,185 C205,200 200,230 180,250" class="d-ln" marker-end="url(#ah)"/>
+        <text x="520" y="24" text-anchor="middle" class="d-cap">FLY.IO · 1 ALWAYS-ON MACHINE</text>
+        <rect x="430" y="36" width="180" height="120" rx="14" class="p-brand"/>
+        <text x="520" y="64" text-anchor="middle" class="d-tn">NestJS backend</text>
+        <text x="520" y="86" text-anchor="middle" class="d-sn">rules · sign-in · API</text>
+        <text x="520" y="104" text-anchor="middle" class="d-sn">PushService (web-push)</text>
+        <text x="520" y="122" text-anchor="middle" class="d-sn">timers: minute · 3 AM ·</text>
+        <text x="520" y="138" text-anchor="middle" class="d-sn">heartbeat (claims + guards)</text>
+        <path d="M180,64 H426" class="d-ln" marker-end="url(#ah)"/>
+        <rect x="236" y="44" width="160" height="22" rx="10" class="d-pill"/>
+        <text x="316" y="59" text-anchor="middle" class="d-lbl">POST /nudges · bearer token</text>
+        <rect x="640" y="56" width="110" height="80" rx="14" class="d-db"/>
+        <text x="695" y="86" text-anchor="middle" class="d-t">Postgres</text>
+        <text x="695" y="104" text-anchor="middle" class="d-s">Supabase pooler</text>
+        <text x="695" y="120" text-anchor="middle" class="d-s">(Prisma 7)</text>
+        <path d="M610,96 H636" class="d-ln" marker-end="url(#ah)"/>
+        <rect x="430" y="236" width="180" height="78" rx="14" class="d-ext"/>
+        <text x="520" y="262" text-anchor="middle" class="d-t">Browser push service</text>
+        <text x="520" y="282" text-anchor="middle" class="d-s">Google · Mozilla · Apple</text>
+        <text x="520" y="300" text-anchor="middle" class="d-s">declarative · VAPID</text>
+        <path d="M520,156 V232" class="d-push" marker-end="url(#ahp)"/>
+        <rect x="528" y="182" width="96" height="22" rx="10" class="d-pill"/>
+        <text x="576" y="197" text-anchor="middle" class="d-lblp">push message</text>
+        <path d="M430,275 H184" class="d-push" marker-end="url(#ahp)"/>
+        <rect x="232" y="264" width="150" height="22" rx="10" class="d-pill"/>
+        <text x="307" y="279" text-anchor="middle" class="d-lblp">wakes service worker</text>
+        <path d="M180,300 C300,340 400,200 460,160" class="d-ln" marker-end="url(#ah)" stroke-dasharray="4 5"/>
+        <rect x="286" y="318" width="150" height="22" rx="10" class="d-pill"/>
+        <text x="361" y="333" text-anchor="middle" class="d-lbl">on open: GET /nudges/pending</text>
+      </svg>
+      <figcaption>Peach = the push path, the only "instant" thing in the system. Everything else is re-checked when the app opens or regains focus.</figcaption>
+    </figure>
+  </section>
+
+  <section aria-labelledby="jr-h">
+    <h2 id="jr-h">Your PRD journeys, traced through the system</h2>
+    <div class="seg" role="group" aria-label="Choose journey">
+      <button type="button" class="on" data-j="a" aria-pressed="true">A · New user</button>
+      <button type="button" data-j="b" aria-pressed="false">B · Judge (demo)</button>
+    </div>
+    <div class="ctrls"><button type="button" id="jPrev">← Back</button><button type="button" id="jNext">Next →</button><span class="small muted" id="jPos" aria-live="polite"></span></div>
+    <ol class="steps journey" id="ja">
+      <li>Open the link: the service worker registers. An invite link shows the house name and is <strong>remembered through sign-up</strong>.<span class="via">Frontend: App shell · Join by link</span></li>
+      <li>Sign up: <code>POST /auth/signup</code> → argon2id (19 MB) → a 30-day token kept on the phone. Rate-limited per visitor.<span class="via">Backend: Auth module</span></li>
+      <li>Create (<code>POST /houses</code>, name 2–30 characters, no <code>#</code> → <code>Name#123456</code>) or join (lookup or invite → pending).<span class="via">Backend: Houses module</span></li>
+      <li>The owner approves → colour assigned, made active if first → push: <strong>“You're in! {House} approved your request.”</strong><span class="via">Backend: Houses · Push</span></li>
+      <li>Optional first quiet times: one row per day, sharing a <code>setId</code>; <strong>overlaps refused</strong> with the clashing day and time.<span class="via">Backend: Quiet times module</span></li>
+      <li>Notifications: key prefetched → permission on the tap → subscribe → <code>POST /push/subscriptions</code>. iPhone in Safari → Home Screen steps + “sign in again”. Also in <strong>Profile › Notifications</strong>.<span class="via">Frontend: Push setup</span></li>
+      <li>Schedule: <code>GET /me</code> (every load) + <code>GET /houses/:id/board</code>. Resting, away and overnight segments are worked out on the phone.<span class="via">Frontend: Calendar · Shared lib</span></li>
+      <li>Heads-ups and Summary: <code>POST …/heads-ups</code>, <code>GET …/summary</code> (streak worked out on read).<span class="via">Backend: Heads-ups and Summary</span></li>
+      <li>Nudge: confirm if they're resting → <code>POST /nudges</code> → checks → saved → push sent <strong>after the commit, without waiting</strong> → <code>cooldownUntil</code> (also from <code>GET /me</code> after a reload).<span class="via">Backend: Nudges module (the kernel)</span></li>
+      <li>Got it: on open or focus, <code>GET /nudges/pending</code> (message + subtitle, never the sender) → overlay → acknowledge all.<span class="via">Frontend: Nudge overlay</span></li>
+      <li>The sender learns quietly: <code>myAcks</code> in the summary; a toast if under 1 hour old and not already toasted here.<span class="via">Frontend: Summary</span></li>
+      <li>Quiet Streak: whole Vancouver days since the house's last nudge.<span class="via">Backend: Heads-ups and Summary</span></li>
+    </ol>
+    <ol class="steps journey" id="jb">
+      <li>Sign in with <code>judge1@example.com</code> (or 2, or 3).<span class="via">Backend: Auth module</span></li>
+      <li><code>GET /me</code> → <code>isDemo</code> + <code>demo.botNames</code> → welcome card (with the sign-out warning). A <strong>conditional update</strong> arms the first bot nudge 1–10 minutes away.<span class="via">Backend: Me · Frontend: Demo welcome card</span></li>
+      <li>Notification setup, as in journey A.<span class="via">Frontend: Push setup</span></li>
+      <li>Minute tick: <strong>claim</strong> the due account → a random bot sends through the pipeline (<code>isDemo</code>, subtitle, <strong>cooldown skipped</strong>) → real push → next nudge in 30–120 minutes.<span class="via">Backend: Demo module · Scheduler</span></li>
+      <li>Judges nudge each other for real. A nudge to a bot is <strong>acknowledged by the bot after about 60 seconds</strong>, so the judge sees the sender side.<span class="via">Backend: Demo module</span></li>
+      <li>Sign out: <code>DELETE /push/subscriptions</code>, or browser unsubscribe if that fails → clear token, cache and local keys.<span class="via">Frontend: Profile</span></li>
+      <li>3:00 AM Vancouver (plus an overdue check every minute): a <strong>guarded</strong> reset in one transaction. IDs stay the same, and bots pause until the next open.<span class="via">Backend: Demo module · Scheduler</span></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="cm-h">
+    <h2 id="cm-h">Components: every heading the build will cite</h2>
+    <div class="filter" role="group" aria-label="Filter components">
+      <button type="button" class="on" data-f="all" aria-pressed="true">All</button>
+      <button type="button" data-f="fe" aria-pressed="false">Frontend</button>
+      <button type="button" data-f="be" aria-pressed="false">Backend</button>
+      <button type="button" data-f="ops" aria-pressed="false">Testing &amp; infra</button>
+    </div>
+    <div id="cmps">
+      <details class="cmp" data-side="be" open><summary><span class="side be">Backend</span><span class="cmp-name">Nudges module, the kernel</span><span class="prd">prd › Nudging · Acknowledging</span></summary>
+        <div class="cmp-body"><div><h4>Does</h4><ul>
+          <li><code>createAndSend({…, skipCooldown})</code>: cooldown (except for bots) → random message → insert → push <strong>after the commit, without waiting</strong></li>
+          <li><code>POST /nudges</code>: same active house, different people; 429 with <code>cooldownUntil</code></li>
+          <li><code>GET /nudges/pending</code>: message + subtitle, <strong>never the sender</strong>; acknowledge clears everything waiting</li>
+          <li>No sender id or name in any payload, log line or push topic</li>
+        </ul></div><div><h4>Files</h4><div class="files">backend/src/nudges/
+  controller  service  messages.ts</div></div></div></details>
+
+      <details class="cmp" data-side="be"><summary><span class="side be">Backend</span><span class="cmp-name">Push module</span><span class="prd">prd › Notifications</span></summary>
+        <div class="cmp-body"><div><h4>Does</h4><ul>
+          <li>Declarative envelope <code>{web_push: 8030, mutable: true, notification: {…}}</code> for every browser</li>
+          <li>nudge: TTL 1800, urgency high, topic nudge; join-approved: TTL 86400; 10-second timeout</li>
+          <li>Upsert by endpoint <strong>reassigns the user</strong>; <strong>known push hosts only</strong>; 404/410 → delete; 400/401/403 → log loudly and keep</li>
+        </ul></div><div><h4>Files</h4><div class="files">backend/src/push/</div></div></div></details>
+
+      <details class="cmp" data-side="be"><summary><span class="side be">Backend</span><span class="cmp-name">Auth module + App bootstrap</span><span class="prd">prd › Accounts and Sign-In</span></summary>
+        <div class="cmp-body"><div><h4>Does</h4><ul>
+          <li>Global hand-written <code>AuthGuard</code> + <code>@Public()</code>; loads the user each request; bots rejected</li>
+          <li>argon2id <code>{19456, 2, 1}</code>; the same 401 for every sign-in failure; dummy-hash timing</li>
+          <li>Rate limit 5/min per <code>Fly-Client-IP</code> on sign-up and sign-in; no account lockout</li>
+          <li>JWT <code>{sub}</code>, HS256, 30 days; no credential-change endpoints = demo locks</li>
+          <li>Bootstrap: CORS exact list, <code>ValidationPipe</code> as <code>APP_PIPE</code>, P2002 → 409, config fails fast</li>
+        </ul></div><div><h4>Files</h4><div class="files">backend/src/auth/  main.ts  app.module.ts  config.ts</div></div></div></details>
+
+      <details class="cmp" data-side="be"><summary><span class="side be">Backend</span><span class="cmp-name">Me</span><span class="prd">prd › Demo House · Nudging</span></summary>
+        <div class="cmp-body"><div><h4>Does</h4><ul>
+          <li><code>GET /me</code> → <code>User</code> with <code>nudgeCooldownUntil</code> and, for demo accounts, <code>demo.botNames</code> taken <strong>from the database</strong> (one source of truth)</li>
+          <li>Arms bot nudges with a conditional update (no race between opens)</li>
+        </ul></div><div><h4>Files</h4><div class="files">backend/src/me/</div></div></div></details>
+
+      <details class="cmp" data-side="be"><summary><span class="side be">Backend</span><span class="cmp-name">Houses · Quiet times · Summary</span><span class="prd">prd › Houses · Quiet Times · Summary</span></summary>
+        <div class="cmp-body"><div><h4>Does</h4><ul>
+          <li>Houses: names 2–30 characters, no <code>#</code>; lookup splits on the last <code>#</code>; <strong>join to the demo house → 403</strong>; DemoGuard; owner-only approve and decline</li>
+          <li>Quiet times: 0 = Sunday; 15-minute steps; <strong>circular-week overlap check → 409 with conflicts</strong>; day vs set scope</li>
+          <li>Summary: streak in Vancouver days (demo house fixed at 10); live heads-ups; the sender's acks from the last 24 hours</li>
+        </ul></div><div><h4>Files</h4><div class="files">backend/src/houses/  quiet-times/  summary/
+backend/src/common/quietTimeOverlap.ts</div></div></div></details>
+
+      <details class="cmp" data-side="be"><summary><span class="side be">Backend</span><span class="cmp-name">Demo module + Scheduler</span><span class="prd">prd › Demo House</span></summary>
+        <div class="cmp-body"><div><h4>Does</h4><ul>
+          <li>The demo world, <strong>upserted by email</strong> (stable IDs); <strong>Maya owns</strong> <code>DevPost Demo House#202610</code></li>
+          <li>Bot nudges: <strong>claim, then send</strong>; bot acknowledgements after 60 seconds</li>
+          <li>Reset: <code>system_state</code> guard + one transaction (20-second limit); an overdue check every minute and at boot</li>
+          <li>Jobs: <code>waitForCompletion</code> + one in-process lock + shutdown drain; <code>SCHEDULER_ENABLED</code> kill switch</li>
+          <li>Seed is a standalone script (never boots the app or its timers)</li>
+        </ul></div><div><h4>Files</h4><div class="files">backend/src/demo/  scheduler/
+backend/prisma/seed.ts</div></div></div></details>
+
+      <details class="cmp" data-side="be"><summary><span class="side be">Backend</span><span class="cmp-name">Database access · Health · Common</span><span class="prd">prd › States and Boundaries</span></summary>
+        <div class="cmp-body"><div><h4>Does</h4><ul>
+          <li>PrismaPg pool: 5 connections, 10-second connect, 15-second statement limits; disconnects last on shutdown</li>
+          <li>SSL only from the URL: <code>sslmode=no-verify</code> in production (your choice: encrypted, simplest)</li>
+          <li><code>/health</code>: 200 when the database answers, otherwise <strong>503</strong></li>
+        </ul></div><div><h4>Files</h4><div class="files">backend/src/prisma/  health/  common/
+backend/prisma.config.ts</div></div></div></details>
+
+      <details class="cmp" data-side="fe" open><summary><span class="side fe">Frontend</span><span class="cmp-name">Calendar · editor · Shared lib</span><span class="prd">prd › Schedule · Quiet Times</span></summary>
+        <div class="cmp-body"><div><h4>Does</h4><ul>
+          <li>Day view with lanes (you first, lavender), a now line and a floating Nudge; week view Monday first</li>
+          <li>Editor: start and end pickers (15-minute steps, “(next day)”), day chips, “just this day / all days”, <strong>an overlap warning naming the clash</strong></li>
+          <li><code>quietTime.ts</code>: segments, <code>isRestingNow</code>, <code>findOverlaps</code> (the same maths as the backend)</li>
+        </ul></div><div><h4>Files</h4><div class="files">frontend/src/screens/schedule/
+frontend/src/lib/ quietTime  time  colors  copy</div></div></div></details>
+
+      <details class="cmp" data-side="fe"><summary><span class="side fe">Frontend</span><span class="cmp-name">Push setup + service worker</span><span class="prd">prd › Onboarding · Notifications · Profile</span></summary>
+        <div class="cmp-body"><div><h4>Does</h4><ul>
+          <li>States in order: unsupported → iPhone not on the Home Screen (“sign in again”) → denied → default (button) → granted (re-sync)</li>
+          <li>Key prefetched on mount, so iPhone keeps the tap; re-POSTs the subscription on every load when granted</li>
+          <li><code>sw.js</code>: <strong>always shows a notification</strong>; <code>skipWaiting</code>/<code>claim</code>; <code>renotify</code>; the badge; <code>postMessage</code> to every open page</li>
+          <li>Reused as the <strong>Notifications row in Profile</strong></li>
+        </ul></div><div><h4>Files</h4><div class="files">frontend/src/push/  components/NotificationSetup
+frontend/public/sw.js  badge-96.png</div></div></div></details>
+
+      <details class="cmp" data-side="fe"><summary><span class="side fe">Frontend</span><span class="cmp-name">App shell · API client · Join by link</span><span class="prd">prd › Accounts · Houses · Onboarding</span></summary>
+        <div class="cmp-body"><div><h4>Does</h4><ul>
+          <li><code>GET /me</code> on every load and focus; pending-nudge check; a service-worker message listener</li>
+          <li><strong>Return-to</strong> through sign-in (invites survive); landing: return-to → onboarding → schedule</li>
+          <li>401 → sign out locally → <code>/signin</code>; no retries on 4xx</li>
+          <li><code>/join/:token</code> is public and shows the house name; the demo house shows “This is a demo house”</li>
+        </ul></div><div><h4>Files</h4><div class="files">frontend/src/App.tsx  api/  auth/
+frontend/src/screens/JoinByLink.tsx</div></div></div></details>
+
+      <details class="cmp" data-side="fe"><summary><span class="side fe">Frontend</span><span class="cmp-name">Nudge sheet · overlay · Summary · Houses · Profile</span><span class="prd">prd › Nudging · Summary · Houses · Profile</span></summary>
+        <div class="cmp-body"><div><h4>Does</h4><ul>
+          <li>Nudge sheet: away members disabled, a confirm dialog for resting members, a cooldown pill starting from <code>GET /me</code></li>
+          <li>Overlay: message + subtitle, mint Got it, clears leftover nudge notifications</li>
+          <li>Summary: streak (demo note), resting now, heads-ups (200 characters, future time), acked cards plus a 1-hour toast</li>
+          <li>Profile: <strong>Notifications row</strong>, theme per device, sign out (DELETE, or unsubscribe if that fails, then clear everything)</li>
+          <li>Welcome card: bot names from <code>GET /me</code>, with the sign-out warning</li>
+        </ul></div><div><h4>Files</h4><div class="files">frontend/src/screens/ summary/ houses/ profile/
+frontend/src/components/ (12 shared components)</div></div></div></details>
+
+      <details class="cmp" data-side="ops"><summary><span class="side" style="background:var(--streak);color:var(--night)">Testing</span><span class="cmp-name">Vitest everywhere + Supertest + Playwright</span><span class="prd">every slice's mechanical verification</span></summary>
+        <div class="cmp-body"><div><h4>Does</h4><ul>
+          <li>Backend e2e against <code>hushmate_test</code>: auth (409/400/401/429), demo locks, <strong>privacy (pending never has the sender)</strong>, cooldown, overlap 409, push host and reassignment, the reset keeping IDs</li>
+          <li>Frontend unit tests: quiet-time and overlap maths</li>
+          <li>Playwright: onboarding, a two-browser nudge round trip, demo locks</li>
+          <li>Real-phone push: the 13-step checklist in <code>docs/forge/research/web-push.md</code></li>
+        </ul></div><div><h4>Files</h4><div class="files">backend/test/  frontend/tests/  playwright.config.ts</div></div></div></details>
+
+      <details class="cmp" data-side="ops"><summary><span class="side" style="background:var(--streak);color:var(--night)">Infra</span><span class="cmp-name">Infrastructure and config</span><span class="prd">Where It Runs</span></summary>
+        <div class="cmp-body"><div><h4>Does</h4><ul>
+          <li>compose: <code>postgres:17</code> (plus <code>hushmate_test</code>), backend in watch mode, Vite; <code>scripts/init-env.sh</code> fills the secrets without printing them</li>
+          <li><code>fly.toml</code>: SIGTERM/30 s, <strong>rolling</strong> deploys, <code>release_command</code> runs migrations, restart <strong>always</strong>, <code>/health</code> every 15 s, one 512 MB machine</li>
+          <li><code>vercel.json</code>: SPA rewrite, <strong>CSP</strong>, nosniff, referrer policy, <code>sw.js</code> no-cache</li>
+        </ul></div><div><h4>Files</h4><div class="files">docker-compose.yml  scripts/init-env.sh
+backend/Dockerfile  fly.toml  .env.example
+frontend/Dockerfile  vercel.json  .env.example</div></div></div></details>
+    </div>
+  </section>
+
+  <section aria-labelledby="dm-h">
+    <h2 id="dm-h">Data model: 8 tables</h2>
+    <div class="card tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Table</th><th>Key fields</th><th>Constraints and indexes</th></tr></thead>
+        <tbody>
+          <tr><td><strong>users</strong></td><td>name, email, passwordHash <em>(nullable for bots)</em>, isDemo, isBot, activeHouseId, demoNextNudgeAt</td><td>email unique (trimmed and lower-case)</td></tr>
+          <tr><td><strong>houses</strong></td><td>name, nameKey, code(6), inviteToken, ownerId, isDemo</td><td>unique(nameKey, code); inviteToken unique</td></tr>
+          <tr><td><strong>memberships</strong></td><td>userId, houseId, status, colorIndex, decidedAt</td><td>unique(userId, houseId); (houseId, status)</td></tr>
+          <tr><td><strong>quiet_times</strong></td><td>userId, houseId, setId, dayOfWeek <em>(0 = Sunday)</em>, startMinute, endMinute</td><td>(houseId); (userId, houseId)</td></tr>
+          <tr><td><strong>nudges</strong></td><td>houseId, senderId, recipientId, messageIndex, isDemo, acknowledgedAt</td><td>(senderId, createdAt) · (recipientId, acknowledgedAt) · (houseId, createdAt)</td></tr>
+          <tr><td><strong>heads_ups</strong></td><td>houseId, authorId, text(1–200), at</td><td>(houseId, at)</td></tr>
+          <tr><td><strong>push_subscriptions</strong></td><td>userId, endpoint <em>(text)</em>, p256dh, auth, updatedAt</td><td>endpoint unique; (userId)</td></tr>
+          <tr><td><strong>system_state</strong></td><td>key, value</td><td>heartbeatAt, lastDemoResetAt (the reset guard)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="ru-h">
+    <h2 id="ru-h">Where it runs, provisioning, and the bill</h2>
+    <div class="grid g2">
+      <div class="card">
+        <h3>Locally: exact commands</h3>
+<pre class="tree">./scripts/init-env.sh
+docker compose up --build -d
+docker compose exec backend npx prisma migrate dev
+docker compose exec backend npm run seed
+# open http://localhost:5173 · API :3000 · Postgres :5432
+docker compose exec backend npm test
+docker compose exec backend npm run test:e2e
+docker compose exec frontend npm test
+cd frontend &amp;&amp; npx playwright test</pre>
+        <p class="small muted" style="margin-top:10px">Rule: a local backend never uses the production database, because two schedulers would both fire.</p>
+        <h3 style="margin-top:14px">Live: you sign in three times, the agent does the rest</h3>
+        <p class="small">You: <code>fly auth login</code> · <code>supabase login</code> · <code>vercel login</code>. The agent then creates the Supabase project (name and region confirmed with you) and the <code>prisma</code> user, launches the Fly app (<code>--ha=false</code>), imports secrets from git-ignored <code>.env.production.local</code> (<strong>never printed</strong>), deploys (migrations run as the release command), seeds once, and deploys the frontend with the Vercel CLI.</p>
+      </div>
+      <div class="card">
+        <h3>A predictable monthly bill</h3>
+        <div class="cost">
+          <div class="c"><div class="k">Fly.io</div><div class="v">~$3.69</div><div class="small muted">1 machine, 512 MB, always on</div></div>
+          <div class="c"><div class="k">Vercel Hobby</div><div class="v zero">$0</div><div class="small muted">stops at its limits</div></div>
+          <div class="c"><div class="k">Supabase Free</div><div class="v zero">$0</div><div class="small muted">traffic + heartbeat stop it pausing</div></div>
+          <div class="c"><div class="k">Web Push</div><div class="v zero">$0</div><div class="small muted">no Apple account</div></div>
+        </div>
+        <p class="small muted" style="margin-top:10px">Pinned in <code>fly.toml</code>: one machine, <code>auto_stop_machines = "off"</code>, restart <code>always</code>, rolling deploys only (canary and bluegreen would run every job twice), no volumes, no autoscaling, no dedicated IPv4. A new app means a new machine: retire the old one.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="dc-h">
+    <h2 id="dc-h">Decisions, verification and open issues</h2>
+    <div class="grid g2">
+      <div class="card">
+        <h3>Decided at the readiness check</h3>
+        <ul class="small">
+          <li><strong>A</strong>, the structural fixes · <strong>R1</strong> sign-in · <strong>R2</strong> timers · <strong>R3</strong> push defaults (and the “h” badge)</li>
+          <li><strong>B1</strong> cooldown in <code>GET /me</code> (every load) · <strong>B2</strong> bot names from the database · <strong>B3</strong> name rules</li>
+          <li><strong>4</strong> Vitest everywhere · <strong>5</strong> <strong>Maya</strong> owns the demo house, and joins are refused · <strong>6</strong> invites survive sign-up</li>
+          <li><strong>7</strong> <code>sslmode=no-verify</code> (simplest, no friction) · <strong>8</strong> declarative push · <strong>9</strong> a Notifications row in Profile · <strong>10</strong> “You're in! {House} approved your request.”</li>
+        </ul>
+        <h3 style="margin-top:14px">What you were unsure about</h3>
+        <ul class="small">
+          <li><strong>“Regular web app” vs PWA</strong> → a PWA without offline mode or install prompts</li>
+          <li><strong>“Always on: wouldn't that be expensive?”</strong> → about $3.69 a month, fixed when pinned</li>
+        </ul>
+      </div>
+      <div class="card open-q">
+        <h3>Verification and open issues</h3>
+        <ul class="small">
+          <li>✅ Node 24 image · ✅ Fly's 2-machine default · ⚠️ Supabase setup corrected · ⚠️ newer major versions · ✅ three research reports folded in</li>
+          <li><span class="tag t-verify">verify early</span> iPhone push on your phone (13-step checklist, including whether iOS honours <code>mutable</code>) · Fly overwrites a forged <code>Fly-Client-IP</code> · argon2 time on Fly · <code>sslmode=no-verify</code> via the adapter · <code>fly config validate --strict</code> · reading the pooler host from the CLI</li>
+          <li><strong>Build order</strong> (risk first): provision + deployed skeleton + iPhone push check → sign-in → houses → <strong>nudge round trip on two phones</strong> → quiet times and the calendar → Summary → demo house, bots and timers</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>Review companion for <code>devpost/spec.md</code>, which is canonical. If they differ, the Markdown wins.</footer>
+</main>
+<script>
+(function () {
+  var root = document.documentElement; root.classList.add('js');
+  document.getElementById('themeBtn').addEventListener('click', function () {
+    var cur = root.getAttribute('data-theme') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    root.setAttribute('data-theme', cur === 'light' ? 'dark' : 'light');
+  });
+  var lists = { a: document.getElementById('ja'), b: document.getElementById('jb') }, which = 'a', i = 0;
+  var prev = document.getElementById('jPrev'), next = document.getElementById('jNext'), pos = document.getElementById('jPos');
+  function items() { return Array.prototype.slice.call(lists[which].children); }
+  function render() {
+    lists.a.hidden = which !== 'a'; lists.b.hidden = which !== 'b';
+    var it = items(); it.forEach(function (li, k) { li.classList.toggle('cur', k === i); });
+    prev.disabled = i === 0; next.disabled = i === it.length - 1; pos.textContent = 'Step ' + (i + 1) + ' of ' + it.length;
+  }
+  prev.onclick = function () { if (i > 0) { i--; render(); } };
+  next.onclick = function () { if (i < items().length - 1) { i++; render(); } };
+  ['a', 'b'].forEach(function (k) { Array.prototype.slice.call(lists[k].children).forEach(function (li, n) { li.onclick = function () { which = k; i = n; render(); }; }); });
+  document.querySelectorAll('[data-j]').forEach(function (b) { b.onclick = function () {
+    which = b.getAttribute('data-j'); i = 0;
+    document.querySelectorAll('[data-j]').forEach(function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
+    render(); }; });
+  render();
+  document.querySelectorAll('[data-f]').forEach(function (b) { b.onclick = function () {
+    var f = b.getAttribute('data-f');
+    document.querySelectorAll('[data-f]').forEach(function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
+    document.querySelectorAll('#cmps details').forEach(function (d) { d.hidden = !(f === 'all' || d.getAttribute('data-side') === f); });
+  }; });
+})();
+</script>
+</body>
+</html>
