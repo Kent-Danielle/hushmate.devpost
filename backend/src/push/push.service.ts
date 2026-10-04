@@ -56,17 +56,31 @@ export class PushService implements OnModuleInit {
           );
         } catch (error) {
           const status = (error as { statusCode?: number }).statusCode;
+          const reason = pushReason((error as { body?: unknown }).body);
+          const why = reason ? `, reason: ${reason}` : '';
           if (status === 404 || status === 410) {
             await this.prisma.pushSubscription.deleteMany({ where: { id: subscription.id } });
           } else if (status === 400 || status === 401 || status === 403) {
-            this.logger.error(`Push rejected with ${status} by ${host}: check the VAPID config (subscription kept)`);
+            this.logger.error(`Push rejected with ${status} by ${host}${why}: check the VAPID config (subscription kept)`);
           } else if (status === 413) {
-            this.logger.error(`Push payload too large (413) at ${host}: this is a bug`);
+            this.logger.error(`Push payload too large (413) at ${host}${why}: this is a bug`);
           } else {
-            this.logger.warn(`Push to ${host} failed (${status ?? 'network error'}); not retrying`);
+            this.logger.warn(`Push to ${host} failed (${status ?? 'network error'}${why}); not retrying`);
           }
         }
       }),
     );
   }
+}
+
+/** The push service's reason (JSON `reason`), else the first ~100 characters of its body. Never the endpoint. */
+function pushReason(body: unknown): string | null {
+  if (typeof body !== 'string' || !body.trim()) return null;
+  try {
+    const reason = (JSON.parse(body) as { reason?: unknown }).reason;
+    if (typeof reason === 'string' && reason) return reason.slice(0, 100);
+  } catch {
+    // not JSON
+  }
+  return body.trim().slice(0, 100);
 }

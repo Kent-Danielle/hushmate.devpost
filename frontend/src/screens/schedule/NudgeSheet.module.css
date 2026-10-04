@@ -1,0 +1,30 @@
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.row {
+  width: 100%; min-height: 56px; display: flex; align-items: center; gap: 12px; padding: 10px 12px; text-align: left;
+  background: var(--hm-surface-1); color: var(--hm-text); border: 1px solid var(--hm-line); border-radius: var(--hm-radius-md);
+  font: var(--hm-text-body-strong); cursor: pointer;
+  transition: transform var(--hm-dur-fast) var(--hm-ease-out), opacity var(--hm-dur-base);
+}
+.row:active { transform: scale(0.99); }
+.row[aria-disabled="true"] { opacity: 0.6; cursor: default; }
+.row[aria-disabled="true"]:active { transform: none; }
+.row[aria-busy="true"] { opacity: 1; }
+.name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.tag {
+  display: inline-flex; align-items: center; gap: 6px; font: var(--hm-text-micro); padding: 3px 8px; border-radius: var(--hm-radius-sm);
+  background: var(--hm-nudge); color: var(--hm-on-pastel); white-space: nowrap;
+}
+.spin { animation: spin 1.4s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.skeleton { height: 56px; border-radius: var(--hm-radius-md); background: var(--hm-surface-1); animation: pulse 1.6s var(--hm-ease-breathe) infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+.banner {
+  display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--hm-radius-md);
+  background: var(--hm-surface-1); border: 1.5px solid var(--hm-border-control); color: var(--hm-text);
+}
+.banner svg { flex: none; margin-top: 2px; color: var(--hm-danger); }
+.bannerTitle { font: var(--hm-text-label); margin: 0; }
+.bannerText { font: var(--hm-text-body); margin: 0; color: var(--hm-text-2); }
+.foot { display: flex; justify-content: flex-end; }
+@media (prefers-reduced-motion: reduce) { .spin, .skeleton { animation: none; } .row { transition: none; } }
+.chip { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--hm-nudge); color: var(--hm-on-pastel); }

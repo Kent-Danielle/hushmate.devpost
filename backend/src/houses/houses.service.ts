@@ -20,6 +20,11 @@ export interface HouseListItem {
   setupDone: boolean;
 }
 
+export interface BoardShape {
+  members: { id: string; name: string; colorIndex: number; isAway: boolean; isYou: boolean }[];
+  quietTimes: { id: string; userId: string; setId: string; dayOfWeek: number; startMinute: number; endMinute: number }[];
+}
+
 const MAX_CODE_ATTEMPTS = 8;
 
 @Injectable()
@@ -135,6 +140,33 @@ export class HousesService {
       select: { id: true, createdAt: true, user: { select: { name: true } } },
     });
     return rows.map((r) => ({ membershipId: r.id, name: r.user.name, createdAt: r.createdAt }));
+  }
+
+  /** Approved members (no emails, no bot flags) and all their quiet times in this house. Approved members only. */
+  async board(userId: string, houseId: string): Promise<BoardShape> {
+    await this.requireApprovedMember(userId, houseId);
+    const [memberships, quietTimes] = await Promise.all([
+      this.prisma.membership.findMany({
+        where: { houseId, status: 'approved' },
+        orderBy: { createdAt: 'asc' },
+        select: { colorIndex: true, user: { select: { id: true, name: true, activeHouseId: true } } },
+      }),
+      this.prisma.quietTime.findMany({
+        where: { houseId },
+        orderBy: [{ dayOfWeek: 'asc' }, { startMinute: 'asc' }],
+        select: { id: true, userId: true, setId: true, dayOfWeek: true, startMinute: true, endMinute: true },
+      }),
+    ]);
+    return {
+      members: memberships.map((m) => ({
+        id: m.user.id,
+        name: m.user.name,
+        colorIndex: m.colorIndex ?? 0,
+        isAway: m.user.activeHouseId !== houseId,
+        isYou: m.user.id === userId,
+      })),
+      quietTimes,
+    };
   }
 
   /** 403 unless the user has an approved membership in the house (also covers unknown houses). */

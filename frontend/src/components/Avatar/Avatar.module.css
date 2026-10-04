@@ -1,0 +1,19 @@
+.avatar {
+  width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; flex: none; position: relative;
+  font: 600 15px/1 var(--hm-font-display); color: var(--hm-on-pastel);
+}
+.sm { width: 28px; height: 28px; font-size: 13px; }
+.md { width: 36px; height: 36px; font-size: 15px; }
+.lg { width: 48px; height: 48px; font-size: 20px; }
+.you { background: var(--hm-mate-you); }
+.m0 { background: var(--hm-mate-1); }
+.m1 { background: var(--hm-mate-2); }
+.m2 { background: var(--hm-mate-3); }
+.m3 { background: var(--hm-mate-4); }
+.m4 { background: var(--hm-mate-5); }
+.resting::after {
+  content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid var(--hm-brand);
+  animation: breathe var(--hm-dur-breathe) var(--hm-ease-breathe) infinite;
+}
+@keyframes breathe { 0%, 100% { opacity: 0.35; transform: scale(0.96); } 50% { opacity: 1; transform: scale(1.04); } }
+@media (prefers-reduced-motion: reduce) { .resting::after { animation: none; opacity: 1; } }

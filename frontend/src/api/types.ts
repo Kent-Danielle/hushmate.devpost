@@ -90,3 +90,65 @@ export interface PushSubscriptionBody {
   endpoint: string;
   keys: { p256dh: string; auth: string };
 }
+
+/** GET /houses/:id/board. Quiet times are used from slice 5; the nudge sheet needs only members. */
+export interface BoardMember {
+  id: string;
+  name: string;
+  colorIndex: number | null;
+  isAway: boolean;
+  isYou: boolean;
+}
+
+export interface BoardQuietTime {
+  id: string;
+  userId: string;
+  setId: string;
+  dayOfWeek: number;
+  startMinute: number;
+  endMinute: number;
+}
+
+export interface Board {
+  members: BoardMember[];
+  quietTimes: BoardQuietTime[];
+}
+
+/** POST /nudges {recipientId} -> 201, and the body of a 429. */
+export interface NudgeSent {
+  cooldownUntil: string;
+}
+
+/** GET /nudges/pending. The sender is never included. */
+export interface PendingNudge {
+  id: string;
+  message: string;
+  subtitle: string | null;
+  isDemo: boolean;
+  createdAt: string;
+}
+
+export interface AcknowledgeResponse {
+  acknowledged: number;
+}
+
+export interface SummaryHeadsUp {
+  id: string;
+  text: string;
+  at: string;
+  authorName: string;
+}
+
+export interface SummaryAck {
+  nudgeId: string;
+  recipientName: string;
+  acknowledgedAt: string;
+}
+
+/** GET /houses/:id/summary. */
+export interface Summary {
+  streakDays: number;
+  isDemo: boolean;
+  headsUps: SummaryHeadsUp[];
+  myAcks: SummaryAck[];
+}

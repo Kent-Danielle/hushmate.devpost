@@ -41,7 +41,7 @@ Each `Build:` names the owning agent for each group of files (`database`, `backe
   Learner check: With two accounts (two phones, or a phone and a laptop), create a house on one and copy the invite link. Open the link on the other, sign up from it, and send the request. Approve it on the first. The second should get "You're in! {House} approved your request." and see the house as Active in Houses.
   Commit: `feat(houses): add houses, join requests and approvals`
 
-- [ ] **4. You can nudge a housemate anonymously, and they tap Got it**
+- [x] **4. You can nudge a housemate anonymously, and they tap Got it**
   Becomes usable: On Schedule, the floating Nudge button opens "Who's being loud?". Picking a housemate sends one of the five app-voice messages as a real notification, never with your name. They open Hushmate to the overlay and tap Got it. You see "{Name} tapped Got it" on Summary, plus a quiet toast if it was within the hour. A second nudge within 5 minutes shows the "Nudge again in 4:32" countdown. Nobody else in the house sees anything.
   Why now: This is the unique kernel, and it lands the moment two people can share a house, not last. Resting confirmation and away states need quiet times, so they come in slice 5; the nudge itself doesn't depend on them.
   PRD ref: `prd.md > Nudging (the kernel)`, `prd.md > Acknowledging a Nudge`, `prd.md > The Core Journey` (A.10–A.11), `prd.md > States and Boundaries` (nudge cooldown, a house with only you)
@@ -84,7 +84,7 @@ Each `Build:` names the owning agent for each group of files (`database`, `backe
 ## Hands-on Checkpoints
 
 - [x] Phone push confirmed on the learner's own devices — after slice 2: iPhone from the Home Screen and Android in Chrome (the spec's verify-early risk)
-- [ ] Early usable behavior explored — after slice 4: the nudge round trip on two phones, while feedback can still shape slices 5–7
+- [x] Early usable behavior explored — after slice 4: the nudge round trip on two phones, while feedback can still shape slices 5–7
 - [ ] Final kick-the-tires exploration and feedback completed
 
 ## Final Review
@@ -120,3 +120,8 @@ Activity mode: not started
 - 2026-10-04 (slice 3): Setup is slice 5, so `/onboarding/setup/:houseId` is a temporary `SetupPlaceholder` that calls `POST /memberships/:id/setup-done` and goes to Schedule. Slice 5 replaces it. Approve and decline return 200, and activate returns 201 (the contract leaves these open). `GET /houses` already returns `setupDone`.
 - 2026-10-04 (slice 3): Verification found the empty Houses page offered only Create while its copy (and `prd.md > Houses`) promised joining. The fix keeps the Create / Join header buttons in every state. The agent also added small confirmation toasts ("Request sent to {House}", "{name} is in", "Declined {name}'s request"), which are raised with the learner at the slice 4 checkpoint.
 - 2026-10-04 (slice 3): A new frontend dependency needs `docker compose up -d --build frontend` after the volume removal.
+- 2026-10-04 (slice 4 checkpoint): On iPhone, a desktop browser and Android-style FCM (desktop Chrome/Brave), the learner ran the round trip: nudge, overlay, Got it, Summary card, cooldown. Feedback: keep the confirmation toasts; the nudge-sheet caption goes under the title (done).
+- 2026-10-04 (slice 4): Apple rejects the Web Push `Topic` header (`400 BadWebPushTopic`), so every iPhone push was failing. Fixed by dropping `topic` from both send options (the notification `tag` still collapses on display). PushService now logs the push service's reason. After the fix, live nudges logged no rejections from web.push.apple.com or fcm.googleapis.com (successes aren't logged). spec.md updated.
+- 2026-10-04 (slice 4): Desktop Safari shows declarative pushes (`mutable: true`) without firing the service worker `push` event, so open tabs got no message (the open question in `docs/forge/research/web-push.md`). The learner chose light polling over SSE: pending nudges refetch every 15 s while the page is visible. A headless check showed the overlay 13.4 s after a nudge with no reload. spec.md updated.
+- 2026-10-04 (slice 4): Brave needs "Use Google services for push messaging" enabled (`brave://settings/privacy`) for web push. Chrome needed its macOS notification permission. Both go in the README's notes for testers (slice 7).
+- 2026-10-04 (slice 4): Android was covered through the FCM push service (desktop Chrome/Brave), not on an Android phone.

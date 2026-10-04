@@ -17,12 +17,13 @@ describe('push payload', () => {
   });
 
   it('uses exact option keys per kind', () => {
-    expect(buildSendOptions('nudge')).toEqual({ TTL: 1800, urgency: 'high', topic: 'nudge', timeout: 10000 });
+    expect(buildSendOptions('nudge')).toEqual({ TTL: 1800, urgency: 'high', timeout: 10000 });
     expect(buildSendOptions('join-approved')).toEqual({
       TTL: 86400,
       urgency: 'normal',
-      topic: 'join-approved',
       timeout: 10000,
     });
+    expect(buildSendOptions('nudge')).not.toHaveProperty('topic');
+    expect(buildSendOptions('join-approved')).not.toHaveProperty('topic');
   });
 });

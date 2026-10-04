@@ -1,0 +1,5 @@
+.pill {
+  display: inline-flex; align-items: center; gap: 8px; min-height: var(--hm-touch); padding: 0 24px;
+  border-radius: var(--hm-radius-pill); background: var(--hm-surface-2); color: var(--hm-text-2); font: var(--hm-text-body-strong);
+  white-space: nowrap; font-variant-numeric: tabular-nums;
+}

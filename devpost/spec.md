@@ -48,7 +48,7 @@ Hushmate is three pieces plus a database.
 **Why this shape:**
 - One backend owns all the rules, which is what keeps nudges anonymous and demo accounts locked.
 - One database holds everything.
-- There's no live-sync machinery. The web app re-checks when you open or refocus it, and a push brings the urgent thing, the nudge, instantly.
+- There's no live-sync machinery. The web app re-checks when you open or refocus it, and a push brings the urgent thing, the nudge, instantly. While the app is on screen it also polls pending nudges every 15 s (Safari shows declarative pushes without waking the service worker, found in slice 4).
 
 ## The Core Journey Through the System
 PRD ref: `prd.md > The Core Journey`.
@@ -235,7 +235,7 @@ Lives in `app/frontend/src/`. Every screen is mobile-first (a 360–430px wide t
   - otherwise, an approved membership with `setupDone: false` → `/onboarding/setup/:houseId`
   - otherwise → `/schedule`
 - `GET /me` is fetched on **every app load** (and on refocus). It supplies `isDemo`, `demo.botNames`, `activeHouseId` and `nudgeCooldownUntil`.
-- On every load and refocus it checks `GET /nudges/pending`. If anything is waiting, it shows `NudgeOverlay` above everything. After that, an approved membership with `setupDone: false` (from `GET /houses`) routes to its setup.
+- On every load and refocus, on a service-worker message, and every 15 s while the page is visible (`refetchIntervalInBackground: false`), it checks `GET /nudges/pending`. If anything is waiting, it shows `NudgeOverlay` above everything. After that, an approved membership with `setupDone: false` (from `GET /houses`) routes to its setup.
 - A `message` listener on `navigator.serviceWorker` invalidates the pending-nudges query when a push arrives.
 - **On every load with notification permission granted,** it re-sends the current push subscription (`POST /push/subscriptions`). That moves the device to the signed-in account and repairs rotated subscriptions.
 - `TabBar`: Schedule · Summary · Houses · Profile.
@@ -529,8 +529,8 @@ PRD ref: `prd.md > Houses and the Active House`.
     - nudge: `body` = the message, plus `"\n"` + the subtitle for demo; `navigate` = `APP_URL + "/schedule"`; `tag` `"nudge"`
     - join-approved: `body` = "You're in! {House} approved your request."; `navigate` = `APP_URL + "/onboarding/setup/" + houseId`; `tag` `"join-approved"`
   - **Send options:**
-    - nudge: `{TTL: 1800, urgency: 'high', topic: 'nudge', timeout: 10000}`
-    - join-approved: `{TTL: 86400, urgency: 'normal', topic: 'join-approved', timeout: 10000}`
+    - nudge: `{TTL: 1800, urgency: 'high', timeout: 10000}` (no `topic`: Apple rejects it with 400 `BadWebPushTopic`; found live in slice 4)
+    - join-approved: `{TTL: 86400, urgency: 'normal', timeout: 10000}`
     - option keys are exact (`TTL`, not `ttl`; unknown keys throw)
   - **Results:**
     - 201 → done

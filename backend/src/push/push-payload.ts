@@ -39,13 +39,13 @@ export function buildEnvelope(message: PushMessage): DeclarativeEnvelope {
 export interface SendOptions {
   TTL: number;
   urgency: 'high' | 'normal';
-  topic: string;
   timeout: number;
 }
 
-/** Option keys are exact: web-push throws on unknown ones (`TTL`, not `ttl`). */
+/** No `topic`: Apple rejects ours with 400 BadWebPushTopic; the notification `tag` collapses on display.
+ * Option keys are exact: web-push throws on unknown ones (`TTL`, not `ttl`). */
 export function buildSendOptions(kind: PushKind): SendOptions {
   return kind === 'nudge'
-    ? { TTL: 1800, urgency: 'high', topic: 'nudge', timeout: 10000 }
-    : { TTL: 86400, urgency: 'normal', topic: 'join-approved', timeout: 10000 };
+    ? { TTL: 1800, urgency: 'high', timeout: 10000 }
+    : { TTL: 86400, urgency: 'normal', timeout: 10000 };
 }

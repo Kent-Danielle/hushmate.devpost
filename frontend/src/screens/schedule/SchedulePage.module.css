@@ -1,1 +1,9 @@
 .center { min-height: calc(100dvh - 220px); display: flex; flex-direction: column; justify-content: center; }
+.empty { text-align: center; display: grid; justify-items: center; gap: 8px; padding: 28px 16px; }
+.voice { font: var(--hm-text-voice); }
+.caption { font: var(--hm-text-caption); color: var(--hm-text-3); }
+/* The floating Nudge button sits above the tab bar, inside the 480px app column. */
+.fab {
+  position: fixed; z-index: 6; bottom: calc(96px + env(safe-area-inset-bottom));
+  right: max(var(--hm-gutter), calc((100vw - 480px) / 2 + var(--hm-gutter)));
+}

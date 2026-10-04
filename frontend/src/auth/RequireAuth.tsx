@@ -1,8 +1,24 @@
 import { useCallback, useEffect } from 'react';
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router';
+import { useAcknowledge, usePendingNudges } from '../api/hooks/nudges';
 import { usePushSync, useServiceWorkerMessages } from '../api/hooks/push';
 import { setReturnTo } from '../api/session';
+import { NudgeOverlay } from '../components/NudgeOverlay';
 import { useAuth } from './AuthContext';
+
+/** Checks GET /nudges/pending on load and every refocus (and when the service worker reports a push); shows the overlay above everything. */
+function NudgeOverlayHost() {
+  const pending = usePendingNudges();
+  const acknowledge = useAcknowledge();
+  return (
+    <NudgeOverlay
+      nudges={pending.data ?? []}
+      onGotIt={() => acknowledge.mutate()}
+      busy={acknowledge.isPending}
+      failed={acknowledge.isError}
+    />
+  );
+}
 
 /** Signed-in app-wide work: re-send the push subscription on load, and react to service worker messages. */
 function SignedIn() {
@@ -10,7 +26,12 @@ function SignedIn() {
   const go = useCallback((path: string) => navigate(path), [navigate]);
   usePushSync();
   useServiceWorkerMessages(go);
-  return <Outlet />;
+  return (
+    <>
+      <Outlet />
+      <NudgeOverlayHost />
+    </>
+  );
 }
 
 /** No token: go to /signin and remember the requested path (unless the person just signed out on purpose). */

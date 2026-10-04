@@ -1,6 +1,6 @@
 .viewport {
   position: fixed; left: 50%; transform: translateX(-50%); z-index: 30;
-  bottom: calc(96px + env(safe-area-inset-bottom)); width: max-content; max-width: calc(100vw - 32px);
+  bottom: calc(160px + env(safe-area-inset-bottom)); /* above the floating Nudge button / cooldown pill (96-144px) and clear of the tab bar */ width: max-content; max-width: calc(100vw - 32px);
   margin: 0; padding: 0; list-style: none; outline: none;
 }
 .toast {

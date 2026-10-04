@@ -1,0 +1,25 @@
+.scrim { position: fixed; inset: 0; z-index: 40; background: var(--hm-scrim); animation: fade var(--hm-dur-base) var(--hm-ease-out); }
+.scrim[data-state="closed"] { animation: fade-out var(--hm-dur-base) var(--hm-ease-in) forwards; }
+.center { position: fixed; inset: 0; z-index: 41; display: grid; place-items: center; padding: 24px; pointer-events: none; }
+.card {
+  pointer-events: auto; width: 100%; max-width: 420px; max-height: 100%; overflow-y: auto;
+  display: grid; gap: 16px; padding: 24px; border-radius: var(--hm-radius-xl);
+  background: var(--hm-surface-1); color: var(--hm-text); border: 1px solid var(--hm-line);
+  animation: rise var(--hm-dur-slow) var(--hm-ease-out);
+}
+.card:focus { outline: none; }
+.card[data-state="closed"] { animation: fade-out var(--hm-dur-base) var(--hm-ease-in) forwards; }
+.icon { width: 56px; height: 56px; border-radius: 22%; }
+.messages { display: grid; gap: 16px; }
+.message { display: grid; gap: 4px; }
+.voice { font: var(--hm-text-voice); margin: 0; }
+.subtitle { font: var(--hm-text-caption); color: var(--hm-text-2); margin: 0; }
+.error { display: flex; gap: 8px; align-items: flex-start; font: var(--hm-text-label); color: var(--hm-danger); margin: 0; }
+.error svg { flex: none; }
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes rise { from { opacity: 0; transform: translateY(var(--hm-rise)); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .scrim, .card, .scrim[data-state="closed"], .card[data-state="closed"] { animation-duration: 0.01ms; }
+}

@@ -49,4 +49,9 @@ export class HousesController {
   inviteLink(@CurrentUser() user: AuthUser, @Param('id', uuid) id: string) {
     return this.houses.inviteLink(user.id, id);
   }
+
+  @Get(':id/board')
+  board(@CurrentUser() user: AuthUser, @Param('id', uuid) id: string) {
+    return this.houses.board(user.id, id);
+  }
 }

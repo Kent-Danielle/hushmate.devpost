@@ -18,3 +18,6 @@
 .body { margin-top: 8px; display: flex; flex-direction: column; gap: 16px; }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes rise { from { opacity: 0; transform: translate(-50%, 24px); } to { opacity: 1; transform: translate(-50%, 0); } }
+.titles { flex: 1; min-width: 0; }
+.titleText { font: var(--hm-text-heading); margin: 0; }
+.caption { font: var(--hm-text-caption); color: var(--hm-text-3); margin: 0; }
