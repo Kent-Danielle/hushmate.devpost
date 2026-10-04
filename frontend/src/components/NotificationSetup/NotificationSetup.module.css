@@ -1,0 +1,17 @@
+.card { background: var(--hm-surface-1); border: 1px solid var(--hm-line); border-radius: var(--hm-radius-lg); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.bare { display: flex; flex-direction: column; gap: 12px; }
+.head { display: flex; align-items: center; gap: 12px; }
+.title { flex: 1; font: var(--hm-text-body-strong); }
+.headIcon { flex: none; color: var(--hm-text); }
+.text { font: var(--hm-text-caption); color: var(--hm-text-2); }
+.error { display: flex; gap: 6px; align-items: flex-start; font: var(--hm-text-caption); color: var(--hm-danger); }
+.error svg { flex: none; margin-top: 1px; }
+.badge { font: var(--hm-text-micro); padding: 3px 10px; border-radius: var(--hm-radius-pill); display: inline-flex; gap: 4px; align-items: center; white-space: nowrap; }
+.on { background: var(--hm-surface-2); color: var(--hm-text); }
+.off { background: transparent; color: var(--hm-text-2); box-shadow: inset 0 0 0 1.5px var(--hm-border-control); }
+.steps { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; counter-reset: s; }
+.steps li { display: flex; gap: 12px; align-items: flex-start; counter-increment: s; font: var(--hm-text-body); }
+.steps li::before {
+  content: counter(s); flex: none; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--hm-surface-2); color: var(--hm-text); display: grid; place-items: center; font: var(--hm-text-label);
+}

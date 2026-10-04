@@ -9,5 +9,7 @@ export default defineConfig({
     include: ['test/**/*.e2e-spec.ts'],
     // Files share one database, so they run one at a time.
     fileParallelism: false,
+    // Resets hushmate_test to the migrations once per run (see test/setup.ts).
+    globalSetup: ['./test/setup.ts'],
   },
 });

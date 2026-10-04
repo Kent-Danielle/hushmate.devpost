@@ -1,0 +1,14 @@
+.shell { min-height: 100dvh; display: flex; flex-direction: column; max-width: 480px; margin: 0 auto; }
+.main { flex: 1; padding: max(12px, env(safe-area-inset-top)) var(--hm-gutter) 24px; }
+.bar {
+  position: sticky; bottom: 0; display: grid; grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--hm-line); background: var(--hm-surface-1);
+  padding: 8px 8px max(22px, env(safe-area-inset-bottom));
+}
+.tab {
+  display: grid; justify-items: center; gap: 4px; padding-top: 4px; min-height: var(--hm-touch);
+  font: var(--hm-text-micro); color: var(--hm-text-3); text-decoration: none;
+}
+.pill { width: 56px; height: 32px; border-radius: var(--hm-radius-pill); display: grid; place-items: center; transition: background var(--hm-dur-base) var(--hm-ease-out); }
+.tab[aria-current="page"] { color: var(--hm-text); }
+.tab[aria-current="page"] .pill { background: color-mix(in srgb, var(--hm-brand) 26%, transparent); color: var(--hm-brand-text); }

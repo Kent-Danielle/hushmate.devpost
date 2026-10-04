@@ -1,11 +1,12 @@
 import { Controller, Get, ServiceUnavailableException } from '@nestjs/common';
+import { Public } from '../auth/public.decorator.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 @Controller('health')
 export class HealthController {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Public. When AuthGuard arrives (slice 2), mark this route @Public().
+  @Public()
   @Get()
   async check(): Promise<{ ok: true; db: true }> {
     try {

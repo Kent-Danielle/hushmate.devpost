@@ -1,0 +1,43 @@
+.screen {
+  min-height: 100dvh; display: flex; flex-direction: column; max-width: 480px; margin: 0 auto;
+  padding: max(12px, env(safe-area-inset-top)) var(--hm-gutter) max(24px, env(safe-area-inset-bottom));
+}
+.form { flex: 1; display: flex; flex-direction: column; gap: 24px; }
+.head { display: flex; flex-direction: column; gap: 8px; padding-top: 8px; }
+.logo { display: block; height: auto; }
+.onLight { display: none; }
+@media (prefers-color-scheme: light) {
+  :global(:root:not([data-theme="dark"])) .onDark { display: none; }
+  :global(:root:not([data-theme="dark"])) .onLight { display: block; }
+}
+:global(:root[data-theme="light"]) .onDark { display: none; }
+:global(:root[data-theme="light"]) .onLight { display: block; }
+.title { font: var(--hm-text-title); margin-top: 20px; }
+.sub { font: var(--hm-text-body); color: var(--hm-text-2); }
+.fields { display: flex; flex-direction: column; gap: 16px; }
+.field { display: grid; gap: 6px; }
+.label { font: var(--hm-text-label); color: var(--hm-text); }
+.input {
+  font: var(--hm-text-body); color: var(--hm-text); background: var(--hm-surface-2); border: 1.5px solid var(--hm-border-control);
+  border-radius: var(--hm-radius-md); min-height: var(--hm-touch); padding: 0 14px; width: 100%;
+}
+.input::placeholder { color: var(--hm-text-3); }
+.input:focus-visible { outline: 2px solid var(--hm-focus); outline-offset: 3px; }
+.invalid .input { border-color: var(--hm-danger); }
+.msg { font: var(--hm-text-caption); color: var(--hm-text-3); display: flex; gap: 6px; align-items: flex-start; }
+.invalid .msg { color: var(--hm-danger); }
+.msg svg { flex: none; margin-top: 1px; }
+.counter { margin-left: auto; white-space: nowrap; color: var(--hm-text-3); }
+.banner {
+  display: flex; gap: 10px; align-items: flex-start; background: var(--hm-surface-1); border: 1.5px solid var(--hm-border-control);
+  border-radius: var(--hm-radius-md); padding: 12px 14px; font: var(--hm-text-body);
+}
+.banner > svg { flex: none; margin-top: 2px; }
+.banner p { margin: 0; }
+.bannerTitle { display: block; font: var(--hm-text-label); }
+.error { border-color: var(--hm-danger); }
+.error > svg { color: var(--hm-danger); }
+.net { background: var(--hm-surface-2); border-color: transparent; align-items: center; padding: 8px 8px 8px 14px; }
+.net .bannerTitle { flex: 1; }
+.actions { margin-top: auto; display: flex; flex-direction: column; gap: 12px; }
+.switch { display: flex; align-items: center; justify-content: center; gap: 4px; font: var(--hm-text-body); color: var(--hm-text-2); }

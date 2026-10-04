@@ -1,0 +1,5 @@
+.wrap { display: flex; flex-direction: column; gap: 12px; }
+.title { font: var(--hm-text-title); }
+.empty { text-align: center; display: grid; justify-items: center; gap: 8px; padding: 28px 16px; }
+.voice { font: var(--hm-text-voice); }
+.caption { font: var(--hm-text-caption); color: var(--hm-text-3); }

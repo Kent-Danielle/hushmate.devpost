@@ -21,7 +21,7 @@ Each `Build:` names the owning agent for each group of files (`database`, `backe
   Learner check: On your phone, open the Vercel link. You should see the Hushmate landing page with Sign up and Sign in in the cozy-midnight look. Switch the phone between light and dark mode and watch it follow. On iPhone, Share → Add to Home Screen, and check the Hushmate icon and name.
   Commit: `feat(app): scaffold and deploy the hushmate skeleton`
 
-- [ ] **2. You can sign up, sign in, and get a real notification on your own phone**
+- [x] **2. You can sign up, sign in, and get a real notification on your own phone**
   Becomes usable: Sign up with name, email and password, sign in, and sign out. After sign-in you land on the four-tab shell. Profile is real: name, email, theme (device, light or dark), the Notifications row and Sign out. Schedule, Summary, Houses and `/onboarding` show a temporary placeholder until their slices. Turning on notifications on a phone (iPhone from the Home Screen app) saves a subscription, and a test push sent from this Mac with the `web-push` CLI arrives as a Hushmate notification. This is a verification step, not an in-app button.
   Why now: iPhone Home Screen push is the spec's riskiest assumption (`Open issues > Verify early`), and the kernel depends on it. Proving it before houses and nudges means bad news arrives while it's cheap. Sign-in comes with it because a push subscription belongs to a user.
   PRD ref: `prd.md > Accounts and Sign-In`, `prd.md > Profile and Theme`, `prd.md > Notifications`, `prd.md > Onboarding` (iPhone Home Screen guidance)
@@ -83,7 +83,7 @@ Each `Build:` names the owning agent for each group of files (`database`, `backe
 
 ## Hands-on Checkpoints
 
-- [ ] Phone push confirmed on the learner's own devices — after slice 2: iPhone from the Home Screen and Android in Chrome (the spec's verify-early risk)
+- [x] Phone push confirmed on the learner's own devices — after slice 2: iPhone from the Home Screen and Android in Chrome (the spec's verify-early risk)
 - [ ] Early usable behavior explored — after slice 4: the nudge round trip on two phones, while feedback can still shape slices 5–7
 - [ ] Final kick-the-tires exploration and feedback completed
 
@@ -112,3 +112,7 @@ Activity mode: not started
 - 2026-10-04 (slice 1): The compiled entry is `dist/src/main.js`, not `dist/main.js`, so `prisma/seed.ts` compiles to `dist/prisma/seed.js` as `prisma.config.ts` expects. spec.md updated.
 - 2026-10-04 (slice 1): The database agent added indexes on `users.activeHouseId`, `houses.ownerId` and `quiet_times.setId`, plus `onDelete: Cascade` on child foreign keys, beyond the Data Model table. These are internal and support existing queries.
 - 2026-10-04 (slice 1): The free URLs are used for now (`https://hushmate-kappa.vercel.app`, `https://hushmate-api.fly.dev`). A custom domain comes later. `VAPID_SUBJECT` is the app's https URL rather than a personal email.
+- 2026-10-04 (slice 2 checkpoint): A declarative test push from this Mac got `201` from web.push.apple.com and arrived on the learner's iPhone Home Screen app. The theme persisted across sign-out and sign-in. Android push was not tested in this pass. Cover it at the slice 4 two-phone check.
+- 2026-10-04 (slice 2): Push setup checks "iPhone/iPad, not opened from the Home Screen" before "unsupported". A Safari tab on iPhone has no `PushManager`, so the spec's order would hide the Add to Home Screen steps that the PRD requires. The iPhone steps copy lives in `src/push/ios.ts` for now.
+- 2026-10-04 (slice 2): Small frontend additions: `PublicOnly` redirects signed-in users away from `/`, `/signup` and `/signin`. A notification tap with a window already open navigates in-app. The on-load sync re-subscribes silently when permission is granted but no subscription exists. Until slice 3 adds `GET /houses`, its 404 makes post-sign-in routing fall back to `/schedule`.
+- 2026-10-04 (slice 2): Adding dependencies needs the compose `node_modules` volume removed (`docker compose rm -sf <svc> && docker volume rm app_<svc>_node_modules`), because `up -V` doesn't refresh it. Backend adds the `@types/web-push` dev dependency.
