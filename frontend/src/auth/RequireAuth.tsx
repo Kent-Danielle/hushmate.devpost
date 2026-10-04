@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router';
+import { useHouses } from '../api/hooks/houses';
 import { useAcknowledge, usePendingNudges } from '../api/hooks/nudges';
 import { usePushSync, useServiceWorkerMessages } from '../api/hooks/push';
 import { setReturnTo } from '../api/session';
@@ -20,6 +21,19 @@ function NudgeOverlayHost() {
   );
 }
 
+/**
+ * An approved membership whose setup isn't done sends the person to its setup: right after creating a house, or on the
+ * first open after a request is approved. Not while already in onboarding. Demo accounts have nothing to set up.
+ */
+function SetupRedirect() {
+  const { user } = useAuth();
+  const houses = useHouses();
+  const { pathname } = useLocation();
+  if (!user || user.isDemo || pathname.startsWith('/onboarding')) return null;
+  const item = houses.data?.find((h) => h.status === 'approved' && !h.setupDone);
+  return item ? <Navigate to={`/onboarding/setup/${item.house.id}`} replace /> : null;
+}
+
 /** Signed-in app-wide work: re-send the push subscription on load, and react to service worker messages. */
 function SignedIn() {
   const navigate = useNavigate();
@@ -28,6 +42,7 @@ function SignedIn() {
   useServiceWorkerMessages(go);
   return (
     <>
+      <SetupRedirect />
       <Outlet />
       <NudgeOverlayHost />
     </>

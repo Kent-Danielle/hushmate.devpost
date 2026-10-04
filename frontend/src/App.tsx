@@ -7,7 +7,7 @@ import SignIn from './screens/SignIn';
 import SignUp from './screens/SignUp';
 import JoinByLink from './screens/JoinByLink';
 import HouseStep from './screens/onboarding/HouseStep';
-import SetupPlaceholder from './screens/onboarding/SetupPlaceholder';
+import SetupFlow from './screens/onboarding/SetupFlow';
 import SchedulePage from './screens/schedule/SchedulePage';
 import SummaryPage from './screens/summary/SummaryPage';
 import HousesPage from './screens/houses/HousesPage';
@@ -25,7 +25,7 @@ export default function App() {
       <Route element={<RequireAuth />}>
         {/* Onboarding and its setup steps have no tab bar. */}
         <Route path="/onboarding" element={<HouseStep />} />
-        <Route path="/onboarding/setup/:houseId" element={<SetupPlaceholder />} />
+        <Route path="/onboarding/setup/:houseId" element={<SetupFlow />} />
         <Route element={<AppShell />}>
           <Route path="/schedule" element={<SchedulePage />} />
           <Route path="/summary" element={<SummaryPage />} />

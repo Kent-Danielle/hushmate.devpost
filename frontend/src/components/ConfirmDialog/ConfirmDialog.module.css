@@ -1,0 +1,13 @@
+.scrim { position: fixed; inset: 0; background: var(--hm-scrim); z-index: 30; animation: fade var(--hm-dur-base) var(--hm-ease-out); }
+.center { position: fixed; inset: 0; z-index: 31; display: flex; align-items: center; justify-content: center; padding: 24px; pointer-events: none; }
+.dialog {
+  pointer-events: auto; width: 100%; max-width: 400px; max-height: 90dvh; overflow-y: auto; display: grid; gap: 16px;
+  background: var(--hm-surface-2); color: var(--hm-text); border-radius: var(--hm-radius-xl); padding: 24px;
+  animation: fade var(--hm-dur-base) var(--hm-ease-out);
+}
+.dialog:focus { outline: none; }
+.head { display: flex; align-items: center; gap: 12px; }
+.title { font: var(--hm-text-voice); margin: 0; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.text { font: var(--hm-text-body); color: var(--hm-text-2); margin: 0; }
+.actions { display: grid; gap: 8px; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }

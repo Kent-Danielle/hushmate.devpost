@@ -1,0 +1,32 @@
+.stack { display: grid; gap: 16px; }
+.group { background: var(--hm-surface-1); border-radius: var(--hm-radius-lg); overflow: hidden; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: var(--hm-touch); padding: 4px 16px; font: var(--hm-text-body); }
+.row + .row { border-top: 1px solid var(--hm-line); }
+.endWrap { display: inline-flex; align-items: center; gap: 8px; }
+.next { font: var(--hm-text-caption); color: var(--hm-text-3); }
+.select {
+  min-height: 40px; padding: 8px 14px; border: 0; border-radius: var(--hm-radius-md); background: var(--hm-surface-2); color: var(--hm-text);
+  font: var(--hm-text-body-strong); cursor: pointer; appearance: auto;
+}
+.field { display: grid; gap: 8px; }
+.label { font: var(--hm-text-label); }
+.days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.chip {
+  min-height: var(--hm-touch); padding: 0; border-radius: var(--hm-radius-md); display: grid; place-items: center; cursor: pointer;
+  font: var(--hm-text-micro); color: var(--hm-text); background: transparent; border: 0; box-shadow: inset 0 0 0 1.5px var(--hm-border-control);
+}
+.chip[aria-pressed="true"] { background: var(--hm-brand); color: var(--hm-on-brand); box-shadow: none; }
+.chip[aria-disabled="true"] { cursor: default; }
+.cap { font: var(--hm-text-caption); color: var(--hm-text-3); }
+.summary { font: var(--hm-text-body); color: var(--hm-text-2); }
+.summary b { font: var(--hm-text-body-strong); color: var(--hm-text); }
+.hint { display: flex; gap: 6px; align-items: center; font: var(--hm-text-caption); color: var(--hm-text-2); }
+.hint svg { flex: none; color: var(--hm-danger); }
+.banner {
+  display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--hm-radius-md);
+  background: var(--hm-surface-1); border: 1.5px solid var(--hm-danger); color: var(--hm-text);
+}
+.banner svg { flex: none; margin-top: 2px; color: var(--hm-danger); }
+.bannerTitle { font: var(--hm-text-label); margin: 0; }
+.bannerText { font: var(--hm-text-body); margin: 0; color: var(--hm-text-2); }
+.actions { display: grid; gap: 8px; }

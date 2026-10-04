@@ -114,6 +114,15 @@ export interface Board {
   quietTimes: BoardQuietTime[];
 }
 
+export type QuietTimeScope = 'day' | 'set';
+
+/** The 409 overlap body lists your own clashing rows (no ids). */
+export interface QuietTimeConflict {
+  dayOfWeek: number;
+  startMinute: number;
+  endMinute: number;
+}
+
 /** POST /nudges {recipientId} -> 201, and the body of a 429. */
 export interface NudgeSent {
   cooldownUntil: string;

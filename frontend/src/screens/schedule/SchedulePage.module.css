@@ -1,9 +1,29 @@
 .center { min-height: calc(100dvh - 220px); display: flex; flex-direction: column; justify-content: center; }
-.empty { text-align: center; display: grid; justify-items: center; gap: 8px; padding: 28px 16px; }
-.voice { font: var(--hm-text-voice); }
-.caption { font: var(--hm-text-caption); color: var(--hm-text-3); }
 /* The floating Nudge button sits above the tab bar, inside the 480px app column. */
 .fab {
   position: fixed; z-index: 6; bottom: calc(96px + env(safe-area-inset-bottom));
   right: max(var(--hm-gutter), calc((100vw - 480px) / 2 + var(--hm-gutter)));
 }
+.head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.iconBtn { width: var(--hm-touch); height: var(--hm-touch); border-radius: 50%; border: 0; background: transparent; color: var(--hm-text); display: grid; place-items: center; cursor: pointer; flex: none; }
+.filled { background: var(--hm-surface-2); }
+.dateBar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.date { display: flex; align-items: center; gap: 4px; font: var(--hm-text-body-strong); }
+.date span { min-width: 92px; text-align: center; }
+.seg { display: inline-flex; background: var(--hm-surface-2); border-radius: var(--hm-radius-pill); padding: 4px; gap: 2px; }
+.seg button { font: var(--hm-text-label); border: 0; background: transparent; color: var(--hm-text-2); min-height: 40px; padding: 0 16px; border-radius: var(--hm-radius-pill); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--hm-surface-1); color: var(--hm-text); }
+.net { display: flex; align-items: center; gap: 10px; background: var(--hm-surface-2); border-radius: var(--hm-radius-md); padding: 8px 8px 8px 14px; }
+.net svg { flex: none; color: var(--hm-danger); }
+.netText { flex: 1; font: var(--hm-text-label); }
+.strip { display: flex; align-items: center; gap: 12px; background: var(--hm-surface-1); border: 1px solid var(--hm-line); border-radius: var(--hm-radius-lg); padding: 12px 16px; }
+.stripText { flex: 1; display: grid; }
+.stripText b { font: var(--hm-text-body-strong); }
+.stripText span { font: var(--hm-text-caption); color: var(--hm-text-3); }
+.gridWrap { position: relative; padding-bottom: 72px; }
+.overlay { position: absolute; left: 40px; right: 0; top: 80px; z-index: 5; }
+.card { background: var(--hm-surface-1); border: 1px solid var(--hm-line); border-radius: var(--hm-radius-lg); padding: 4px; }
+.skeleton { display: flex; gap: 8px; }
+.skLane { flex: 1; height: 360px; border-radius: var(--hm-radius-md); background: var(--hm-surface-1); animation: pulse 1.6s var(--hm-ease-breathe) infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+@media (prefers-reduced-motion: reduce) { .skLane { animation: none; } }

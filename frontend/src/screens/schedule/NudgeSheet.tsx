@@ -8,8 +8,11 @@ import { useAuth } from '../../auth/AuthContext';
 import { Avatar } from '../../components/Avatar';
 import { Button } from '../../components/Button';
 import { EmptyState } from '../../components/EmptyState';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { Sheet } from '../../components/Sheet';
 import { useToast } from '../../components/Toast';
+import { nextStartToday, restingUntil } from '../../lib/quietTime';
+import { formatMinutes } from '../../lib/time';
 import { useCopyInvite } from '../houses/useCopyInvite';
 import styles from './NudgeSheet.module.css';
 
@@ -21,7 +24,7 @@ interface NudgeSheetProps {
 
 /**
  * "Who's being loud?": the housemates of the active house, except you. Picking one sends the nudge at once.
- * Slice 5 adds, per row, the resting status + confirm dialog, "Not resting" and "away" through `rowStatus` below.
+ * Each row says "Resting now · until …" (picking asks first), "Not resting", or "away" (can't be picked).
  */
 export function NudgeSheet({ open, onOpenChange, houseId }: NudgeSheetProps) {
   const { user } = useAuth();
@@ -30,11 +33,28 @@ export function NudgeSheet({ open, onOpenChange, houseId }: NudgeSheetProps) {
   const board = useBoard(houseId, open);
   const send = useSendNudge();
   const [sendingId, setSendingId] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState<BoardMember | null>(null);
+  const now = new Date();
   const cooldown = useCountdown(user?.nudgeCooldownUntil);
 
   const mates = (board.data?.members ?? []).filter((m) => !m.isYou);
   const limited = send.isError && cooldownFromError(send.error) !== null && cooldown > 0;
   const failed = send.isError && !limited;
+
+  function status(member: BoardMember): RowStatus {
+    if (member.isAway) return { kind: 'away' };
+    const rows = (board.data?.quietTimes ?? []).filter((q) => q.userId === member.id);
+    const until = restingUntil(rows, now);
+    if (until !== null) return { kind: 'resting', until };
+    return { kind: 'idle', next: nextStartToday(rows, now) };
+  }
+
+  /** Resting people ask first; away people can't be picked. */
+  function choose(member: BoardMember) {
+    if (send.isPending) return;
+    if (status(member).kind === 'resting') setConfirming(member);
+    else pick(member);
+  }
 
   function pick(member: BoardMember) {
     if (send.isPending) return;
@@ -51,6 +71,11 @@ export function NudgeSheet({ open, onOpenChange, houseId }: NudgeSheetProps) {
   function handleOpenChange(next: boolean) {
     if (!next) send.reset();
     onOpenChange(next);
+  }
+
+  function restingUntilFor(member: BoardMember): number {
+    const s = status(member);
+    return s.kind === 'resting' ? s.until : 0;
   }
 
   let body;
@@ -92,7 +117,7 @@ export function NudgeSheet({ open, onOpenChange, houseId }: NudgeSheetProps) {
       <ul className={styles.list}>
         {mates.map((member) => (
           <li key={member.id}>
-            <NudgeRow member={member} sending={sendingId === member.id} disabled={send.isPending || cooldown > 0} onPick={pick} />
+            <NudgeRow member={member} sending={sendingId === member.id} disabled={send.isPending || cooldown > 0} status={status(member)} onPick={choose} />
           </li>
         ))}
       </ul>
@@ -133,6 +158,29 @@ export function NudgeSheet({ open, onOpenChange, houseId }: NudgeSheetProps) {
         </div>
       )}
       {body}
+      <ConfirmDialog
+        open={confirming !== null}
+        onOpenChange={(o) => !o && setConfirming(null)}
+        title={`${confirming?.name ?? 'They'} is resting right now.`}
+        lead={confirming && <Avatar name={confirming.name} colorIndex={confirming.colorIndex} resting />}
+        description={`Their quiet time runs until ${confirming ? formatMinutes(restingUntilFor(confirming)) : ''}. They won't know it was you. Nudge anyway?`}
+      >
+        <Button
+          variant="nudge"
+          block
+          icon={<BellRing size={18} strokeWidth={2} aria-hidden="true" />}
+          onClick={() => {
+            const m = confirming;
+            setConfirming(null);
+            if (m) pick(m);
+          }}
+        >
+          Nudge anyway
+        </Button>
+        <Button variant="secondary" block onClick={() => setConfirming(null)}>
+          Cancel
+        </Button>
+      </ConfirmDialog>
       <div className={styles.foot}>
         <Button variant="ghost" onClick={() => handleOpenChange(false)}>
           Cancel
@@ -142,32 +190,53 @@ export function NudgeSheet({ open, onOpenChange, houseId }: NudgeSheetProps) {
   );
 }
 
-/** One housemate. Slice 5 slots the resting ring, the status line ("Resting now · until 4:30 AM", "Not resting") and "away" in here. */
+type RowStatus = { kind: 'away' } | { kind: 'resting'; until: number } | { kind: 'idle'; next: number | null };
+
+/** One housemate: the resting ring and status line, "Not resting", or "away" (not actionable). */
 function NudgeRow({
   member,
+  status,
   sending,
   disabled,
   onPick,
 }: {
   member: BoardMember;
+  status: RowStatus;
   sending: boolean;
   disabled: boolean;
   onPick: (member: BoardMember) => void;
 }) {
+  const away = status.kind === 'away';
+  const inactive = away || disabled;
+  const caption =
+    status.kind === 'away'
+      ? 'Another house is active'
+      : status.kind === 'resting'
+        ? `Resting now · until ${formatMinutes(status.until)}`
+        : status.next !== null
+          ? `Not resting · quiet time at ${formatMinutes(status.next)}`
+          : 'Not resting';
   return (
-    <button type="button" className={styles.row} aria-disabled={disabled || undefined} aria-busy={sending || undefined} onClick={() => !disabled && onPick(member)}>
-      <Avatar name={member.name} colorIndex={member.colorIndex} />
-      <span className={styles.name}>{member.name}</span>
-      <span className={styles.tag}>
-        {sending ? (
-          <>
-            <LoaderCircle className={styles.spin} size={14} strokeWidth={2} aria-hidden="true" />
-            Sending
-          </>
-        ) : (
-          'Nudge'
-        )}
+    <button type="button" className={styles.row} aria-disabled={inactive || undefined} aria-busy={sending || undefined} onClick={() => !inactive && onPick(member)}>
+      <Avatar name={member.name} colorIndex={member.colorIndex} resting={status.kind === 'resting'} />
+      <span className={styles.nameBlock}>
+        <span className={styles.name}>{member.name}</span>
+        <span className={styles.cap}>{caption}</span>
       </span>
+      {away ? (
+        <span className={styles.tagAway}>away</span>
+      ) : (
+        <span className={styles.tag}>
+          {sending ? (
+            <>
+              <LoaderCircle className={styles.spin} size={14} strokeWidth={2} aria-hidden="true" />
+              Sending
+            </>
+          ) : (
+            'Nudge'
+          )}
+        </span>
+      )}
     </button>
   );
 }

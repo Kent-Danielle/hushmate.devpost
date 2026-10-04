@@ -1,0 +1,22 @@
+.weekDays { display: flex; margin-left: 32px; }
+.wd {
+  flex: 1; min-height: var(--hm-touch); display: grid; justify-items: center; align-content: center; gap: 2px; padding: 4px 0; border: 0; background: transparent;
+  font: var(--hm-text-micro); color: var(--hm-text-2); cursor: pointer;
+}
+.wd b { font: var(--hm-text-body-strong); color: var(--hm-text); width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; }
+.today b { background: var(--hm-brand); color: var(--hm-on-brand); }
+.week { display: flex; }
+.gutter { width: 32px; flex: none; position: relative; }
+.gutter span { position: absolute; right: 4px; font: var(--hm-text-micro); color: var(--hm-text-3); white-space: nowrap; }
+.gutter span:first-child { transform: none; }
+.day { flex: 1; position: relative; border-left: 1px solid var(--hm-line); display: flex; padding: 0 1px; gap: 1px; min-width: 0; }
+.sub { flex: 1; position: relative; min-width: 0; }
+.stripe { position: absolute; left: 0; right: 0; border-radius: 4px; }
+.out { background: transparent; border: 1.5px solid currentColor; }
+.hit { position: absolute; inset: 0; border: 0; background: transparent; cursor: pointer; padding: 0; }
+.legend { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 14px; }
+.legend li { display: inline-flex; align-items: center; gap: 6px; font: var(--hm-text-micro); }
+.legendText { color: var(--hm-text-2); }
+.sw { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+.swOut { background: transparent; border: 2px solid currentColor; }
+.note { font: var(--hm-text-caption); color: var(--hm-text-3); margin-top: 8px; }

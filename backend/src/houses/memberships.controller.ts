@@ -22,6 +22,12 @@ export class MembershipsController {
     return this.memberships.decline(user.id, id);
   }
 
+  @Post(':id/setup-done')
+  @HttpCode(204)
+  async setupDone(@CurrentUser() user: AuthUser, @Param('id', uuid) id: string): Promise<void> {
+    await this.memberships.setupDone(user.id, id);
+  }
+
   @Delete(':id')
   @HttpCode(204)
   @UseGuards(DemoGuard)

@@ -41,6 +41,14 @@ test('the nudge round trip: A nudges B, B sees the overlay and taps Got it, A se
   expect((await request.post(`${API}/memberships/${membershipId}/approve`, { headers: auth(a) })).status()).toBe(200);
   expect((await request.post(`${API}/houses/${houseId}/activate`, { headers: auth(b) })).status()).toBe(201);
 
+  // Both finish setup, so neither is redirected into the setup flow (an approved membership with setupDone false is).
+  for (const p of [a, b]) {
+    const list = (await (await request.get(`${API}/houses`, { headers: auth(p) })).json()) as Array<{ membershipId: string; house: { id: string } }>;
+    const mine = list.find((h) => h.house.id === houseId);
+    expect(mine).toBeTruthy();
+    expect((await request.post(`${API}/memberships/${mine!.membershipId}/setup-done`, { headers: auth(p) })).status()).toBe(204);
+  }
+
   // Two independent browser contexts, each signed in by seeding the session token. Push is stubbed: nobody subscribes.
   const open = async (p: Person) => {
     const context = await browser.newContext();

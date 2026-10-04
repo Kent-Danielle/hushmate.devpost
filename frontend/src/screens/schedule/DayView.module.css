@@ -1,0 +1,26 @@
+.cal { display: flex; margin-top: 8px; position: relative; }
+.gutter { width: 40px; flex: none; }
+.spacer { height: 60px; }
+.hours { position: relative; }
+.hours span { position: absolute; right: 6px; font: var(--hm-text-micro); color: var(--hm-text-3); transform: translateY(-50%); white-space: nowrap; }
+.hours span:first-child { transform: translateY(0); }
+.hours .nowLabel { right: 4px; transform: translateY(-50%); background: var(--hm-brand); color: var(--hm-on-brand); border-radius: var(--hm-radius-sm); padding: 0 4px; z-index: 4; }
+.lanesWrap { flex: 1; min-width: 0; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+.lanesWrap::-webkit-scrollbar { display: none; }
+.lanesScroll { display: flex; min-width: 100%; position: relative; }
+.lane { flex: 1 0 76px; min-width: 76px; }
+.laneHead { height: 60px; display: grid; justify-items: center; align-content: center; gap: 6px; font: var(--hm-text-micro); }
+.name { max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.laneBody { position: relative; border-left: 1px solid var(--hm-line); }
+.hl { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--hm-line); }
+.blk { position: absolute; left: 3px; right: 3px; border-radius: var(--hm-radius-md); padding: 4px 6px; font: var(--hm-text-micro); color: var(--hm-on-pastel); overflow: hidden; text-align: left; }
+.blk span { display: block; font-size: 12px; line-height: 15px; font-weight: 400; }
+.nowrap { white-space: nowrap; }
+.btn { border: 0; cursor: pointer; width: auto; font-family: inherit; }
+.btn:focus-visible { outline: 2px solid var(--hm-focus); outline-offset: 2px; }
+.out { background: transparent; border: 2px solid currentColor; padding: 2px 4px; }
+.contTop { border-top-left-radius: 0; border-top-right-radius: 0; }
+.contBot { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.tiny { padding-top: 2px; padding-bottom: 2px; line-height: 14px; }
+.now { position: absolute; left: 0; right: 0; height: 0; border-top: 2px solid var(--hm-brand); z-index: 3; pointer-events: none; }
+.now::before { content: ""; position: absolute; left: -6px; top: -6px; width: 10px; height: 10px; border-radius: 50%; background: var(--hm-brand); }

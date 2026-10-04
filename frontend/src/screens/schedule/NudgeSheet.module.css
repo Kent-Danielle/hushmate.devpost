@@ -9,7 +9,10 @@
 .row[aria-disabled="true"] { opacity: 0.6; cursor: default; }
 .row[aria-disabled="true"]:active { transform: none; }
 .row[aria-busy="true"] { opacity: 1; }
-.name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.nameBlock { flex: 1; min-width: 0; display: grid; }
+.name { overflow-wrap: anywhere; }
+.cap { font: var(--hm-text-caption); color: var(--hm-text-3); font-weight: 400; }
+.tagAway { font: var(--hm-text-micro); padding: 3px 8px; border-radius: var(--hm-radius-sm); background: var(--hm-surface-2); color: var(--hm-text-2); white-space: nowrap; }
 .tag {
   display: inline-flex; align-items: center; gap: 6px; font: var(--hm-text-micro); padding: 3px 8px; border-radius: var(--hm-radius-sm);
   background: var(--hm-nudge); color: var(--hm-on-pastel); white-space: nowrap;

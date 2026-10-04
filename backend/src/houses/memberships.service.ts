@@ -72,6 +72,21 @@ export class MembershipsService {
     await this.prisma.membership.deleteMany({ where: { id: membershipId, status: 'declined' } });
   }
 
+  /** Your own approved membership: marks setup finished (or skipped). Idempotent. */
+  async setupDone(userId: string, membershipId: string): Promise<void> {
+    const membership = await this.prisma.membership.findUnique({
+      where: { id: membershipId },
+      select: { userId: true, status: true },
+    });
+    if (!membership) throw new NotFoundException('Membership not found');
+    if (membership.userId !== userId) throw new ForbiddenException('This is not your membership');
+    if (membership.status !== 'approved') throw new ForbiddenException('Setup is for approved memberships');
+    await this.prisma.membership.updateMany({
+      where: { id: membershipId, setupDoneAt: null },
+      data: { setupDoneAt: new Date() },
+    });
+  }
+
   private async loadForOwner(ownerId: string, membershipId: string) {
     const membership = await this.prisma.membership.findUnique({
       where: { id: membershipId },

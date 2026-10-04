@@ -12,6 +12,7 @@ import { NudgesModule } from './nudges/nudges.module.js';
 import { PrismaExceptionFilter } from './prisma-exception.filter.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { PushModule } from './push/push.module.js';
+import { QuietTimesModule } from './quiet-times/quiet-times.module.js';
 import { SummaryModule } from './summary/summary.module.js';
 
 // Later slices add here: ScheduleModule.forRoot (once, here only) and the feature modules.
@@ -41,6 +42,7 @@ import { SummaryModule } from './summary/summary.module.js';
     MeModule,
     PushModule,
     HousesModule,
+    QuietTimesModule,
     NudgesModule,
     SummaryModule,
   ],

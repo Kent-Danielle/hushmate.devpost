@@ -116,7 +116,11 @@ export function useSetupDone() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (membershipId: string) => api(`/memberships/${membershipId}/setup-done`, { method: 'POST' }),
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: HOUSES_KEY }),
+    onSuccess: (_data, membershipId) => {
+      // Mark it done in the cache at once, so the setup redirect in RequireAuth doesn't bounce the person back.
+      queryClient.setQueryData<HouseListItem[]>(HOUSES_KEY, (list) => list?.map((h) => (h.membershipId === membershipId ? { ...h, setupDone: true } : h)));
+      void queryClient.invalidateQueries({ queryKey: HOUSES_KEY });
+    },
   });
 }
 
