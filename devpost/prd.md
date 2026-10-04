@@ -33,10 +33,10 @@ Everything else is the learner's decision.
 1. Open the link. The landing page offers **Sign up** or **Sign in**. There's nothing to install.
 2. Sign up with **name, email and password**.
 3. Onboarding asks you to **create a house** or **join one**, by invite link or by searching a house ID like `MapleHouse#482913`.
-4. A join request waits for the house owner to accept it. Creating a house needs no approval.
-5. Once you're in a house, onboarding offers to **set your first quiet times**. This is optional and can be skipped.
+4. A join request waits for the house owner to accept it, and onboarding stops at **Request sent**. Creating a house needs no approval.
+5. Once you're in a house (right after creating it, or the first time you open the app after your request is accepted), a short **setup** offers to **set your first quiet times**. This is optional and can be skipped.
 6. If this is your first house, it becomes your **active house**.
-7. Onboarding guides you to **turn on notifications**. On iPhone that means adding Hushmate to the Home Screen first.
+7. Setup then guides you to **turn on notifications**. On iPhone that means adding Hushmate to the Home Screen first.
 8. You land on **Schedule**: today's calendar, with each housemate's quiet times side by side and a **Nudge** button.
 9. Day to day, you check **who's resting now** and post **heads-ups** ("coming home late, might make late dinner") on the **Summary** board.
 10. When someone is being loud, you tap **Nudge**, pick who it is, and the app sends them a gentle reminder **in its own voice**. They never learn it was you.
@@ -59,7 +59,8 @@ Everything else is the learner's decision.
 
 **Before sign-in:**
 - **Landing:** Sign up / Sign in.
-- **Onboarding** (first run): create or join a house → optional first quiet times → notification setup.
+- **Onboarding** (first run): create a house, or request to join one (which ends at "Request sent").
+- **Setup** (right after creating a house, or on the first open after a join request is accepted): optional first quiet times → notification setup.
 
 **After sign-in**, a bottom tab bar: **Schedule · Summary · Houses · Profile** *(tab labels: Design spec: confirm)*.
 
@@ -96,21 +97,25 @@ Decided by the learner in the branding session (2026-10-03). Sources: `../planni
 ### Accounts and Sign-In
 Develops `scope.md > The POC Boundary` ("signing up as a house").
 - Sign up with name, email and password, and sign in with email and password.
-- **Name rules** (learner, 4-spec): display names 1–30 characters; house names 2–30 characters with no `#` (it separates the name from the number in `Name#123456`).
+- **Name rules** (learner, 4-spec): display names 1–30 characters; house names 2–30 characters with **no spaces** and no `#` (`#` separates the name from the number in `Name#123456`; no spaces keeps the ID typed exactly as shown, learner, design review 2026-10-04). The seeded DevPost Demo House keeps its spaces.
 - **Housemates only ever see each other's names.** Avatars are the initial on the person's pastel; there are no photos.
 - [ ] A new account can sign up, sign out and sign back in, and lands where it left off.
 - [ ] No screen shows a housemate's email.
 
 ### Onboarding
 Develops `scope.md > What "Working" Looks Like` ("onboarding shows how to turn on browser notifications").
-- First run: create a house or join one → optional first quiet times (skippable) → notification setup.
-- Joining your **first** house makes it active automatically at the end of onboarding. A house joined later starts **inactive** *(Assumption: confirm)*.
+- First run has two parts (learner, design review 2026-10-04):
+  - **Onboarding:** create a house, or request to join one. A join request only goes to **Pending**: onboarding ends at a **Request sent** screen, with no quiet-time or notification step yet.
+  - **Setup:** optional first quiet times (skippable) → notification setup (skipped if notifications are already on). It runs right after you create a house, or the first time you open the app after a join request is accepted, for any house, not only the first.
+- Joining your **first** house makes it active automatically when you're accepted. A house joined later starts **inactive** *(Assumption: confirm)*.
 - Notification setup explains the iPhone step: notifications need Hushmate added to the Home Screen. On iPhone the Home Screen app keeps its own storage, so after adding it you **open Hushmate from the Home Screen and sign in again** (4-spec).
 - **An invite link opened while signed out is remembered** through sign-up or sign-in, then the join continues (learner, 4-spec).
-- **While a join request is pending,** onboarding offers notification setup right after you send the request, so you can hear when you're approved *(Assumption: confirm)*.
+- ~~While a join request is pending, onboarding offers notification setup right after you send the request.~~ *Replaced at the design review 2026-10-04: notification setup waits for setup after approval. Someone waiting can still turn notifications on from Profile to hear the approval.*
 - [ ] A first-time user can go from sign-up to the Schedule screen of a house they created, without leaving the flow.
 - [ ] Skipping quiet-time setup still completes onboarding.
 - [ ] The notification step shows iPhone-specific Home Screen guidance.
+- [ ] Sending a join request ends onboarding at "Request sent", with no quiet-time or notification step.
+- [ ] The first open after a join request is accepted shows setup for that house (optional quiet times, then notifications).
 
 ### Houses and the Active House
 Develops `scope.md > The POC Boundary` ("multiple groups per person, with one active at a time").
@@ -140,18 +145,18 @@ Develops `scope.md > The Core Loop` ("set your weekly quiet times… they can di
   - Saving creates one **quiet-time set**.
 - **Crossing midnight:** if the end time is earlier than the start time, the quiet time **ends the next morning**, shown as "11:00 PM → 7:00 AM (next day)". The days you pick are the nights it **starts** on, and the day view draws both parts as one quiet time *(agent suggestion: confirm)*.
 - **Editing** a quiet time that's part of a set asks: **just this day, or all days in this set?** "Just this day" splits that day off into its own quiet time *(split behaviour: Assumption: confirm)*.
-- You can add, edit and delete quiet times **only in your active house**, with one exception: the optional setup step when you join a house.
+- You can add, edit and delete quiet times **only in your active house**, with one exception: the optional setup step after you create a house or are accepted into one.
 - [ ] Creating "11:00 PM → 7:00 AM, Mon/Wed/Fri" shows a block on those nights that continues into the next morning in the day view.
 - [ ] Editing one day of a set and choosing "just this day" changes only that day; "all days" changes every day in the set.
 - [ ] Times can only be picked in 15-minute steps.
-- [ ] Quiet times in an inactive house can be viewed but not edited.
+- ~~Quiet times in an inactive house can be viewed but not edited.~~ *Dropped at the design review 2026-10-04: the app doesn't show an inactive house's schedule.*
 - **Overlaps are blocked** (learner, 4-spec). Saving a quiet time that overlaps another of your own quiet times in the same house is refused, with a warning that names the overlapping day and time, e.g. "This overlaps your quiet time on Mon 11:00 PM → 7:00 AM (next day)."
 - [ ] Saving an overlapping quiet time is blocked, and the warning names the day and time it overlaps.
 
 ### Schedule (Calendar)
 Develops `scope.md > The Core Loop` ("open the app to see who's resting now").
 - The **day view** is the home screen, with a **week view** toggle. There's **no month view**.
-- One lane per person, so overlapping quiet times sit side by side. Each block shows the name and time range in that person's pastel. "You" are always lavender.
+- One lane per person, so overlapping quiet times sit side by side. In the day view, each block shows the name and time range in that person's pastel. "You" are always lavender. The week view is too narrow for text, so each person is a thin stripe in their pastel with a name legend under the grid, and tapping a day opens it in the day view (learner, design review 2026-10-04).
 - A "now" line marks the current time.
 - [ ] With three housemates whose quiet times overlap, the day view shows all three side by side without hiding any.
 - [ ] Switching between day and week keeps the same house and date.
@@ -183,7 +188,7 @@ Develops `scope.md > The Core Loop` ("they can reply 'got it', also anonymously"
 - **Recipient:** if notifications are on, a notification arrives. Tapping it, or simply opening the app, shows an **overlay** with the app icon, the message (in the app's Voice type) and a full-width mint **Got it** button. The overlay must be acknowledged to dismiss it. **Without notifications, the overlay still appears on the next open.**
 - If several nudges are waiting, one overlay is shown, and **Got it** acknowledges them all *(Assumption: confirm)*.
 - **Sender:** finds out quietly. **There's no notification.**
-  - A card on their **Summary** says the nudge was acknowledged. Only the sender sees it, and it stays for **24 hours** *(duration: Assumption: confirm)*.
+  - A card on their **Summary** says the nudge was acknowledged and **names who tapped Got it**, e.g. "Jordan tapped Got it" (learner, design review 2026-10-04). Only the sender sees it, and it stays for **24 hours** *(duration: Assumption: confirm)*.
   - A **toast** appears if they open the app **within 1 hour** of the acknowledgement.
 - [ ] Opening the app after being nudged shows the overlay before anything else, and **Got it** dismisses it.
 - [ ] The sender sees "acknowledged" on their Summary; no other housemate sees anything.
@@ -192,7 +197,7 @@ Develops `scope.md > The Core Loop` ("they can reply 'got it', also anonymously"
 ### Summary Board
 Develops `scope.md > The Core Loop` ("give a heads-up…", "the house's quiet streak").
 - **Quiet Streak:** the number of days since **anyone in the house was nudged**, shown as a big number that counts up. The learner accepted the tradeoff: any nudge resets it, but **nobody knows who broke it**.
-- **Resting now:** housemates currently in a quiet time in this house, each with the breathing ring.
+- **Resting now:** housemates (not you) currently in a quiet time in this house, each with the breathing ring.
 - **Heads-ups:**
   - **free text up to 200 characters**, with **a time attached**
   - shows the **author's name** (unlike nudges)
@@ -214,7 +219,7 @@ Develops `scope.md > What "Working" Looks Like`.
 
 ### Profile and Theme
 - Shows your name and email, **theme** (follow device, light or dark), a **Notifications** row, and **Sign out**.
-- **Notifications row** (learner, 4-spec): shows whether notifications are on, with **Turn on notifications** (or the iPhone Home Screen steps). Someone who skipped it in onboarding, or added the app to the Home Screen later, can turn notifications on here.
+- **Notifications row** (learner, 4-spec): shows whether notifications are on, with **Turn on notifications** (or the iPhone Home Screen steps). Someone who skipped it in setup, is still waiting for a join request, or added the app to the Home Screen later, can turn notifications on here.
 - [ ] The Notifications row shows the current state, and turning notifications on there works the same as in onboarding.
 - [ ] Changing the theme applies immediately and persists after signing out and back in.
 - [ ] By default, the theme matches the device's light or dark setting.
@@ -242,8 +247,8 @@ Develops `scope.md > What "Working" Looks Like` (the demo).
 - [ ] Nudging a bot shows the "acknowledged" card (and toast) on the judge's Summary within about 2 minutes.
 
 ## States and Boundaries
-- **First use:** onboarding (create or join → optional quiet times → notifications).
-- **Waiting for approval:** no active house yet. Houses shows the Pending card, and Schedule shows an empty state inviting you to create a house or wait *(Assumption: confirm)*.
+- **First use:** onboarding (create a house, or request to join → Request sent), then setup (optional quiet times → notifications) once you're in.
+- **Waiting for approval:** no active house yet. Houses shows the Pending card, and Schedule shows an empty state inviting you to create a house or wait *(Assumption: confirm)*. Setup runs the first time you open the app after you're accepted.
 - **No quiet times yet:** "No quiet times yet" → **Add quiet time**.
 - **Nobody resting now:** Summary says so warmly rather than leaving a blank space.
 - **No heads-ups:** an empty state inviting you to post one.
@@ -262,7 +267,9 @@ Develops `scope.md > What "Working" Looks Like` (the demo).
 - **One active house at a time.** "You don't want to be randomly pinged by housemate A when you're on vacation."
 - **Away quiet times are outlined, not filled**, so presence is visible at a glance.
 - **Quiet times are per house and optional.** People join "to be aware / mindful of other housemates' needs" even if noise doesn't bother them.
-- **Edit only in your active house**, except during the setup step when you join.
+- **Edit only in your active house**, except during the setup step after you create or are accepted into a house.
+- **Joining is two steps** (design review 2026-10-04): a join request only goes to Pending; setup (first quiet times, notifications) happens once you're accepted.
+- **House names have no spaces** (design review 2026-10-04), so a `Name#123456` ID is typed exactly as shown.
 - **Day and week views only.** Month view is deferred because weekly quiet times repeat, so a month adds little.
 - **No "quiet time starting" reminders.** They'd be annoying; "if User A decides to take a nap outside their own scheduled quiet time, they might get startled".
 - **Only two notifications:** nudged, and join approved.
@@ -279,7 +286,7 @@ Develops `scope.md > What "Working" Looks Like` (the demo).
 - **The demo streak is fixed at 10 days,** because simulated nudges make a real streak impossible.
 
 ## What We're Building
-- A hosted, mobile-first PWA (no offline mode, no install prompts) with landing, sign up / sign in, and onboarding (create or join, optional quiet times, notification setup with the iPhone Home Screen step).
+- A hosted, mobile-first PWA (no offline mode, no install prompts) with landing, sign up / sign in, onboarding (create, or request to join), and setup once you're in (optional quiet times, notification setup with the iPhone Home Screen step).
 - Houses: create (with a `Name#123456` ID), join by link or ID search, owner approval, multiple houses with one active, Make active.
 - Quiet times per house: the start/end editor with days, 15-minute steps, crossing midnight, "this day or all days" editing.
 - Schedule: day view with side-by-side lanes, a now line, a week toggle, filled vs away (outlined) blocks.

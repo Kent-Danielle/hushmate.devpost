@@ -62,12 +62,13 @@ PRD ref: `prd.md > The Core Journey`.
 4. **Wait for approval.**
    - The owner sees the request in Houses (`GET /houses/:id/requests`) and approves it (`POST /memberships/:id/approve`).
    - The backend marks it approved, assigns a housemate colour, makes it your active house if you have none, and sends the **"join approved" push**: "You're in! {House} approved your request." → `Backend: Push module`
-   - While you wait, onboarding offers notification setup so you can hear about the approval.
-5. **Optional first quiet times.** `POST /houses/:id/quiet-times {days, startMinute, endMinute}`. Overlaps with your own quiet times are refused with the clashing day and time. → `Backend: Quiet times module`
+   - While you wait, onboarding ends at **Request sent**. Nothing else is set up yet (design review 2026-10-04).
+5. **Setup: optional first quiet times.** Setup runs right after creating a house, or on the first open after approval (`GET /houses` shows `setupDone: false`). `POST /houses/:id/quiet-times {days, startMinute, endMinute}`. Overlaps with your own quiet times are refused with the clashing day and time. → `Backend: Quiet times module`
 6. **Turn on notifications.**
    - The push key is fetched when the screen opens. On a tap, the browser asks permission and subscribes, and the web app sends the subscription to `POST /push/subscriptions`.
    - On iPhone in Safari (not a Home Screen app), it shows the Add-to-Home-Screen steps instead, plus "then open Hushmate from your Home Screen and sign in again".
-   - It can be done later from **Profile > Notifications**. → `Frontend: Push setup`
+   - It's skipped when notifications are already on, and can be done later from **Profile > Notifications**. → `Frontend: Push setup`
+   - Finishing or skipping setup calls `POST /memberships/:id/setup-done`. → `Frontend: Onboarding`
 7. **Schedule.** The web app loads `GET /me` and the house's members and quiet times (`GET /houses/:id/board`) and draws the day view. "Resting now" and "away" are worked out on the phone. → `Frontend: Calendar`
 8. **Heads-ups and Summary.** `POST /houses/:id/heads-ups {text, at}`. `GET /houses/:id/summary` returns the streak, live heads-ups, and your acknowledged nudges. → `Backend: Heads-ups and Summary module`
 9. **Nudge.**
@@ -197,15 +198,17 @@ Carries `prd.md > Look and Feel` and `scope.md > Inspiration & Identity`. There'
 - **Tokens:** copy `../planning/design-system/tokens.css` to `frontend/src/styles/tokens.css`. It's the single source of colours, type, spacing, radius and motion, in both modes.
   - The theme is set by `data-theme` on `<html>`: none = follow the device; `"light"` or `"dark"` = manual override from Profile.
   - Components use `var(--hm-…)` only. **No hard-coded colours.**
+  - **One override** (design review 2026-10-04): after copying, set `--hm-border-control` to `#6B77A9` (dark) and `#847D91` (light), so control borders reach 3:1 on `--hm-surface-2` as well as on the page.
 - **Fonts:** Fredoka 500/600 (headings, and **anything the app says**: nudges, the overlay, empty-state headlines) and Nunito 400/700 (everything else), self-hosted via Fontsource.
 - **Flat and tonal:** no gradients, no shadows. Depth comes from `--hm-surface-1/-2`. Pastels are always fills carrying Night text.
 - **Colour roles:**
   - peach `--hm-nudge` only on the nudge button and sheet
-  - mint `--hm-ack` only on Got it and acknowledged states
+  - mint `--hm-ack` only on Got it and acknowledged states, including the dot on the acknowledgement toast. Every other toast has a neutral `--hm-text-3` dot (design review 2026-10-04).
   - butter `--hm-streak` only on the Quiet Streak
   - "you" in lavender; housemates `--hm-mate-1..5` by `colorIndex` 0–4
 - **Calendar blocks:** filled (`--hm-mate-N` fill, Night text) when the quiet time counts in this house. Outlined (2px `--hm-mate-N-ink`) with the word "away" when the person's active house is elsewhere.
-- **Motion:** fades with `--hm-ease-out`; sheets rise 24px; a 4s breathing ring on Resting now, out of sync per avatar; the streak counts up in 700ms. All of it respects `prefers-reduced-motion`.
+- **Week view** (design review 2026-10-04): too narrow for text, so each person is a thin stripe (filled or outlined, as above) with a name legend under the grid. Tapping a day opens the day view.
+- **Motion:** fades with `--hm-ease-out`; sheets rise 24px; the nudge overlay card rises `--hm-rise` (8px); a 4s breathing ring on Resting now, out of sync per avatar; the streak counts up in 700ms. All of it respects `prefers-reduced-motion`.
 - **Icons:** `lucide-react`, 2px stroke, 24px.
 - **App icons and manifest:**
   - Copy `../planning/logo/kit/web/*` (favicons, `icon-192/512`, maskable icons, `apple-touch-icon.png`, `site.webmanifest`) to `frontend/public/`, and add `"id": "/"` and `"scope": "/"` to the manifest.
@@ -213,6 +216,7 @@ Carries `prd.md > Look and Feel` and `scope.md > Inspiration & Identity`. There'
   - **Android notification badge:** `public/badge-96.png`, rendered from the kit's `svg/h-symbol-black.svg` as a white glyph on transparency at 96×96. Android uses only its alpha channel.
   - Fredoka is OFL-licensed (`Fredoka-OFL.txt` ships with the kit).
 - **Copy voice:** third person, warm, brief, never naming a sender (`design-system.md` §7).
+- **Mockups:** `docs/forge/design/mockups/` shows every screen and state in dark and light at 390px (reviewed at the design review 2026-10-04). `docs/forge/design/README.md` maps each frame to its `Frontend: …` heading.
 - **Constraint:** none from the stack. CSS Modules can express the whole design system.
 
 ## Components
@@ -228,9 +232,10 @@ Lives in `app/frontend/src/`. Every screen is mobile-first (a 360–430px wide t
 - **After sign-up or sign-in:**
   - a stored return-to path (e.g. `/join/:token`) wins
   - otherwise, no memberships → `/onboarding`
+  - otherwise, an approved membership with `setupDone: false` → `/onboarding/setup/:houseId`
   - otherwise → `/schedule`
 - `GET /me` is fetched on **every app load** (and on refocus). It supplies `isDemo`, `demo.botNames`, `activeHouseId` and `nudgeCooldownUntil`.
-- On every load and refocus it checks `GET /nudges/pending`. If anything is waiting, it shows `NudgeOverlay` above everything.
+- On every load and refocus it checks `GET /nudges/pending`. If anything is waiting, it shows `NudgeOverlay` above everything. After that, an approved membership with `setupDone: false` (from `GET /houses`) routes to its setup.
 - A `message` listener on `navigator.serviceWorker` invalidates the pending-nudges query when a push arrives.
 - **On every load with notification permission granted,** it re-sends the current push subscription (`POST /push/subscriptions`). That moves the device to the signed-in account and repairs rotated subscriptions.
 - `TabBar`: Schedule · Summary · Houses · Profile.
@@ -255,22 +260,25 @@ Lives in `app/frontend/src/`. Every screen is mobile-first (a 360–430px wide t
 #### Frontend: Join by link
 - `/join/:inviteToken` is public. It shows the house name from `GET /invites/:token`.
 - **Signed out:** **Sign up to join** / **Sign in to join** store the return-to.
-- **Signed in:** **Request to join** → `POST /invites/:token/join` → the pending card, then onboarding continues.
+- **Signed in:** **Request to join** → `POST /invites/:token/join` → the **Request sent** screen (see `Frontend: Onboarding`).
 - **Demo house:** the backend refuses ("This is a demo house"), and the page shows that message.
 - PRD ref: `prd.md > Houses and the Active House`, `prd.md > Onboarding`.
 
 #### Frontend: Onboarding
-A step flow:
-1. Create a house (name 2–30 characters, no `#`) or join one (by ID or link).
-2. If pending: a waiting screen. **Notification setup is offered right away**, so you hear about the approval.
-3. Optional first quiet times (reuses `QuietTimeEditor`).
-4. Notification setup (`Frontend: Push setup`).
-5. Go to Schedule.
+Two parts (learner, design review 2026-10-04):
+- **Start** (`/onboarding`, no memberships):
+  - **Create a house** (name 2–30 characters, no spaces, no `#`) → **House created** (the `Name#123456` ID and **Copy invite link**) → Setup.
+  - **Join** (by ID or link) → **Request sent**. Nothing else: no quiet times and no notification setup yet. **Go to Schedule** shows the waiting-for-approval empty state.
+- **Setup** (`/onboarding/setup/:houseId`), for any approved membership with `setupDone: false`. That's right after creating a house, or the first open after a join is approved (later houses too):
+  1. Joiners see **"You're in {House}"** first. Creators skip it.
+  2. Optional first quiet times (reuses `QuietTimeEditor`).
+  3. Notification setup (`Frontend: Push setup`), skipped when it's already **On**.
+  4. `POST /memberships/:id/setup-done`, then Schedule. A setup route for a membership that's already done redirects to `/schedule`.
 
 PRD ref: `prd.md > Onboarding`.
 
 #### Frontend: Push setup
-`push/register.ts` and `push/ios.ts`, plus `components/NotificationSetup.tsx`. The component is used in onboarding **and** in Profile.
+`push/register.ts` and `push/ios.ts`, plus `components/NotificationSetup.tsx`. The component is used in setup **and** in Profile.
 
 - **Registration:** `navigator.serviceWorker.register('/sw.js')` after `window` load.
 - **On mount:** prefetch the VAPID key (`GET /push/vapid-public-key`) and `navigator.serviceWorker.ready`. iPhone loses the tap if the app fetches anything after the tap and before subscribing.
@@ -292,13 +300,14 @@ PRD ref: `prd.md > Onboarding`.
   - `showNotification(n.title, { body: n.body, tag: n.tag, renotify: true, icon: '/icon-192.png', badge: '/badge-96.png', lang: 'en', data: { type: n.data.type, url: n.navigate } })`.
   - Then `postMessage({type})` to every window from `clients.matchAll({type: 'window', includeUncontrolled: true})`.
 - **`notificationclick`:** `close()`. Focus a same-origin window and `postMessage`, or else `clients.openWindow(data.url)`.
-- **Join-approved** uses the same path. The body comes from the backend, and a tap opens `/houses`.
+- **Join-approved** uses the same path. The body comes from the backend, and a tap opens that house's setup (`/onboarding/setup/:houseId`).
 - **iPhone:** `tag`, `renotify`, `icon` and `badge` are ignored, so nudges stack. That's fine.
 - PRD ref: `prd.md > Notifications`, `prd.md > Acknowledging a Nudge`.
 
 #### Frontend: Calendar
 - **`DayView`:** a 24-hour vertical grid; one lane per member ("you" first, in lavender); blocks positioned by minute; a now line; a floating **Nudge** button.
-- **`WeekView`:** 7 columns, **Monday first**, with each person's blocks side by side inside a day.
+- **Header:** the house name, a **+** button (Add quiet time), previous and next day arrows with the date, and the Day/Week toggle. Tapping your own block opens the editor.
+- **`WeekView`:** 7 columns, **Monday first**. Each person is a thin stripe in their pastel, side by side inside a day, with no text. A name legend sits under the grid, and tapping a day opens it in the day view (design review 2026-10-04).
 - **Day/week toggle;** it keeps the house and date.
 - **Time maths** in `lib/quietTime.ts` (see `Frontend: Shared lib`). Times are wall-clock, read in the phone's local time.
 - PRD ref: `prd.md > Schedule (Calendar)`, `prd.md > Quiet Times`.
@@ -310,12 +319,13 @@ PRD ref: `prd.md > Onboarding`.
   - save, and delete when editing
 - **Editing** an existing quiet time asks **"Just this day" / "All days in this set"**. This applies to save and delete.
 - **Before saving,** it runs `findOverlaps()` locally. A clash blocks saving with "This overlaps your quiet time on Mon 11:00 PM → 7:00 AM (next day)." It shows the same message from a backend `409`.
-- Shown only for the active house, plus the onboarding step.
+- Shown only for the active house, plus the setup step.
 - PRD ref: `prd.md > Quiet Times`.
 
 #### Frontend: Nudge sheet
 - "Who's being loud?" lists all members except you.
   - Away members are disabled and marked "away".
+  - Members not in a quiet time show "Not resting" (design review 2026-10-04).
   - Resting members show the breathing ring, and tapping one opens a **confirm dialog**.
   - A house with only you: "There's nobody to nudge yet."
 - After sending: the toast "Nudge sent quietly", and the **CooldownPill** ("Nudge again in 4:32") counts down to `cooldownUntil`.
@@ -329,15 +339,15 @@ PRD ref: `prd.md > Onboarding`.
 
 #### Frontend: Summary
 - **The Quiet Streak tile** counts up. When `isDemo`, it adds the demo note (`lib/copy.ts`).
-- **Resting now** is worked out locally from the board.
+- **Resting now** is worked out locally from the board, housemates only (not you).
 - **Heads-up cards** (time chip, text, author), and a **Post heads-up** sheet: a 200-character counter, and a date-and-time picker that only allows future times.
-- **"Your nudge was acknowledged" cards.** A toast shows if one is under an hour old and its id isn't in this device's `toastedAcks` (local storage).
+- **"Your nudge was acknowledged" cards**, naming who tapped Got it from `recipientName` ("Jordan tapped Got it · 4 min ago", learner, design review 2026-10-04). A toast shows if one is under an hour old and its id isn't in this device's `toastedAcks` (local storage).
 - **Refetches** every 30 seconds while visible.
 - PRD ref: `prd.md > Summary Board`.
 
 #### Frontend: Houses
 - **House cards:** Active (top), Inactive (**Make active**), Pending, Declined (dismiss).
-- **Create house** (name 2–30 characters, no `#`), **Join by ID** (`Name#123456`), and **Copy invite link**.
+- **Create house** (name 2–30 characters, no spaces, no `#`), **Join by ID** (`Name#123456`), and **Copy invite link**.
 - Owners see a "Requests" list with **Approve** and **Decline**.
 - Demo accounts see the demo house only, with every house-changing control hidden.
 - PRD ref: `prd.md > Houses and the Active House`.
@@ -364,7 +374,7 @@ PRD ref: `prd.md > Onboarding`.
 - `Button` (primary, nudge, got it, secondary, ghost)
 - `Sheet` (Radix Dialog as a bottom sheet)
 - `ConfirmDialog`
-- `Toast` (Radix Toast, never stacking)
+- `Toast` (Radix Toast, never stacking; a neutral dot, mint only for acknowledgements)
 - `Avatar` (an initial on a pastel, with an optional breathing ring)
 - `EmptyState` (Voice headline, caption, one button)
 - `HouseCard`
@@ -444,10 +454,11 @@ Lives in `app/backend/src/`, as NestJS modules.
 #### Backend: Houses module
 **Endpoints:**
 - **`POST /houses {name}`:**
-  - name trimmed, **2–30 characters, no `#`** (learner decision)
+  - name trimmed, **2–30 characters, no spaces, no `#`** (learner decision; no spaces: design review 2026-10-04). The seeded demo house keeps its spaces, since it's never created through the API.
   - generate a random 6-digit `code` until `(nameKey, code)` is unique
-  - create an owner membership (approved, `colorIndex` 0), and set it active if the user has none
-- **`GET /houses`:** my memberships with status, `name`, `code`, `isActive`, `isOwner` and `pendingCount`.
+  - create an owner membership (approved, `colorIndex` 0, `setupDoneAt` empty so setup runs next), and set it active if the user has none
+- **`GET /houses`:** my memberships with status, `name`, `code`, `isActive`, `isOwner`, `pendingCount` and `setupDone` (`setupDoneAt` is set).
+- **`POST /memberships/:id/setup-done`** (your own approved membership): sets `setupDoneAt` if empty → 204. Idempotent.
 - **`GET /houses/lookup?id=<Name%23123456>`:** split on the **last** `#` and match case-insensitively on `nameKey` + `code` → `{id, name, code}`, or 404.
 - **`GET /invites/:token`** (public): `{name, code}`, or 404.
 - **`POST /houses/:id/join`** and **`POST /invites/:token/join`:** create a **pending** membership.
@@ -473,7 +484,7 @@ PRD ref: `prd.md > Houses and the Active House`.
 #### Backend: Quiet times module
 - **`POST /houses/:id/quiet-times {days[], startMinute, endMinute}`:** creates one row per day, sharing a new `setId`.
   - `days`: unique values 0–6 (0 = Sunday). Minutes: multiples of 15, 0–1425, `start != end`.
-  - Allowed if the house is your **active** house, or you have **no quiet times there yet** (the join-time setup step).
+  - Allowed if the house is your **active** house, or **that membership's setup isn't done** (`setupDoneAt` empty: the setup step).
 - **`PATCH /quiet-times/:id {startMinute, endMinute, scope: "day" | "set"}`:** `day` updates the row and gives it a new `setId` (splitting it out); `set` updates every row with that `setId`.
 - **`DELETE /quiet-times/:id?scope=day|set`.**
 - **Edits and deletes** are allowed only in your active house.
@@ -516,7 +527,7 @@ PRD ref: `prd.md > Houses and the Active House`.
   - **Payload: the declarative envelope** (learner decision, A2), the same bytes for every browser:
     `{web_push: 8030, mutable: true, notification: {title: "Hushmate", body, navigate, tag, lang: "en", data: {type}}}`
     - nudge: `body` = the message, plus `"\n"` + the subtitle for demo; `navigate` = `APP_URL + "/schedule"`; `tag` `"nudge"`
-    - join-approved: `body` = "You're in! {House} approved your request."; `navigate` = `APP_URL + "/houses"`; `tag` `"join-approved"`
+    - join-approved: `body` = "You're in! {House} approved your request."; `navigate` = `APP_URL + "/onboarding/setup/" + houseId`; `tag` `"join-approved"`
   - **Send options:**
     - nudge: `{TTL: 1800, urgency: 'high', topic: 'nudge', timeout: 10000}`
     - join-approved: `{TTL: 86400, urgency: 'normal', topic: 'join-approved', timeout: 10000}`
@@ -536,7 +547,7 @@ PRD ref: `prd.md > Houses and the Active House`.
   - **DevPost Demo House**, code `202610` (`DevPost Demo House#202610`), `isDemo = true`, **owned by the bot Maya** (learner decision: nobody can approve anyone in).
   - **3 bots** (`isBot`, `passwordHash = null`): `maya.bot@example.com`, `jordan.bot@example.com`, `priya.bot@example.com`.
   - **3 demo accounts** (`isDemo`): `judge1@example.com`, `judge2@example.com`, `judge3@example.com` (names "Judge 1", "Judge 2", "Judge 3"), with the password from `DEMO_ACCOUNT_PASSWORD`.
-  - All six are approved members, with `colorIndex` 0–4 then 0 (the sixth repeats sky). The demo house is everyone's active house.
+  - All six are approved members, with `colorIndex` 0–4 then 0 (the sixth repeats sky), and `setupDoneAt` set, so demo accounts never see setup. The demo house is everyone's active house.
 - **Bots** (accepted). `dayOfWeek`: 0 = Sunday.
 
   | Bot | Quiet times |
@@ -600,7 +611,8 @@ PRD ref: `prd.md > Houses and the Active House`.
   - **reset:** IDs are unchanged after the reset; the guard makes a second run a no-op
 - **Frontend unit** (Vitest): `quietTime.ts` (segments, resting now, overlaps), `time.ts`, `copy.ts`.
 - **Playwright** (against the compose stack, two browser contexts):
-  - onboarding: sign up → create house → quiet time → Schedule
+  - onboarding: sign up → create house → setup (quiet time, notifications) → Schedule
+  - joining: request → Request sent (no setup); owner approves → the next open shows setup for that house
   - **the nudge round trip:** A nudges B → B's overlay → Got it → A's Summary card. Push itself is stubbed; the overlay comes from pending on focus.
   - demo locks: the controls are hidden
 - **Push on real devices:** by hand, following the 13-step checklist in `docs/forge/research/web-push.md` §7, after build slice 1 is deployed.
@@ -681,8 +693,8 @@ Prisma schema in `backend/prisma/schema.prisma`, Postgres. Times are `timestampt
 | Table | Fields | Constraints and indexes |
 |---|---|---|
 | **users** | `id`, `name` (1–30), `email`, `passwordHash` **nullable** (bots), `isDemo` bool, `isBot` bool, `activeHouseId` → houses (nullable), `demoNextNudgeAt` (nullable), `createdAt` | `email` unique (stored trimmed and lower-case) |
-| **houses** | `id`, `name` (2–30, no `#`), `nameKey` (lower-case name), `code` char(6), `inviteToken`, `ownerId` → users, `isDemo` bool, `createdAt` | unique(`nameKey`, `code`); `inviteToken` unique |
-| **memberships** | `id`, `userId`, `houseId`, `status` (`pending`/`approved`/`declined`), `colorIndex` int (nullable until approved), `createdAt`, `decidedAt` (nullable) | unique(`userId`, `houseId`); index(`houseId`, `status`) |
+| **houses** | `id`, `name` (2–30, no spaces, no `#`; the seeded demo house is the exception), `nameKey` (lower-case name), `code` char(6), `inviteToken`, `ownerId` → users, `isDemo` bool, `createdAt` | unique(`nameKey`, `code`); `inviteToken` unique |
+| **memberships** | `id`, `userId`, `houseId`, `status` (`pending`/`approved`/`declined`), `colorIndex` int (nullable until approved), `createdAt`, `decidedAt` (nullable), `setupDoneAt` (nullable: the post-approval setup) | unique(`userId`, `houseId`); index(`houseId`, `status`) |
 | **quiet_times** | `id`, `userId`, `houseId`, `setId` uuid, `dayOfWeek` 0–6 (the night it **starts**), `startMinute`, `endMinute` (0–1425, step 15) | index(`houseId`); index(`userId`, `houseId`); `end <= start` = ends the next morning |
 | **nudges** | `id`, `houseId`, `senderId`, `recipientId`, `messageIndex` 0–4, `isDemo` bool, `createdAt`, `acknowledgedAt` (nullable) | index(`senderId`, `createdAt`) for the cooldown; index(`recipientId`, `acknowledgedAt`) for pending; index(`houseId`, `createdAt`) for the streak |
 | **heads_ups** | `id`, `houseId`, `authorId`, `text` (1–200), `at`, `createdAt` | index(`houseId`, `at`) |
@@ -729,7 +741,7 @@ app/
 │   │   └── screens/
 │   │       ├── Landing.tsx  SignUp.tsx  SignIn.tsx           [Frontend: Auth screens]
 │   │       ├── JoinByLink.tsx                                [Frontend: Join by link]
-│   │       ├── onboarding/ HouseStep  PendingStep  QuietTimeStep  NotificationsStep   [Frontend: Onboarding]
+│   │       ├── onboarding/ HouseStep  RequestSentStep  SetupIntro  QuietTimeStep  NotificationsStep   [Frontend: Onboarding]
 │   │       ├── schedule/ SchedulePage  DayView  WeekView     [Frontend: Calendar]
 │   │       ├── schedule/QuietTimeEditor.tsx                  [Frontend: Quiet-time editor]
 │   │       ├── schedule/NudgeSheet.tsx                       [Frontend: Nudge sheet]
@@ -826,12 +838,13 @@ app/
 | `POST /auth/signin` **public** | `{email, password}` | `200 {token, user: User}` | 400, 401, 429 |
 | `GET /me` | none | `User` | 401 |
 | `POST /houses` | `{name}` | `201 {house: House}` | 400, 403 (demo) |
-| `GET /houses` | none | `[{membershipId, status, house: House, isActive, isOwner, pendingCount}]` | |
+| `GET /houses` | none | `[{membershipId, status, house: House, isActive, isOwner, pendingCount, setupDone}]` | |
 | `GET /houses/lookup?id=` | none (`#` sent as `%23`) | `House` | 404 |
 | `GET /invites/:token` **public** | none | `{name, code}` | 404 |
 | `POST /houses/:id/join` · `POST /invites/:token/join` | none | `201 {membershipId, status: "pending"}` | 403 (demo account or demo house), 404, 409 |
 | `GET /houses/:id/requests` | none | `[{membershipId, name, createdAt}]` | 403 |
 | `POST /memberships/:id/approve` · `/decline` | none | `{status}` | 403, 404 |
+| `POST /memberships/:id/setup-done` | none | `204` | 403 (not yours, or not approved), 404 |
 | `DELETE /memberships/:id` | none | `204` | 403 (demo, or not yours), 404 |
 | `POST /houses/:id/activate` | none | `{activeHouseId}` | 403 |
 | `GET /houses/:id/invite-link` | none | `{url}` | 403 |
@@ -905,6 +918,18 @@ app/
   - **8:** the declarative push envelope with `mutable: true`.
   - **9:** a **Notifications row in Profile**.
   - **10:** the join-approved copy "You're in! {House} approved your request."
+
+### Decided at the design review (2026-10-04)
+Mockups in `docs/forge/design/`. Each line is one decision; the sections above already reflect it.
+- 2026-10-04: **Week view** uses pastel stripes with a name legend and tap-through to the day view, instead of name and time in each block.
+- 2026-10-04: **Toasts** have a neutral dot. Mint stays only on the acknowledgement toast.
+- 2026-10-04: **Joining is two steps.** A join request ends onboarding at Request sent; setup (first quiet times, notifications) runs after approval, tracked by `memberships.setupDoneAt` and `POST /memberships/:id/setup-done`.
+- 2026-10-04: **No view of an inactive house's quiet times.** The PRD criterion was dropped.
+- 2026-10-04: **Token override:** `--hm-border-control` `#6B77A9` dark / `#847D91` light, so control borders reach 3:1 on surface-2.
+- 2026-10-04: **The nudge overlay card rises 8px** (`--hm-rise`).
+- 2026-10-04: **House names have no spaces** (2–30 characters, no `#`). This supersedes B3's house rule; the seeded demo house is exempt.
+- 2026-10-04: **The acknowledgement card names who tapped Got it** (now promised in the PRD).
+- 2026-10-04: The nudge sheet says **"Not resting"**; **Resting now** excludes you; the Schedule header gets **+**, day arrows and the Day/Week toggle.
 
 ### Agent details, changeable at review
 - The JWT is stored in local storage as a bearer token, because cross-site cookies between `vercel.app` and `fly.dev` would be blocked by Safari.

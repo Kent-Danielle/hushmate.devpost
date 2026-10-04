@@ -184,7 +184,7 @@
 
   <header>
     <div class="topbar">
-      <span class="chip" style="background:var(--ack);color:var(--night)">Approved · 2026-10-03</span>
+      <span class="chip" style="background:var(--ack);color:var(--night)">Approved · 2026-10-03 · revised at the design review 2026-10-04</span>
       <span class="chip">Product requirements</span>
       <button type="button" class="theme-btn" id="themeBtn" aria-label="Switch light or dark">Switch light / dark</button>
     </div>
@@ -385,10 +385,10 @@
       <li>Open the link. The landing page offers <strong>Sign up</strong> or <strong>Sign in</strong>. There's nothing to install.</li>
       <li>Sign up with <strong>name, email and password</strong>.</li>
       <li>Onboarding: <strong>create a house</strong> or <strong>join one</strong>, by invite link or by searching an ID like <code>MapleHouse#482913</code>.</li>
-      <li>A join request waits for the owner to accept it. Creating a house needs no approval.</li>
-      <li>Optionally set your <strong>first quiet times</strong> (skippable).</li>
+      <li>A join request waits for the owner to accept it, and onboarding ends at <strong>Request sent</strong>. Creating a house needs no approval.</li>
+      <li>Once you're in (right after creating, or on the first open after you're accepted), <strong>setup</strong> offers your <strong>first quiet times</strong> (skippable).</li>
       <li>Your first house becomes your <strong>active house</strong>.</li>
-      <li>Turn on <strong>notifications</strong>. On iPhone, add Hushmate to the Home Screen first.</li>
+      <li>Setup then turns on <strong>notifications</strong>. On iPhone, add Hushmate to the Home Screen first.</li>
       <li>Land on <strong>Schedule</strong>: today's calendar with each housemate's quiet times side by side, and <strong>Nudge</strong>.</li>
       <li>Day to day: check <strong>who's resting now</strong> and post <strong>heads-ups</strong> on <strong>Summary</strong>.</li>
       <li>Someone's loud → <strong>Nudge</strong> → the app reminds them in its own voice. They never learn it was you.</li>
@@ -414,18 +414,19 @@
     <p class="muted small">Tab bar: <strong>Schedule · Summary · Houses · Profile</strong> <span class="tag t-design">design: confirm</span>. Open each screen to see what's on it, what it does, its edge states, and how we'll know it works.</p>
 
     <details class="scr">
-      <summary>Landing &amp; onboarding <span class="sub">sign up / in → house → quiet times → notifications</span></summary>
+      <summary>Landing, onboarding &amp; setup <span class="sub">sign up / in → create or request to join → (once you're in) quiet times → notifications</span></summary>
       <div class="scr-body">
         <div><h4>On screen &amp; behaviour</h4><ul>
           <li>Sign up (name, email, password) or sign in (email, password)</li>
-          <li>Create or join a house → optional first quiet times → notification setup, with the iPhone Home Screen step</li>
-          <li>First house → active automatically. Houses joined later start inactive <span class="tag t-assume">assume</span></li>
-          <li>Waiting for approval → notification setup is offered right after the request, so you hear when you're approved <span class="tag t-assume">assume</span></li>
+          <li><strong>Onboarding:</strong> create a house, or request to join one. A request ends at <strong>Request sent</strong>: no quiet times or notifications yet <span class="tag t-design">design review 10-04</span></li>
+          <li><strong>Setup</strong> (right after creating, or on the first open after you're accepted, for any house): optional first quiet times → notification setup with the iPhone Home Screen step (skipped if already on)</li>
+          <li>First house → active automatically when you're accepted. Houses joined later start inactive <span class="tag t-assume">assume</span></li>
+          <li><s>Waiting for approval → notification setup is offered right after the request</s>. Replaced: it waits for setup. Profile can still turn notifications on while you wait <span class="tag t-design">design review 10-04</span></li>
           <li>Housemates only ever see your name</li>
-          <li>Names: display 1–30 characters; house 2–30 characters, no <code>#</code>. On iPhone, open the app from the Home Screen and sign in again. Invite links survive sign-up</li>
+          <li>Names: display 1–30 characters; house 2–30 characters, <strong>no spaces</strong>, no <code>#</code> <span class="tag t-design">design review 10-04</span> (the seeded demo house keeps its spaces). On iPhone, open the app from the Home Screen and sign in again. Invite links survive sign-up</li>
         </ul></div>
         <div><h4>Edge states</h4><ul>
-          <li>Waiting for approval: Houses shows Pending, and Schedule shows an empty state inviting you to create a house or wait <span class="tag t-assume">assume</span></li>
+          <li>Waiting for approval: Houses shows Pending, and Schedule shows an empty state inviting you to create a house or wait <span class="tag t-assume">assume</span>. Setup runs on the first open after you're accepted</li>
           <li>Notifications declined: everything still works</li>
         </ul>
         <h4 style="margin-top:12px">How we'll know</h4><ul class="crit">
@@ -433,6 +434,8 @@
           <li>Sign-up to Schedule of a house you created, without leaving the flow</li>
           <li>Skipping quiet times still completes onboarding</li>
           <li>The notification step shows iPhone Home Screen guidance</li>
+          <li>A join request ends onboarding at “Request sent”, with no quiet-time or notification step</li>
+          <li>The first open after you're accepted shows setup for that house</li>
           <li>No screen shows a housemate's email</li>
         </ul></div>
       </div>
@@ -444,16 +447,17 @@
         <div><h4>On screen &amp; behaviour</h4><ul>
           <li>Day view by default, with a week toggle and <strong>no month view</strong></li>
           <li>One lane per person, so overlaps sit side by side. “You” are lavender, and each housemate gets a pastel</li>
+          <li>Week view: too narrow for text, so each person is a thin pastel stripe with a name legend; tap a day to open it <span class="tag t-design">design review 10-04</span></li>
           <li>Filled = counts in this house now. Outlined + “away” = another house is active</li>
           <li>A “now” line. The <strong>Nudge</strong> button floats bottom-right <span class="tag t-design">design: confirm</span></li>
           <li><strong>Quiet-time editor:</strong> start and end time pickers in 15-minute steps, plus days Monday to Sunday = one set</li>
           <li>End earlier than start → “11:00 PM → 7:00 AM (next day)”, belonging to the night it starts <span class="tag t-suggest">suggest</span></li>
           <li>Editing a set asks “just this day, or all days?” Just this day splits it off <span class="tag t-assume">assume</span></li>
-          <li>Add, edit and delete only in your active house, plus the optional step when joining</li>
+          <li>Add, edit and delete only in your active house, plus the optional setup step after creating or being accepted</li>
         </ul></div>
         <div><h4>Edge states</h4><ul>
           <li>No quiet times yet → “No quiet times yet” → <strong>Add quiet time</strong></li>
-          <li>Inactive house: viewable, not editable</li>
+          <li><s>Inactive house: viewable, not editable</s>. Dropped: inactive houses' schedules aren't shown <span class="tag t-design">design review 10-04</span></li>
           <li>Overlapping one of your own quiet times: blocked, with a warning naming the day and time it overlaps</li>
         </ul>
         <h4 style="margin-top:12px">How we'll know</h4><ul class="crit">
@@ -497,7 +501,7 @@
           <li>The app icon, a random message in the app's voice, and a full-width mint <strong>Got it</strong></li>
           <li>Must be acknowledged to dismiss. It appears on the next open even without notifications</li>
           <li>Several waiting → one overlay, and Got it clears them all <span class="tag t-assume">assume</span></li>
-          <li>The sender learns quietly: a Summary card only they see, kept 24 hours <span class="tag t-assume">24 hours</span>, plus a toast if they open the app within 1 hour. No notification</li>
+          <li>The sender learns quietly: a Summary card only they see, <strong>naming who tapped Got it</strong> (“Jordan tapped Got it”) <span class="tag t-design">design review 10-04</span>, kept 24 hours <span class="tag t-assume">24 hours</span>, plus a toast if they open the app within 1 hour. No notification</li>
         </ul></div>
         <div><h4>How we'll know</h4><ul class="crit">
           <li>Opening after a nudge shows the overlay before anything else</li>
@@ -514,7 +518,7 @@
       <div class="scr-body">
         <div><h4>On screen &amp; behaviour</h4><ul>
           <li><strong>Quiet Streak:</strong> days since anyone in the house was nudged, counting up. Nobody knows who broke it</li>
-          <li><strong>Resting now:</strong> housemates currently in quiet time, with the breathing ring</li>
+          <li><strong>Resting now:</strong> housemates (not you) currently in quiet time, with the breathing ring</li>
           <li><strong>Heads-ups:</strong> free text (200 characters max) with a time and the author's name. No notification</li>
           <li>A heads-up disappears once its time has passed <span class="tag t-assume">assume</span></li>
           <li>Your acknowledged nudges (only you see them)</li>
@@ -640,7 +644,7 @@
   <section aria-labelledby="bd-h">
     <h2 id="bd-h">Decisions and boundary</h2>
     <details class="lst">
-      <summary>Your product decisions <span class="cnt">21</span></summary>
+      <summary>Your product decisions <span class="cnt">23</span></summary>
       <ul>
         <li>Mobile-first PWA, not native: no offline mode and no install prompts, just what notifications need. Native is a future iteration</li>
         <li>Anonymous nudging is the kernel, and the app is the messenger</li>
@@ -649,7 +653,9 @@
         <li>One active house: “You don't want to be randomly pinged by housemate A when you're on vacation”</li>
         <li>Away quiet times are outlined, not filled</li>
         <li>Quiet times are per house and optional, so people can join just to be mindful</li>
-        <li>Edit only in your active house, except during the join step</li>
+        <li>Edit only in your active house, except during the setup step</li>
+        <li>Joining is two steps: a request only goes to Pending; setup comes once you're accepted <span class="tag t-design">design review 10-04</span></li>
+        <li>House names have no spaces, so <code>Name#123456</code> is typed exactly as shown <span class="tag t-design">design review 10-04</span></li>
         <li>Day and week views only. Month view deferred</li>
         <li>No “quiet time starting” reminders. Someone napping “might get startled”</li>
         <li>Only two notifications: nudged, and join approved</li>
@@ -703,7 +709,7 @@
       <p class="small muted">These were filled in by the agent or taken from the design spec. <strong>You confirmed all of them at review on 2026-10-03.</strong> The labels throughout the page stay to show where each detail came from.</p>
       <ol class="small">
         <li>First house becomes active automatically; houses joined later start inactive.</li>
-        <li>While waiting for approval, notification setup is offered right after the request.</li>
+        <li><s>While waiting for approval, notification setup is offered right after the request.</s> Replaced at the design review (2026-10-04): setup runs after approval.</li>
         <li>House ID = the name you pick + 6 digits the app assigns.</li>
         <li>Both the invite link and the ID search need the owner's approval.</li>
         <li>The owner's only extra power is accept/decline. Removing members, transferring ownership, deleting a house, and leaving a house are deferred.</li>

@@ -143,7 +143,7 @@
 <main>
   <header>
     <div class="topbar">
-      <span class="chip" style="background:var(--ack);color:var(--night)">Approved · 2026-10-03 · build-readiness check passed</span>
+      <span class="chip" style="background:var(--ack);color:var(--night)">Approved · 2026-10-03 · build-readiness check passed · revised at the design review 2026-10-04</span>
       <span class="chip">Technical spec</span>
       <button type="button" class="theme-btn" id="themeBtn">Switch light / dark</button>
     </div>
@@ -228,10 +228,10 @@
     <ol class="steps journey" id="ja">
       <li>Open the link: the service worker registers. An invite link shows the house name and is <strong>remembered through sign-up</strong>.<span class="via">Frontend: App shell · Join by link</span></li>
       <li>Sign up: <code>POST /auth/signup</code> → argon2id (19 MB) → a 30-day token kept on the phone. Rate-limited per visitor.<span class="via">Backend: Auth module</span></li>
-      <li>Create (<code>POST /houses</code>, name 2–30 characters, no <code>#</code> → <code>Name#123456</code>) or join (lookup or invite → pending).<span class="via">Backend: Houses module</span></li>
+      <li>Create (<code>POST /houses</code>, name 2–30 characters, no spaces, no <code>#</code> → <code>Name#123456</code>) or join (lookup or invite → pending → <strong>Request sent</strong>, nothing else yet).<span class="via">Backend: Houses module · Frontend: Onboarding</span></li>
       <li>The owner approves → colour assigned, made active if first → push: <strong>“You're in! {House} approved your request.”</strong><span class="via">Backend: Houses · Push</span></li>
-      <li>Optional first quiet times: one row per day, sharing a <code>setId</code>; <strong>overlaps refused</strong> with the clashing day and time.<span class="via">Backend: Quiet times module</span></li>
-      <li>Notifications: key prefetched → permission on the tap → subscribe → <code>POST /push/subscriptions</code>. iPhone in Safari → Home Screen steps + “sign in again”. Also in <strong>Profile › Notifications</strong>.<span class="via">Frontend: Push setup</span></li>
+      <li><strong>Setup</strong> (right after creating, or the first open after approval: <code>setupDone: false</code>). Optional first quiet times: one row per day, sharing a <code>setId</code>; <strong>overlaps refused</strong> with the clashing day and time.<span class="via">Backend: Quiet times module</span></li>
+      <li>Notifications: key prefetched → permission on the tap → subscribe → <code>POST /push/subscriptions</code>. iPhone in Safari → Home Screen steps + “sign in again”. Skipped if already on; also in <strong>Profile › Notifications</strong>. Then <code>POST /memberships/:id/setup-done</code>.<span class="via">Frontend: Push setup · Onboarding</span></li>
       <li>Schedule: <code>GET /me</code> (every load) + <code>GET /houses/:id/board</code>. Resting, away and overnight segments are worked out on the phone.<span class="via">Frontend: Calendar · Shared lib</span></li>
       <li>Heads-ups and Summary: <code>POST …/heads-ups</code>, <code>GET …/summary</code> (streak worked out on read).<span class="via">Backend: Heads-ups and Summary</span></li>
       <li>Nudge: confirm if they're resting → <code>POST /nudges</code> → checks → saved → push sent <strong>after the commit, without waiting</strong> → <code>cooldownUntil</code> (also from <code>GET /me</code> after a reload).<span class="via">Backend: Nudges module (the kernel)</span></li>
@@ -292,7 +292,7 @@
 
       <details class="cmp" data-side="be"><summary><span class="side be">Backend</span><span class="cmp-name">Houses · Quiet times · Summary</span><span class="prd">prd › Houses · Quiet Times · Summary</span></summary>
         <div class="cmp-body"><div><h4>Does</h4><ul>
-          <li>Houses: names 2–30 characters, no <code>#</code>; lookup splits on the last <code>#</code>; <strong>join to the demo house → 403</strong>; DemoGuard; owner-only approve and decline</li>
+          <li>Houses: names 2–30 characters, <strong>no spaces</strong>, no <code>#</code> (the seeded demo house is exempt); <code>setupDone</code> on <code>GET /houses</code> + <code>POST /memberships/:id/setup-done</code>; lookup splits on the last <code>#</code>; <strong>join to the demo house → 403</strong>; DemoGuard; owner-only approve and decline</li>
           <li>Quiet times: 0 = Sunday; 15-minute steps; <strong>circular-week overlap check → 409 with conflicts</strong>; day vs set scope</li>
           <li>Summary: streak in Vancouver days (demo house fixed at 10); live heads-ups; the sender's acks from the last 24 hours</li>
         </ul></div><div><h4>Files</h4><div class="files">backend/src/houses/  quiet-times/  summary/
@@ -318,7 +318,8 @@ backend/prisma.config.ts</div></div></div></details>
 
       <details class="cmp" data-side="fe" open><summary><span class="side fe">Frontend</span><span class="cmp-name">Calendar · editor · Shared lib</span><span class="prd">prd › Schedule · Quiet Times</span></summary>
         <div class="cmp-body"><div><h4>Does</h4><ul>
-          <li>Day view with lanes (you first, lavender), a now line and a floating Nudge; week view Monday first</li>
+          <li>Day view with lanes (you first, lavender), a now line and a floating Nudge; a header with <strong>+</strong>, day arrows and Day/Week</li>
+          <li>Week view Monday first: <strong>pastel stripes + a name legend</strong>, tap a day to open it</li>
           <li>Editor: start and end pickers (15-minute steps, “(next day)”), day chips, “just this day / all days”, <strong>an overlap warning naming the clash</strong></li>
           <li><code>quietTime.ts</code>: segments, <code>isRestingNow</code>, <code>findOverlaps</code> (the same maths as the backend)</li>
         </ul></div><div><h4>Files</h4><div class="files">frontend/src/screens/schedule/
@@ -336,7 +337,8 @@ frontend/public/sw.js  badge-96.png</div></div></div></details>
       <details class="cmp" data-side="fe"><summary><span class="side fe">Frontend</span><span class="cmp-name">App shell · API client · Join by link</span><span class="prd">prd › Accounts · Houses · Onboarding</span></summary>
         <div class="cmp-body"><div><h4>Does</h4><ul>
           <li><code>GET /me</code> on every load and focus; pending-nudge check; a service-worker message listener</li>
-          <li><strong>Return-to</strong> through sign-in (invites survive); landing: return-to → onboarding → schedule</li>
+          <li><strong>Return-to</strong> through sign-in (invites survive); landing: return-to → onboarding → <strong>setup</strong> (an approved membership with <code>setupDone: false</code>) → schedule</li>
+          <li>Onboarding: create → House created → setup; join → <strong>Request sent</strong> only. Setup = optional quiet times → notifications</li>
           <li>401 → sign out locally → <code>/signin</code>; no retries on 4xx</li>
           <li><code>/join/:token</code> is public and shows the house name; the demo house shows “This is a demo house”</li>
         </ul></div><div><h4>Files</h4><div class="files">frontend/src/App.tsx  api/  auth/
@@ -344,9 +346,9 @@ frontend/src/screens/JoinByLink.tsx</div></div></div></details>
 
       <details class="cmp" data-side="fe"><summary><span class="side fe">Frontend</span><span class="cmp-name">Nudge sheet · overlay · Summary · Houses · Profile</span><span class="prd">prd › Nudging · Summary · Houses · Profile</span></summary>
         <div class="cmp-body"><div><h4>Does</h4><ul>
-          <li>Nudge sheet: away members disabled, a confirm dialog for resting members, a cooldown pill starting from <code>GET /me</code></li>
+          <li>Nudge sheet: “Not resting” for everyone outside a quiet time; away members disabled, a confirm dialog for resting members, a cooldown pill starting from <code>GET /me</code></li>
           <li>Overlay: message + subtitle, mint Got it, clears leftover nudge notifications</li>
-          <li>Summary: streak (demo note), resting now, heads-ups (200 characters, future time), acked cards plus a 1-hour toast</li>
+          <li>Summary: streak (demo note), resting now (not you), heads-ups (200 characters, future time), acked cards naming who tapped Got it, plus a 1-hour toast</li>
           <li>Profile: <strong>Notifications row</strong>, theme per device, sign out (DELETE, or unsubscribe if that fails, then clear everything)</li>
           <li>Welcome card: bot names from <code>GET /me</code>, with the sign-out warning</li>
         </ul></div><div><h4>Files</h4><div class="files">frontend/src/screens/ summary/ houses/ profile/
@@ -356,7 +358,7 @@ frontend/src/components/ (12 shared components)</div></div></div></details>
         <div class="cmp-body"><div><h4>Does</h4><ul>
           <li>Backend e2e against <code>hushmate_test</code>: auth (409/400/401/429), demo locks, <strong>privacy (pending never has the sender)</strong>, cooldown, overlap 409, push host and reassignment, the reset keeping IDs</li>
           <li>Frontend unit tests: quiet-time and overlap maths</li>
-          <li>Playwright: onboarding, a two-browser nudge round trip, demo locks</li>
+          <li>Playwright: onboarding + setup, join → Request sent → approval → setup, a two-browser nudge round trip, demo locks</li>
           <li>Real-phone push: the 13-step checklist in <code>docs/forge/research/web-push.md</code></li>
         </ul></div><div><h4>Files</h4><div class="files">backend/test/  frontend/tests/  playwright.config.ts</div></div></div></details>
 
@@ -378,8 +380,8 @@ frontend/Dockerfile  vercel.json  .env.example</div></div></div></details>
         <thead><tr><th>Table</th><th>Key fields</th><th>Constraints and indexes</th></tr></thead>
         <tbody>
           <tr><td><strong>users</strong></td><td>name, email, passwordHash <em>(nullable for bots)</em>, isDemo, isBot, activeHouseId, demoNextNudgeAt</td><td>email unique (trimmed and lower-case)</td></tr>
-          <tr><td><strong>houses</strong></td><td>name, nameKey, code(6), inviteToken, ownerId, isDemo</td><td>unique(nameKey, code); inviteToken unique</td></tr>
-          <tr><td><strong>memberships</strong></td><td>userId, houseId, status, colorIndex, decidedAt</td><td>unique(userId, houseId); (houseId, status)</td></tr>
+          <tr><td><strong>houses</strong></td><td>name <em>(no spaces or #)</em>, nameKey, code(6), inviteToken, ownerId, isDemo</td><td>unique(nameKey, code); inviteToken unique</td></tr>
+          <tr><td><strong>memberships</strong></td><td>userId, houseId, status, colorIndex, decidedAt, setupDoneAt</td><td>unique(userId, houseId); (houseId, status)</td></tr>
           <tr><td><strong>quiet_times</strong></td><td>userId, houseId, setId, dayOfWeek <em>(0 = Sunday)</em>, startMinute, endMinute</td><td>(houseId); (userId, houseId)</td></tr>
           <tr><td><strong>nudges</strong></td><td>houseId, senderId, recipientId, messageIndex, isDemo, acknowledgedAt</td><td>(senderId, createdAt) · (recipientId, acknowledgedAt) · (houseId, createdAt)</td></tr>
           <tr><td><strong>heads_ups</strong></td><td>houseId, authorId, text(1–200), at</td><td>(houseId, at)</td></tr>
@@ -431,6 +433,14 @@ cd frontend &amp;&amp; npx playwright test</pre>
           <li><strong>B1</strong> cooldown in <code>GET /me</code> (every load) · <strong>B2</strong> bot names from the database · <strong>B3</strong> name rules</li>
           <li><strong>4</strong> Vitest everywhere · <strong>5</strong> <strong>Maya</strong> owns the demo house, and joins are refused · <strong>6</strong> invites survive sign-up</li>
           <li><strong>7</strong> <code>sslmode=no-verify</code> (simplest, no friction) · <strong>8</strong> declarative push · <strong>9</strong> a Notifications row in Profile · <strong>10</strong> “You're in! {House} approved your request.”</li>
+        </ul>
+        <h3 style="margin-top:14px">Decided at the design review (2026-10-04)</h3>
+        <ul class="small">
+          <li>Mockups: <code>docs/forge/design/mockups/</code>, mapped in <code>docs/forge/design/README.md</code></li>
+          <li><strong>Joining is two steps</strong>: request → Request sent; setup (quiet times, notifications) after approval, via <code>memberships.setupDoneAt</code></li>
+          <li>Week view: pastel stripes + name legend · toasts get a neutral dot (mint only on the ack toast) · overlay card rises 8px</li>
+          <li>Token override: <code>--hm-border-control</code> <code>#6B77A9</code> dark / <code>#847D91</code> light (3:1 on surface-2)</li>
+          <li>House names have no spaces · the ack card names who tapped Got it · “Not resting” · Resting now excludes you · no inactive-house schedule view</li>
         </ul>
         <h3 style="margin-top:14px">What you were unsure about</h3>
         <ul class="small">
