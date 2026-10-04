@@ -5,7 +5,7 @@ status: approved
 
 # Hushmate: Product Requirements
 
-*Less shush, more hush.* A hosted web app (PWA) where housemates, students in shared housing first, share their quiet times and can nudge each other anonymously, with the app itself as the messenger.
+*Less shush, more hush.* A hosted, mobile-first PWA where housemates, students in shared housing first, share their quiet times and can nudge each other anonymously, with the app itself as the messenger.
 Source: `scope.md > The Unique Kernel`, `scope.md > Who It's For`.
 
 **Labels used below:**
@@ -235,7 +235,7 @@ Develops `scope.md > What "Working" Looks Like` (the demo).
 - **Persistence:** accounts, houses, memberships, quiet times, heads-ups (until their time passes), streaks and acknowledgements persist. The demo house is reset nightly.
 
 ## Product Decisions
-- **PWA, not native.** It's usable from a link with nothing to install. A native app is a separate future iteration. *(2-scope)*
+- **Mobile-first PWA, not native.** It's usable from a link with nothing to install. It's a PWA with no offline mode and no install prompts, just what notifications need (a service worker and, for the iPhone Home Screen, a manifest). A native app is a separate future iteration. *(2-scope; PWA scope clarified in 4-spec)*
 - **Anonymous nudging is the kernel.** The app is the messenger, which keeps it anonymous even in two-person houses. *(2-scope, 3-prd)*
 - **Name, email and password sign-up; housemates see only names.** Look into a third-party sign-in provider in `4-spec` to make signing in easier.
 - **Join requests need the owner's approval**, so the house controls who sees its schedules.
@@ -259,7 +259,7 @@ Develops `scope.md > What "Working" Looks Like` (the demo).
 - **The demo streak is fixed at 10 days,** because simulated nudges make a real streak impossible.
 
 ## What We're Building
-- A hosted PWA with landing, sign up / sign in, and onboarding (create or join, optional quiet times, notification setup with the iPhone Home Screen step).
+- A hosted, mobile-first PWA (no offline mode, no install prompts) with landing, sign up / sign in, and onboarding (create or join, optional quiet times, notification setup with the iPhone Home Screen step).
 - Houses: create (with a `Name#123456` ID), join by link or ID search, owner approval, multiple houses with one active, Make active.
 - Quiet times per house: the start/end editor with days, 15-minute steps, crossing midnight, "this day or all days" editing.
 - Schedule: day view with side-by-side lanes, a now line, a week toggle, filled vs away (outlined) blocks.

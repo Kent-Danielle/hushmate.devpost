@@ -59,7 +59,7 @@ The proving moment: a gentle, anonymous nudge arrives as a real notification on 
 
 ## The POC Boundary
 **Now:**
-- A hosted PWA, usable straight from a link, with onboarding for notifications (and Home Screen on iPhone)
+- A hosted, mobile-first PWA (no offline mode, no install prompts), usable straight from a link, with onboarding for notifications (and Home Screen on iPhone)
 - Signing up as a house and inviting housemates
 - Multiple groups per person, with one active at a time
 - Recurring weekly quiet times, with an intuitive per-day schedule editor
