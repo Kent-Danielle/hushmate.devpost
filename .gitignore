@@ -1,0 +1,10 @@
+# Personal learning context (Devpost Learn) — kept out of commits by default
+/devpost/learner-profile.md
+
+# Local credentials — never commit; a secret-free .env.example is fine
+.env
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
