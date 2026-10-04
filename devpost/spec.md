@@ -149,7 +149,7 @@ Versions verified on 2026-10-03 against npm: Vite 8.3, React 19.3, React Router 
 
 **Database → Supabase (free)** (`External Services and Dependencies > Supabase`):
 1. `supabase projects list` checks the free-project limit.
-2. The agent confirms the **name** (`hushmate`) and **region** with the learner (the region nearest Fly's `sea`), then runs `supabase projects create` with a generated database password.
+2. The agent confirms the **name** (`hushmate`) and **region** with the learner (the region nearest Fly's `sjc`; the existing `hushmate.hackathon` project in us-west-2 was used), then runs `supabase projects create` with a generated database password.
 3. The agent creates the dedicated **`prisma` database user** per Supabase's Prisma guide, using `psql` and a generated password.
 4. The agent writes the **Session pooler** URL to `.env.production.local`:
    `DATABASE_URL=postgresql://prisma.<project-ref>:<password>@<pooler-host>:5432/postgres?sslmode=no-verify`
@@ -158,7 +158,7 @@ Versions verified on 2026-10-03 against npm: Vite 8.3, React 19.3, React Router 
 
 **Backend → Fly.io (a new app)** (`Infrastructure and config > fly.toml`):
 1. `brew install flyctl`.
-2. `cd backend && fly launch --no-deploy --ha=false --name <app> --region sea`.
+2. `fly apps create hushmate-api`, then deploy with `fly deploy --ha=false` (Fly's `sea` region is deprecated for new resources, so the app runs in `sjc`).
    - `--ha=false` gives **one** machine instead of Fly's default two.
    - `fly launch` writes `auto_stop_machines = "stop"`, so the agent replaces `fly.toml` with the spec's version.
 3. `fly config validate --strict`.
@@ -625,12 +625,12 @@ PRD ref: `prd.md > Houses and the Active House`.
 - **`backend/Dockerfile`**, multi-stage on `node:24-bookworm-slim`:
   - `dev`: deps + source, for compose
   - `build`: `npm ci`, `prisma generate`, `nest build` (which also compiles `prisma/seed.ts` → `dist/prisma/seed.js`)
-  - `runtime`: production deps, including `prisma@7`, plus `dist/` and `prisma/`, with `CMD ["node","dist/main.js"]` in **exec form** so it receives the stop signal
+  - `runtime`: production deps, including `prisma@7`, plus `dist/` and `prisma/`, with `CMD ["node","dist/src/main.js"]` (tsc `rootDir` is `backend/` so the seed compiles to `dist/prisma/seed.js`), plus `prisma.config.ts`, in **exec form** so it receives the stop signal
 - **`frontend/Dockerfile`:** for development only (Vite dev server). Vercel builds from source.
 - **`backend/fly.toml`:**
   ```toml
   app = "<app>"
-  primary_region = "sea"
+  primary_region = "sjc"
   kill_signal = "SIGTERM"
   kill_timeout = 30
   swap_size_mb = 512

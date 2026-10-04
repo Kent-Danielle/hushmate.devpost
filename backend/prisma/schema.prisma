@@ -1,0 +1,159 @@
+// Hushmate data model: devpost/spec.md > Data Model.
+// Prisma 7: the connection URL lives in prisma.config.ts, not here.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum MembershipStatus {
+  pending
+  approved
+  declined
+
+  @@map("membership_status")
+}
+
+model User {
+  id              String    @id @default(uuid()) @db.Uuid
+  name            String    @db.VarChar(30)
+  email           String    @unique
+  passwordHash    String?
+  isDemo          Boolean   @default(false)
+  isBot           Boolean   @default(false)
+  activeHouseId   String?   @db.Uuid
+  demoNextNudgeAt DateTime? @db.Timestamptz(3)
+  createdAt       DateTime  @default(now()) @db.Timestamptz(3)
+
+  activeHouse        House?             @relation("UserActiveHouse", fields: [activeHouseId], references: [id], onDelete: SetNull)
+  ownedHouses        House[]            @relation("HouseOwner")
+  memberships        Membership[]
+  quietTimes         QuietTime[]
+  nudgesSent         Nudge[]            @relation("NudgeSender")
+  nudgesReceived     Nudge[]            @relation("NudgeRecipient")
+  headsUps           HeadsUp[]
+  pushSubscriptions  PushSubscription[]
+
+  @@index([activeHouseId])
+  @@map("users")
+}
+
+model House {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(30)
+  nameKey     String
+  code        String   @db.Char(6)
+  inviteToken String   @unique
+  ownerId     String   @db.Uuid
+  isDemo      Boolean  @default(false)
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+
+  owner       User         @relation("HouseOwner", fields: [ownerId], references: [id])
+  activeUsers User[]       @relation("UserActiveHouse")
+  memberships Membership[]
+  quietTimes  QuietTime[]
+  nudges      Nudge[]
+  headsUps    HeadsUp[]
+
+  @@unique([nameKey, code])
+  @@index([ownerId])
+  @@map("houses")
+}
+
+model Membership {
+  id          String           @id @default(uuid()) @db.Uuid
+  userId      String           @db.Uuid
+  houseId     String           @db.Uuid
+  status      MembershipStatus @default(pending)
+  colorIndex  Int?
+  createdAt   DateTime         @default(now()) @db.Timestamptz(3)
+  decidedAt   DateTime?        @db.Timestamptz(3)
+  setupDoneAt DateTime?        @db.Timestamptz(3)
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  house House @relation(fields: [houseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, houseId])
+  @@index([houseId, status])
+  @@map("memberships")
+}
+
+model QuietTime {
+  id          String @id @default(uuid()) @db.Uuid
+  userId      String @db.Uuid
+  houseId     String @db.Uuid
+  setId       String @db.Uuid
+  dayOfWeek   Int    @db.SmallInt
+  startMinute Int    @db.SmallInt
+  endMinute   Int    @db.SmallInt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  house House @relation(fields: [houseId], references: [id], onDelete: Cascade)
+
+  @@index([houseId])
+  @@index([userId, houseId])
+  @@index([setId])
+  @@map("quiet_times")
+}
+
+model Nudge {
+  id             String    @id @default(uuid()) @db.Uuid
+  houseId        String    @db.Uuid
+  senderId       String    @db.Uuid
+  recipientId    String    @db.Uuid
+  messageIndex   Int       @db.SmallInt
+  isDemo         Boolean   @default(false)
+  createdAt      DateTime  @default(now()) @db.Timestamptz(3)
+  acknowledgedAt DateTime? @db.Timestamptz(3)
+
+  house     House @relation(fields: [houseId], references: [id], onDelete: Cascade)
+  sender    User  @relation("NudgeSender", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient User  @relation("NudgeRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@index([senderId, createdAt])
+  @@index([recipientId, acknowledgedAt])
+  @@index([houseId, createdAt])
+  @@map("nudges")
+}
+
+model HeadsUp {
+  id        String   @id @default(uuid()) @db.Uuid
+  houseId   String   @db.Uuid
+  authorId  String   @db.Uuid
+  text      String   @db.VarChar(200)
+  at        DateTime @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  house  House @relation(fields: [houseId], references: [id], onDelete: Cascade)
+  author User  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([houseId, at])
+  @@map("heads_ups")
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_subscriptions")
+}
+
+model SystemState {
+  key   String   @id
+  value DateTime @db.Timestamptz(3)
+
+  @@map("system_state")
+}

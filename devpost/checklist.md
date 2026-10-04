@@ -11,7 +11,7 @@ Each `Build:` names the owning agent for each group of files (`database`, `backe
 
 ## Slices
 
-- [ ] **1. Hushmate is live: the landing page opens from a link on your phone**
+- [x] **1. Hushmate is live: the landing page opens from a link on your phone**
   Becomes usable: The Vercel URL shows the Hushmate landing page (Sign up / Sign in, cozy-midnight look, dark or light following the phone), and on iPhone it can be added to the Home Screen with the Hushmate icon. The Fly backend answers `/health` with the Supabase database connected. The same stack runs locally with one compose command.
   Why now: Hosting is the biggest unknown (three services, the pooler URL, one always-on machine), and phone push needs HTTPS, so every later slice needs a live URL to land on. Bootstrapping belongs here. The approved Data Model is migrated in full now so later slices add behavior, not schema churn.
   PRD ref: `prd.md > The Core Journey` (A.1), `prd.md > Screens and Layout` (Landing), `prd.md > Look and Feel`, `prd.md > Product Decisions` (mobile-first PWA)
@@ -106,3 +106,9 @@ Activity mode: not started
 ## Revisions
 
 - 2026-10-04: Implementation is delegated to claude-forge subagents (database, backend, frontend, tester), briefed per slice from spec.md. This 5-build session plans, verifies, commits and records. It doesn't write feature code itself.
+- 2026-10-04 (slice 1): Fly's `sea` region is deprecated for new resources, so the backend runs in `sjc` (San Jose, nearest open region to Supabase us-west-2). The app was created with `fly apps create hushmate-api` and deployed with `fly deploy --ha=false`, instead of `fly launch`. spec.md updated.
+- 2026-10-04 (slice 1): The learner's existing Supabase project `hushmate.hackathon` (us-west-2) was used instead of creating a new one. The `prisma` role was created via the Management API (`supabase db query --linked`), so the owner password was never needed.
+- 2026-10-04 (slice 1): The init migration's `CREATE SCHEMA IF NOT EXISTS "public"` (emitted by `migrate diff --from-empty`) failed on Supabase for the least-privilege `prisma` role. The statement was removed, not the privileges widened.
+- 2026-10-04 (slice 1): The compiled entry is `dist/src/main.js`, not `dist/main.js`, so `prisma/seed.ts` compiles to `dist/prisma/seed.js` as `prisma.config.ts` expects. spec.md updated.
+- 2026-10-04 (slice 1): The database agent added indexes on `users.activeHouseId`, `houses.ownerId` and `quiet_times.setId`, plus `onDelete: Cascade` on child foreign keys, beyond the Data Model table. These are internal and support existing queries.
+- 2026-10-04 (slice 1): The free URLs are used for now (`https://hushmate-kappa.vercel.app`, `https://hushmate-api.fly.dev`). A custom domain comes later. `VAPID_SUBJECT` is the app's https URL rather than a personal email.
