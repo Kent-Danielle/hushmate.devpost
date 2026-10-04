@@ -1,0 +1,777 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hushmate PRD</title>
+<meta name="description" content="Visual review companion for devpost/prd.md (Markdown is canonical).">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  /* Tokens mirror ../../planning/design-system/tokens.css (dark-first, light-ready). Fonts fall back offline. */
+  :root {
+    --bg: #121A33; --s1: #1A2342; --s2: #232D52; --line: #2E3A66; --ctl: #6874A6;
+    --text: #F3E9D2; --text2: #B8B4CF; --text3: #9A96BA; --night: #121A33;
+    --brand: #B9B4FF; --on-brand: #121A33;
+    --nudge: #FFB9A3; --ack: #A8E6CF; --streak: #FFE08A;
+    --you: #B9B4FF; --m1: #A9D3FF; --m2: #F4A9C8; --m3: #BFD8A6; --m4: #9EE0DC; --m5: #E3B5F0;
+    --you-ink: #B9B4FF; --m1-ink: #A9D3FF; --m2-ink: #F4A9C8; --m3-ink: #BFD8A6;
+    --assume: #FFE08A; --design: #A9D3FF; --suggest: #E3B5F0;
+    --display: "Fredoka", ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+    --ui: "Nunito", ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --ease: cubic-bezier(.22,1,.36,1);
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #F7F4EE; --s1: #FFFFFF; --s2: #EFEBE3; --line: #DDD7CB; --ctl: #8C8598;
+      --text: #121A33; --text2: #4E4B66; --text3: #615E7A;
+      --brand: #5F57D4; --on-brand: #FFFFFF;
+      --you-ink: #5F57D4; --m1-ink: #2D69A8; --m2-ink: #AE356A; --m3-ink: #4A7330;
+      --assume: #8A6400; --design: #2D69A8; --suggest: #8E3DAA;
+      color-scheme: light;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #F7F4EE; --s1: #FFFFFF; --s2: #EFEBE3; --line: #DDD7CB; --ctl: #8C8598;
+    --text: #121A33; --text2: #4E4B66; --text3: #615E7A;
+    --brand: #5F57D4; --on-brand: #FFFFFF;
+    --you-ink: #5F57D4; --m1-ink: #2D69A8; --m2-ink: #AE356A; --m3-ink: #4A7330;
+    --assume: #8A6400; --design: #2D69A8; --suggest: #8E3DAA;
+    color-scheme: light;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 400 16px/1.6 var(--ui); }
+  main { max-width: 1000px; margin: 0 auto; padding: 28px 16px 72px; }
+  h1, h2, h3 { font-family: var(--display); font-weight: 600; line-height: 1.2; margin: 0; }
+  h1 { font-size: clamp(2rem, 5vw, 2.8rem); }
+  h2 { font-size: 1.4rem; margin-bottom: 14px; }
+  h3 { font-size: 1.05rem; }
+  p { margin: 0 0 10px; }
+  a { color: var(--brand); }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .86em; background: var(--s2); padding: 1px 6px; border-radius: 6px; }
+  .muted { color: var(--text2); }
+  .small { font-size: .9rem; }
+  section { margin-top: 36px; }
+  .card { background: var(--s1); border-radius: 16px; padding: 18px; }
+  .grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 780px) { .g2 { grid-template-columns: 1fr 1fr; } .g3 { grid-template-columns: repeat(3, 1fr); } }
+
+  /* header */
+  .topbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font: 700 12px/18px var(--ui); background: var(--s2); color: var(--text2); }
+  .chip.draft { background: var(--streak); color: var(--night); }
+  .theme-btn { margin-left: auto; }
+  .tagline { font: 500 1.2rem/1.5 var(--display); color: var(--brand); margin-top: 6px; }
+  .lede { color: var(--text2); max-width: 62ch; margin-top: 8px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 16px; font-size: .85rem; color: var(--text2); }
+  .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .lg-decided::before { background: var(--brand); }
+  .lg-assume::before { background: var(--assume); }
+  .lg-design::before { background: var(--design); }
+  .lg-suggest::before { background: var(--suggest); }
+
+  /* tags inline */
+  .tag { display: inline-block; font: 700 11px/16px var(--ui); padding: 1px 7px; border-radius: 6px; border: 1px solid currentColor; margin-left: 4px; white-space: nowrap; vertical-align: 1px; }
+  .t-assume { color: var(--assume); }
+  .t-design { color: var(--design); }
+  .t-suggest { color: var(--suggest); }
+
+  button { font: 700 14px/20px var(--ui); color: var(--text); background: transparent; border: 1.5px solid var(--ctl); border-radius: 999px; padding: 7px 14px; cursor: pointer; min-height: 36px; }
+  button:hover { border-color: var(--brand); }
+  button[aria-pressed="true"], button.on { background: var(--brand); color: var(--on-brand); border-color: var(--brand); }
+  button:disabled { opacity: .4; cursor: default; }
+  button:focus-visible, summary:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+
+  /* expansion */
+  .exp { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .exp .from { font-size: .82rem; color: var(--text3); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+  .exp .said { font-family: var(--display); font-weight: 500; font-size: 1.05rem; margin: 2px 0 10px; color: var(--text2); }
+  .exp ul { margin: 0; padding-left: 1.1em; }
+  .exp li { margin: 3px 0; }
+
+  /* diagrams */
+  figure { margin: 0; }
+  figure svg { display: block; width: 100%; height: auto; max-width: 440px; margin: 0 auto; }
+  figcaption { text-align: center; color: var(--text2); font-size: .9rem; margin-top: 10px; }
+  .d-box { fill: var(--s2); }
+  .d-box2 { fill: var(--s1); stroke: var(--ctl); stroke-width: 1.2; stroke-dasharray: 5 4; }
+  .d-t { fill: var(--text); font: 700 13.5px var(--ui); }
+  .d-s { fill: var(--text2); font: 400 12px var(--ui); }
+  .d-cap { fill: var(--text3); font: 700 11px var(--ui); letter-spacing: .08em; }
+  .d-ln { stroke: var(--text3); stroke-width: 1.5; fill: none; }
+  .d-dash { stroke: var(--line); stroke-width: 1.5; fill: none; stroke-dasharray: 4 6; }
+  .d-hd { fill: var(--text3); }
+  .p-nudge { fill: var(--nudge); } .p-ack { fill: var(--ack); } .p-streak { fill: var(--streak); } .p-brand { fill: var(--brand); }
+  .d-tn { fill: var(--night); font: 700 13.5px var(--ui); }
+  .d-sn { fill: var(--night); font: 400 12px var(--ui); opacity: .85; }
+  .d-pill { fill: var(--bg); stroke: var(--line); }
+  .d-pl { fill: var(--text2); font: 700 11px var(--ui); }
+
+  /* journey stepper */
+  .seg { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .steps { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+  .steps li { counter-increment: s; position: relative; padding: 11px 14px 11px 50px; border-radius: 12px; background: var(--s1); margin-bottom: 8px; cursor: pointer; transition: background .24s var(--ease); }
+  .steps li::before { content: counter(s); position: absolute; left: 12px; top: 10px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font: 700 13px var(--ui); background: var(--s2); color: var(--text2); }
+  .steps li.cur { background: var(--s2); box-shadow: inset 0 0 0 1.5px var(--brand); }
+  .steps li.cur::before { background: var(--brand); color: var(--on-brand); }
+  .js .journey[hidden] { display: none; }
+  .ctrls { display: none; gap: 8px; align-items: center; margin: 4px 0 12px; }
+  .js .ctrls { display: flex; }
+  .success { margin-top: 12px; padding: 14px 16px; border-radius: 14px; background: var(--ack); color: var(--night); font-weight: 700; }
+
+  /* screens */
+  details.scr { background: var(--s1); border-radius: 16px; margin-bottom: 10px; }
+  details.scr > summary { list-style: none; cursor: pointer; padding: 14px 18px; display: flex; gap: 10px; align-items: center; font: 600 1.05rem/1.3 var(--display); }
+  details.scr > summary::-webkit-details-marker { display: none; }
+  details.scr > summary .sub { font: 400 .85rem var(--ui); color: var(--text2); }
+  details.scr > summary::after { content: "+"; margin-left: auto; color: var(--text2); font: 400 1.3rem var(--ui); }
+  details.scr[open] > summary::after { content: "−"; }
+  .scr-body { padding: 0 18px 18px; display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 780px) { .scr-body { grid-template-columns: 1fr 1fr; } }
+  .scr-body h4 { margin: 0 0 6px; font: 700 12px/16px var(--ui); letter-spacing: .08em; text-transform: uppercase; color: var(--text3); }
+  .scr-body ul { margin: 0; padding-left: 1.1em; }
+  .scr-body li { margin: 4px 0; }
+  ul.crit { list-style: none; padding-left: 0; }
+  ul.crit li { padding-left: 26px; position: relative; }
+  ul.crit li::before { content: ""; position: absolute; left: 0; top: 4px; width: 15px; height: 15px; border-radius: 4px; border: 1.5px solid var(--ack); }
+
+  /* look & feel */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+  .sw { border-radius: 12px; padding: 10px; min-height: 76px; color: var(--night); font: 700 13px/1.3 var(--ui); display: flex; flex-direction: column; justify-content: flex-end; }
+  .sw small { font-weight: 400; opacity: .8; }
+  .sw.night { background: #121A33; color: #F3E9D2; box-shadow: inset 0 0 0 1px var(--line); }
+  .typeset .disp { font: 600 2.2rem/1.1 var(--display); }
+  .typeset .voice { font: 500 1.15rem/1.5 var(--display); }
+  .blocks { display: flex; gap: 10px; flex-wrap: wrap; }
+  .blk { border-radius: 12px; padding: 10px 12px; min-width: 150px; font-weight: 700; font-size: .9rem; }
+  .blk small { display: block; font-weight: 400; }
+  .blk.fill { background: var(--m1); color: var(--night); }
+  .blk.out { border: 2px solid var(--m1-ink); color: var(--m1-ink); }
+  .resting { display: flex; align-items: center; gap: 12px; }
+  .av { width: 44px; height: 44px; border-radius: 50%; background: var(--m2); color: var(--night); display: grid; place-items: center; font: 600 18px var(--display); position: relative; }
+  .av::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid var(--m2); animation: breathe 4s cubic-bezier(.45,0,.55,1) infinite; }
+  @keyframes breathe { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .av::after { animation: none; opacity: .7; } }
+  .msgs { display: grid; gap: 10px; }
+  .msg { background: var(--s2); border-radius: 16px; padding: 14px 16px; font: 500 1.02rem/1.5 var(--display); }
+  .msg .n { font: 700 11px var(--ui); color: var(--nudge); display: block; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 2px; }
+
+  /* lists */
+  details.lst { background: var(--s1); border-radius: 16px; margin-bottom: 10px; }
+  details.lst > summary { list-style: none; cursor: pointer; padding: 14px 18px; font: 600 1rem var(--display); display: flex; gap: 10px; align-items: center; }
+  details.lst > summary::-webkit-details-marker { display: none; }
+  details.lst > summary::after { content: "+"; margin-left: auto; color: var(--text2); font: 400 1.3rem var(--ui); }
+  details.lst[open] > summary::after { content: "−"; }
+  details.lst ul { margin: 0; padding: 0 18px 16px 38px; }
+  details.lst li { margin: 5px 0; }
+  .cnt { font: 700 12px var(--ui); padding: 1px 9px; border-radius: 999px; background: var(--s2); color: var(--text2); }
+  .why { display: block; color: var(--text2); font-size: .9rem; }
+
+  /* confirm panel */
+  .confirm { background: var(--s1); border-radius: 16px; padding: 18px; box-shadow: inset 0 0 0 1.5px var(--assume); }
+  .confirm ol { margin: 0; padding-left: 1.3em; }
+  .confirm li { margin: 6px 0; }
+
+  footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--text3); font-size: .85rem; }
+</style>
+</head>
+<body>
+<main>
+
+  <header>
+    <div class="topbar">
+      <span class="chip draft">Draft · awaiting your review</span>
+      <span class="chip">Product requirements</span>
+      <button type="button" class="theme-btn" id="themeBtn" aria-label="Switch light or dark">Switch light / dark</button>
+    </div>
+    <h1>Hushmate</h1>
+    <div class="tagline">Less shush, more hush.</div>
+    <p class="lede">A hosted web app (PWA) where housemates, students in shared housing first, share their quiet times and can nudge each other anonymously, with the app itself as the messenger.</p>
+    <div class="legend" aria-label="Legend">
+      <span class="lg-decided">Your decision (unlabelled)</span>
+      <span class="lg-assume">Assumption: confirm</span>
+      <span class="lg-design">Design spec: confirm</span>
+      <span class="lg-suggest">Agent suggestion: confirm</span>
+    </div>
+  </header>
+
+  <!-- Scope → now -->
+  <section aria-labelledby="exp-h">
+    <h2 id="exp-h">Scope said… now we know</h2>
+    <div class="grid g2 exp">
+      <div class="card">
+        <div class="from">scope › The Unique Kernel</div>
+        <div class="said">“Anonymous nudging”</div>
+        <ul class="small">
+          <li>Nudge → pick a housemate. Away housemates are listed but can't be nudged <span class="tag t-assume">assume</span></li>
+          <li>A confirmation first if they're in their quiet time</li>
+          <li>One of 5 app-voice messages, picked at random</li>
+          <li>One nudge per 5 minutes per sender</li>
+          <li>Only the sender and the recipient ever know</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="from">scope › The Core Loop</div>
+        <div class="said">“Set your weekly quiet times… they can differ by day”</div>
+        <ul class="small">
+          <li>Start and end time pickers in 15-minute steps, plus days Monday to Sunday = one <em>set</em></li>
+          <li>Ends earlier than it starts → it ends the next morning <span class="tag t-suggest">suggest</span></li>
+          <li>Edit “just this day” or “all days in this set”</li>
+          <li>Per house, optional, editable only in your active house</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="from">scope › The POC Boundary</div>
+        <div class="said">“Multiple groups, with one active at a time”</div>
+        <ul class="small">
+          <li>House cards: Active · Inactive · Pending · Declined</li>
+          <li><code>Name#123456</code> IDs, joining by link or ID search, with owner approval</li>
+          <li>Nudge and be nudged only in your active house</li>
+          <li>Your quiet times are filled where you're active and outlined (“away”) elsewhere</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="from">scope › What “Working” Looks Like</div>
+        <div class="said">“A judge joins a demo group… simulated nudges”</div>
+        <ul class="small">
+          <li>3 bots + 3 locked demo accounts, with no public join link</li>
+          <li>A welcome card, and nudges labelled “Demo”, never-ending until you log out</li>
+          <li>Quiet Streak fixed at 10 days, with a note</li>
+          <li>A nightly reset back to the starting state</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diagrams -->
+  <section aria-labelledby="dia-h">
+    <h2 id="dia-h">The journey, drawn</h2>
+    <div class="grid g2">
+      <figure class="card">
+        <svg viewBox="0 0 420 592" role="img" aria-labelledby="a1 a2">
+          <title id="a1">Arrival</title>
+          <desc id="a2">From the link to the landing page. A new user signs up with name, email and password, creates or joins a house (joining needs owner approval), optionally sets first quiet times, has their first house made active, and turns on notifications. A judge signs in with one of three demo accounts, sees the welcome card, and turns on notifications. Both arrive at the Schedule screen, with tabs Schedule, Summary, Houses and Profile.</desc>
+          <defs><marker id="h1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10z" class="d-hd"/></marker></defs>
+
+          <rect x="110" y="8" width="200" height="46" rx="12" class="d-box"/>
+          <text x="210" y="28" text-anchor="middle" class="d-t">Open the link</text>
+          <text x="210" y="45" text-anchor="middle" class="d-s">nothing to install</text>
+          <line x1="210" y1="54" x2="210" y2="72" class="d-ln" marker-end="url(#h1)"/>
+          <rect x="110" y="76" width="200" height="46" rx="12" class="d-box"/>
+          <text x="210" y="96" text-anchor="middle" class="d-t">Landing</text>
+          <text x="210" y="113" text-anchor="middle" class="d-s">Sign up · Sign in</text>
+
+          <path d="M170,122 V134 H110 V150" class="d-ln" marker-end="url(#h1)"/>
+          <path d="M250,122 V134 H310 V150" class="d-ln" marker-end="url(#h1)"/>
+          <text x="110" y="146" text-anchor="middle" class="d-cap" dy="-16">NEW USER</text>
+          <text x="310" y="146" text-anchor="middle" class="d-cap" dy="-16">JUDGE</text>
+
+          <rect x="20" y="154" width="180" height="46" rx="12" class="d-box"/>
+          <text x="110" y="174" text-anchor="middle" class="d-t">Sign up</text>
+          <text x="110" y="191" text-anchor="middle" class="d-s">name · email · password</text>
+          <line x1="110" y1="200" x2="110" y2="212" class="d-ln" marker-end="url(#h1)"/>
+          <rect x="20" y="216" width="180" height="46" rx="12" class="d-box"/>
+          <text x="110" y="236" text-anchor="middle" class="d-t">Create or join a house</text>
+          <text x="110" y="253" text-anchor="middle" class="d-s">join → owner approves</text>
+          <line x1="110" y1="262" x2="110" y2="274" class="d-ln" marker-end="url(#h1)"/>
+          <rect x="20" y="278" width="180" height="46" rx="12" class="d-box2"/>
+          <text x="110" y="298" text-anchor="middle" class="d-t">First quiet times</text>
+          <text x="110" y="315" text-anchor="middle" class="d-s">optional · skippable</text>
+          <line x1="110" y1="324" x2="110" y2="336" class="d-ln" marker-end="url(#h1)"/>
+          <rect x="20" y="340" width="180" height="40" rx="12" class="d-box"/>
+          <text x="110" y="365" text-anchor="middle" class="d-t">First house → active</text>
+          <line x1="110" y1="380" x2="110" y2="392" class="d-ln" marker-end="url(#h1)"/>
+
+          <rect x="220" y="154" width="180" height="46" rx="12" class="d-box"/>
+          <text x="310" y="174" text-anchor="middle" class="d-t">Sign in</text>
+          <text x="310" y="191" text-anchor="middle" class="d-s">one of 3 demo accounts</text>
+          <line x1="310" y1="200" x2="310" y2="212" class="d-ln" marker-end="url(#h1)"/>
+          <rect x="220" y="216" width="180" height="46" rx="12" class="d-box"/>
+          <text x="310" y="236" text-anchor="middle" class="d-t">Welcome card</text>
+          <text x="310" y="253" text-anchor="middle" class="d-s">DevPost Demo House</text>
+          <line x1="310" y1="262" x2="310" y2="392" class="d-ln" marker-end="url(#h1)"/>
+
+          <rect x="20" y="396" width="180" height="46" rx="12" class="p-brand"/>
+          <text x="110" y="416" text-anchor="middle" class="d-tn">Turn on notifications</text>
+          <text x="110" y="433" text-anchor="middle" class="d-sn">iPhone: Home Screen first</text>
+          <rect x="220" y="396" width="180" height="46" rx="12" class="p-brand"/>
+          <text x="310" y="416" text-anchor="middle" class="d-tn">Turn on notifications</text>
+          <text x="310" y="433" text-anchor="middle" class="d-sn">this device</text>
+
+          <path d="M110,442 V460 H170 V474" class="d-ln" marker-end="url(#h1)"/>
+          <path d="M310,442 V460 H250 V474" class="d-ln" marker-end="url(#h1)"/>
+          <rect x="70" y="478" width="280" height="46" rx="12" class="d-box"/>
+          <text x="210" y="498" text-anchor="middle" class="d-t">Schedule (home)</text>
+          <text x="210" y="515" text-anchor="middle" class="d-s">today's calendar · Nudge</text>
+
+          <rect x="16" y="546" width="92" height="30" rx="15" class="d-pill"/><text x="62" y="566" text-anchor="middle" class="d-pl">Schedule</text>
+          <rect x="116" y="546" width="92" height="30" rx="15" class="d-pill"/><text x="162" y="566" text-anchor="middle" class="d-pl">Summary</text>
+          <rect x="216" y="546" width="92" height="30" rx="15" class="d-pill"/><text x="262" y="566" text-anchor="middle" class="d-pl">Houses</text>
+          <rect x="316" y="546" width="92" height="30" rx="15" class="d-pill"/><text x="362" y="566" text-anchor="middle" class="d-pl">Profile</text>
+        </svg>
+        <figcaption>Arrival: two doors, one home screen.</figcaption>
+      </figure>
+
+      <figure class="card">
+        <svg viewBox="0 0 420 592" role="img" aria-labelledby="b1 b2">
+          <title id="b1">The nudge round trip</title>
+          <desc id="b2">B taps Nudge and picks A. If A is in their quiet time, B confirms first. B sees Nudge sent quietly and a five-minute cooldown starts. A gets a notification if notifications are on, or the overlay on next open, with a random message in the app's voice and no sender. A taps Got it. B learns quietly, through a Summary card only B can see and a toast if B opens the app within an hour. For everyone else, the Quiet Streak resets and nobody is named.</desc>
+          <defs><marker id="h2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10z" class="d-hd"/></marker></defs>
+
+          <text x="105" y="22" text-anchor="middle" class="d-cap">B · DISTURBED</text>
+          <text x="315" y="22" text-anchor="middle" class="d-cap">A · BEING LOUD</text>
+          <line x1="105" y1="32" x2="105" y2="470" class="d-dash"/>
+          <line x1="315" y1="32" x2="315" y2="470" class="d-dash"/>
+
+          <rect x="20" y="40" width="170" height="46" rx="12" class="d-box"/>
+          <text x="105" y="60" text-anchor="middle" class="d-t">Taps Nudge</text>
+          <text x="105" y="77" text-anchor="middle" class="d-s">picks A from the list</text>
+          <line x1="105" y1="86" x2="105" y2="100" class="d-ln" marker-end="url(#h2)"/>
+          <rect x="20" y="104" width="170" height="46" rx="12" class="d-box2"/>
+          <text x="105" y="124" text-anchor="middle" class="d-t">A resting?</text>
+          <text x="105" y="141" text-anchor="middle" class="d-s">confirm first</text>
+          <line x1="105" y1="150" x2="105" y2="164" class="d-ln" marker-end="url(#h2)"/>
+          <rect x="20" y="168" width="170" height="46" rx="12" class="p-nudge"/>
+          <text x="105" y="188" text-anchor="middle" class="d-tn">“Nudge sent quietly”</text>
+          <text x="105" y="205" text-anchor="middle" class="d-sn">5-minute cooldown</text>
+
+          <path d="M190,191 H212 V285 H226" class="d-ln" marker-end="url(#h2)"/>
+          <rect x="152" y="220" width="120" height="32" rx="10" class="d-pill"/>
+          <text x="212" y="233" text-anchor="middle" class="d-pl">app's voice</text>
+          <text x="212" y="246" text-anchor="middle" class="d-pl">sender hidden</text>
+
+          <rect x="230" y="262" width="170" height="46" rx="12" class="d-box"/>
+          <text x="315" y="282" text-anchor="middle" class="d-t">Notification (if on)</text>
+          <text x="315" y="299" text-anchor="middle" class="d-s">or overlay on next open</text>
+          <line x1="315" y1="308" x2="315" y2="322" class="d-ln" marker-end="url(#h2)"/>
+          <rect x="230" y="326" width="170" height="46" rx="12" class="p-ack"/>
+          <text x="315" y="346" text-anchor="middle" class="d-tn">Overlay → Got it</text>
+          <text x="315" y="363" text-anchor="middle" class="d-sn">must acknowledge</text>
+
+          <path d="M230,349 H208 V431 H194" class="d-ln" marker-end="url(#h2)"/>
+          <rect x="178" y="380" width="60" height="22" rx="10" class="d-pill"/>
+          <text x="208" y="395" text-anchor="middle" class="d-pl">quietly</text>
+
+          <rect x="20" y="408" width="170" height="46" rx="12" class="d-box"/>
+          <text x="105" y="428" text-anchor="middle" class="d-t">Summary card (only B)</text>
+          <text x="105" y="445" text-anchor="middle" class="d-s">+ toast if open ≤ 1 hour</text>
+
+          <rect x="20" y="490" width="380" height="54" rx="14" class="p-streak"/>
+          <text x="210" y="512" text-anchor="middle" class="d-tn">For everyone else: Quiet Streak → 0</text>
+          <text x="210" y="530" text-anchor="middle" class="d-sn">no names, no nudge history, no sender</text>
+        </svg>
+        <figcaption>The kernel: B and A each know their own side, and nobody else knows anything.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- Core journey stepper -->
+  <section aria-labelledby="cj-h">
+    <h2 id="cj-h">The core journey</h2>
+    <div class="seg" role="group" aria-label="Choose journey">
+      <button type="button" class="on" data-j="a" aria-pressed="true">A · New user (a real house)</button>
+      <button type="button" data-j="b" aria-pressed="false">B · Judge (a demo account)</button>
+    </div>
+    <div class="ctrls">
+      <button type="button" id="jPrev">← Back</button>
+      <button type="button" id="jNext">Next →</button>
+      <span class="small muted" id="jPos" aria-live="polite"></span>
+    </div>
+    <ol class="steps journey" id="ja">
+      <li>Open the link. The landing page offers <strong>Sign up</strong> or <strong>Sign in</strong>. There's nothing to install.</li>
+      <li>Sign up with <strong>name, email and password</strong>.</li>
+      <li>Onboarding: <strong>create a house</strong> or <strong>join one</strong>, by invite link or by searching an ID like <code>MapleHouse#482913</code>.</li>
+      <li>A join request waits for the owner to accept it. Creating a house needs no approval.</li>
+      <li>Optionally set your <strong>first quiet times</strong> (skippable).</li>
+      <li>Your first house becomes your <strong>active house</strong>.</li>
+      <li>Turn on <strong>notifications</strong>. On iPhone, add Hushmate to the Home Screen first.</li>
+      <li>Land on <strong>Schedule</strong>: today's calendar with each housemate's quiet times side by side, and <strong>Nudge</strong>.</li>
+      <li>Day to day: check <strong>who's resting now</strong> and post <strong>heads-ups</strong> on <strong>Summary</strong>.</li>
+      <li>Someone's loud → <strong>Nudge</strong> → the app reminds them in its own voice. They never learn it was you.</li>
+      <li>They tap <strong>Got it</strong>. You quietly see it was acknowledged.</li>
+      <li>Every nudge-free day grows the house's <strong>Quiet Streak</strong>.</li>
+    </ol>
+    <ol class="steps journey" id="jb">
+      <li>Open the link and <strong>sign in</strong> with one of three demo accounts (credentials are on the Devpost page and in the README).</li>
+      <li>A <strong>welcome card</strong> explains DevPost Demo House: three simulated housemates, and nudges that arrive often.</li>
+      <li>Turn on <strong>notifications</strong> on this device.</li>
+      <li>See the house on <strong>Schedule</strong>. One simulated housemate has a <strong>morning</strong> quiet time.</li>
+      <li><strong>Nudge</strong> a housemate: a bot, or another judge on a different demo account.</li>
+      <li>Within <strong>10 minutes</strong>, a <strong>Demo</strong> nudge arrives as a real notification.</li>
+      <li>Open it and tap <strong>Got it</strong>.</li>
+      <li>More Demo nudges follow every <strong>30 minutes to 2 hours</strong> until you log out.</li>
+    </ol>
+    <div class="success">Success: a gentle, anonymous nudge arrives as a real notification on someone's own device, they acknowledge it, and the sender quietly learns it landed. Nobody else in the house knows.</div>
+  </section>
+
+  <!-- Screens -->
+  <section aria-labelledby="sc-h">
+    <h2 id="sc-h">Screens and behaviour</h2>
+    <p class="muted small">Tab bar: <strong>Schedule · Summary · Houses · Profile</strong> <span class="tag t-design">design: confirm</span>. Open each screen to see what's on it, what it does, its edge states, and how we'll know it works.</p>
+
+    <details class="scr">
+      <summary>Landing &amp; onboarding <span class="sub">sign up / in → house → quiet times → notifications</span></summary>
+      <div class="scr-body">
+        <div><h4>On screen &amp; behaviour</h4><ul>
+          <li>Sign up (name, email, password) or sign in (email, password)</li>
+          <li>Create or join a house → optional first quiet times → notification setup, with the iPhone Home Screen step</li>
+          <li>First house → active automatically. Houses joined later start inactive <span class="tag t-assume">assume</span></li>
+          <li>Waiting for approval → notification setup is offered right after the request, so you hear when you're approved <span class="tag t-assume">assume</span></li>
+          <li>Housemates only ever see your name</li>
+        </ul></div>
+        <div><h4>Edge states</h4><ul>
+          <li>Waiting for approval: Houses shows Pending, and Schedule shows an empty state inviting you to create a house or wait <span class="tag t-assume">assume</span></li>
+          <li>Notifications declined: everything still works</li>
+        </ul>
+        <h4 style="margin-top:12px">How we'll know</h4><ul class="crit">
+          <li>Sign up → sign out → sign in lands where you left off</li>
+          <li>Sign-up to Schedule of a house you created, without leaving the flow</li>
+          <li>Skipping quiet times still completes onboarding</li>
+          <li>The notification step shows iPhone Home Screen guidance</li>
+          <li>No screen shows a housemate's email</li>
+        </ul></div>
+      </div>
+    </details>
+
+    <details class="scr" open>
+      <summary>Schedule <span class="sub">home: day view, week toggle, Nudge</span></summary>
+      <div class="scr-body">
+        <div><h4>On screen &amp; behaviour</h4><ul>
+          <li>Day view by default, with a week toggle and <strong>no month view</strong></li>
+          <li>One lane per person, so overlaps sit side by side. “You” are lavender, and each housemate gets a pastel</li>
+          <li>Filled = counts in this house now. Outlined + “away” = another house is active</li>
+          <li>A “now” line. The <strong>Nudge</strong> button floats bottom-right <span class="tag t-design">design: confirm</span></li>
+          <li><strong>Quiet-time editor:</strong> start and end time pickers in 15-minute steps, plus days Monday to Sunday = one set</li>
+          <li>End earlier than start → “11:00 PM → 7:00 AM (next day)”, belonging to the night it starts <span class="tag t-suggest">suggest</span></li>
+          <li>Editing a set asks “just this day, or all days?” Just this day splits it off <span class="tag t-assume">assume</span></li>
+          <li>Add, edit and delete only in your active house, plus the optional step when joining</li>
+        </ul></div>
+        <div><h4>Edge states</h4><ul>
+          <li>No quiet times yet → “No quiet times yet” → <strong>Add quiet time</strong></li>
+          <li>Inactive house: viewable, not editable</li>
+        </ul>
+        <h4 style="margin-top:12px">How we'll know</h4><ul class="crit">
+          <li>Three overlapping quiet times all show side by side</li>
+          <li>“11:00 PM → 7:00 AM, Mon/Wed/Fri” continues into the next morning</li>
+          <li>“Just this day” vs “all days” edits behave as described</li>
+          <li>Only 15-minute steps can be picked</li>
+          <li>Switching day ↔ week keeps the same house and date</li>
+        </ul></div>
+      </div>
+    </details>
+
+    <details class="scr">
+      <summary>Nudge picker &amp; confirmation <span class="sub">the kernel, sender side</span></summary>
+      <div class="scr-body">
+        <div><h4>On screen &amp; behaviour</h4><ul>
+          <li>The “Who's being loud?” sheet lists all housemates in your active house <span class="tag t-design">design: confirm</span></li>
+          <li>Away housemates are listed but can't be nudged <span class="tag t-assume">assume</span>. You can't nudge yourself</li>
+          <li>Someone in their quiet time → a confirmation first (they may still be up and loud)</li>
+          <li>Nudge at any time, not just during your own quiet time</li>
+          <li>Toast: “Nudge sent quietly” <span class="tag t-design">design: confirm</span></li>
+          <li>One nudge per <strong>5 minutes</strong> per sender, with the countdown “Nudge again in 4:32” <span class="tag t-assume">per sender</span> <span class="tag t-design">countdown</span></li>
+        </ul></div>
+        <div><h4>Edge states</h4><ul>
+          <li>Cooldown: the button shows the time remaining</li>
+          <li>A house with only you in it: Nudge says there's nobody to nudge <span class="tag t-assume">assume</span></li>
+        </ul>
+        <h4 style="margin-top:12px">How we'll know</h4><ul class="crit">
+          <li>Nudging a non-resting housemate sends immediately and shows the toast</li>
+          <li>Nudging someone resting asks first, and cancelling sends nothing</li>
+          <li>A second nudge within 5 minutes is blocked, with the countdown visible</li>
+        </ul></div>
+      </div>
+    </details>
+
+    <details class="scr">
+      <summary>Nudge overlay &amp; “Got it” <span class="sub">the kernel, recipient side</span></summary>
+      <div class="scr-body">
+        <div><h4>On screen &amp; behaviour</h4><ul>
+          <li>A notification if it's on. Tapping it, or just opening the app, shows the overlay</li>
+          <li>The app icon, a random message in the app's voice, and a full-width mint <strong>Got it</strong></li>
+          <li>Must be acknowledged to dismiss. It appears on the next open even without notifications</li>
+          <li>Several waiting → one overlay, and Got it clears them all <span class="tag t-assume">assume</span></li>
+          <li>The sender learns quietly: a Summary card only they see, kept 24 hours <span class="tag t-assume">24 hours</span>, plus a toast if they open the app within 1 hour. No notification</li>
+        </ul></div>
+        <div><h4>How we'll know</h4><ul class="crit">
+          <li>Opening after a nudge shows the overlay before anything else</li>
+          <li>The message never contains the sender's name</li>
+          <li>Across many nudges, more than one of the five messages appears</li>
+          <li>The sender sees “acknowledged”, and no other housemate sees anything</li>
+          <li>Opening within an hour of the acknowledgement shows the toast</li>
+        </ul></div>
+      </div>
+    </details>
+
+    <details class="scr">
+      <summary>Summary <span class="sub">the house message board</span></summary>
+      <div class="scr-body">
+        <div><h4>On screen &amp; behaviour</h4><ul>
+          <li><strong>Quiet Streak:</strong> days since anyone in the house was nudged, counting up. Nobody knows who broke it</li>
+          <li><strong>Resting now:</strong> housemates currently in quiet time, with the breathing ring</li>
+          <li><strong>Heads-ups:</strong> free text (200 characters max) with a time and the author's name. No notification</li>
+          <li>A heads-up disappears once its time has passed <span class="tag t-assume">assume</span></li>
+          <li>Your acknowledged nudges (only you see them)</li>
+        </ul></div>
+        <div><h4>Edge states</h4><ul>
+          <li>Nobody resting: said warmly, not left blank</li>
+          <li>No heads-ups: an invitation to post one</li>
+        </ul>
+        <h4 style="margin-top:12px">How we'll know</h4><ul class="crit">
+          <li>More than 200 characters can't be posted, and a character count is shown</li>
+          <li>A heads-up shows the author and time to everyone in that house</li>
+          <li>After a nudge, the streak shows 0 without naming anyone</li>
+          <li>Someone mid-quiet-time appears under Resting now</li>
+        </ul></div>
+      </div>
+    </details>
+
+    <details class="scr">
+      <summary>Houses <span class="sub">membership, IDs, the active house</span></summary>
+      <div class="scr-body">
+        <div><h4>On screen &amp; behaviour</h4><ul>
+          <li>Cards: <strong>Active</strong> (top, lavender), <strong>Inactive</strong> (Make active), <strong>Pending</strong> (dashed), <strong>Declined</strong> (dismissible) <span class="tag t-assume">declined</span></li>
+          <li><strong>Create:</strong> you pick a name, and the app assigns <code>Name#123456</code> <span class="tag t-assume">assume</span></li>
+          <li><strong>Join:</strong> by invite link or ID search. Both need the owner's approval <span class="tag t-assume">assume</span></li>
+          <li>The owner accepts or declines requests here, with no notification. That's the owner's only extra power <span class="tag t-assume">assume</span></li>
+          <li>Switching never removes you from a house. You only nudge and get nudged in your active house</li>
+        </ul></div>
+        <div><h4>How we'll know</h4><ul class="crit">
+          <li>Same house name twice → different numbers</li>
+          <li>Accept moves Pending into the requester's list. Decline shows “Declined”</li>
+          <li>Make active → the house moves to the top, and the previous one becomes Inactive</li>
+          <li>After switching, your quiet times look outlined and “away” to the other house</li>
+        </ul></div>
+      </div>
+    </details>
+
+    <details class="scr">
+      <summary>Profile <span class="sub">theme, sign out</span></summary>
+      <div class="scr-body">
+        <div><h4>On screen &amp; behaviour</h4><ul>
+          <li>Your name and email, the theme (follow device / light / dark), and <strong>Sign out</strong></li>
+          <li>Only two notifications exist in the whole app: <strong>you've been nudged</strong> and <strong>your join request was approved</strong></li>
+        </ul></div>
+        <div><h4>How we'll know</h4><ul class="crit">
+          <li>Theme changes apply immediately and persist after signing back in</li>
+          <li>The default theme matches the device</li>
+          <li>No action other than those two produces a notification</li>
+        </ul></div>
+      </div>
+    </details>
+
+    <details class="scr">
+      <summary>DevPost Demo House <span class="sub">for judges</span></summary>
+      <div class="scr-body">
+        <div><h4>On screen &amp; behaviour</h4><ul>
+          <li>6 members: <strong>3 bots</strong> that feel like real people (names, weekly quiet times including a morning one, heads-ups) and <strong>3 demo accounts</strong></li>
+          <li>Demo accounts are <strong>locked</strong>: no changes to name, email or password; no deleting; no leaving, creating, joining or switching houses</li>
+          <li>People sharing an account share its nudges and edits (accepted)</li>
+          <li>A <strong>nightly reset</strong> returns it to the starting state, with fresh bot heads-ups each day <span class="tag t-assume">fresh heads-ups</span></li>
+          <li>Bot nudges: the first within 10 minutes of signing in, then every 30 minutes to 2 hours, never stopping, each labelled <strong>“Demo”</strong>. Signing out stops them on that device <span class="tag t-assume">assume</span></li>
+          <li>Welcome card (option A) <span class="tag t-suggest">copy</span>: “Welcome to DevPost Demo House. [bot names] are simulated housemates. They'll nudge you every 30 minutes to 2 hours so you can feel how Hushmate works. Log out anytime to stop the nudges.”</li>
+          <li>Streak fixed at 10 days <span class="tag t-suggest">note copy</span>: “This is a demo house, so its Quiet Streak is fixed at 10 days. In your own house, it counts the days since anyone was nudged.”</li>
+          <li>No special demo UI: judges use the normal sign-in</li>
+        </ul></div>
+        <div><h4>How we'll know</h4><ul class="crit">
+          <li>Each demo account lands in the demo house and sees the welcome card</li>
+          <li>A Demo nudge arrives within 10 minutes, and the next within 30 minutes to 2 hours</li>
+          <li>No locked control is reachable from a demo account</li>
+          <li>After the reset, yesterday's judge edits are gone, and the bots' schedules and heads-ups are back</li>
+          <li>The streak always shows 10 days, with its note</li>
+        </ul></div>
+      </div>
+    </details>
+  </section>
+
+  <!-- Look & feel -->
+  <section aria-labelledby="lf-h">
+    <h2 id="lf-h">Look and feel: “cozy midnight”</h2>
+    <p class="muted small">Decided in the branding session. Values come from <code>planning/design-system/tokens.css</code>. Flat: no gradients, no shadows, no mascot. Dark first, light ready, following the device with an override in Profile.</p>
+    <div class="grid g2">
+      <div class="card">
+        <h3 style="margin-bottom:10px">Colour has jobs</h3>
+        <div class="swatches">
+          <div class="sw night">Night<small>#121A33 base</small></div>
+          <div class="sw" style="background:#B9B4FF">Lavender<small>primary · you</small></div>
+          <div class="sw" style="background:#FFB9A3">Peach<small>the nudge only</small></div>
+          <div class="sw" style="background:#A8E6CF">Mint<small>Got it</small></div>
+          <div class="sw" style="background:#FFE08A">Butter<small>Quiet Streak</small></div>
+          <div class="sw" style="background:#A9D3FF">Sky<small>housemate</small></div>
+          <div class="sw" style="background:#F4A9C8">Rose<small>housemate</small></div>
+          <div class="sw" style="background:#BFD8A6">Sage<small>housemate</small></div>
+          <div class="sw" style="background:#9EE0DC">Aqua<small>housemate</small></div>
+          <div class="sw" style="background:#E3B5F0">Orchid<small>housemate</small></div>
+        </div>
+      </div>
+      <div class="card typeset">
+        <h3 style="margin-bottom:10px">Type &amp; motion</h3>
+        <div class="disp">10</div>
+        <p class="small muted" style="margin-top:-2px">Fredoka · Quiet Streak (counts up)</p>
+        <p class="voice">Someone nearby could use some quiet.</p>
+        <p class="small muted">Fredoka is the app's own voice. Nunito, like this line, is everything else.</p>
+        <div class="blocks" style="margin:14px 0">
+          <div class="blk fill">Jordan<small>11:00 PM → 7:00 AM</small></div>
+          <div class="blk out">Jordan · away<small>outlined = another house active</small></div>
+        </div>
+        <div class="resting"><div class="av" aria-hidden="true">M</div><span class="small">Resting now: a slow breathing ring (still if reduce motion is on)</span></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h3 style="margin-bottom:10px">The five nudge messages, picked at random</h3>
+      <div class="msgs">
+        <div class="msg"><span class="n">Nudge</span>Someone in the house is resting right now. Could you bring the volume down a little?</div>
+        <div class="msg"><span class="n">Nudge</span>Gentle heads-up: noise is carrying right now. A little quieter would go a long way.</div>
+        <div class="msg"><span class="n">Nudge</span>Psst, sound travels further than you'd think. Someone nearby could use some quiet.</div>
+        <div class="msg"><span class="n">Nudge</span>A quick reminder from your house: someone's winding down. Mind turning it down a notch?</div>
+        <div class="msg"><span class="n">Nudge</span>Your housemates would appreciate a calm space right now. Could you keep it down a bit?</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Decisions + boundary -->
+  <section aria-labelledby="bd-h">
+    <h2 id="bd-h">Decisions and boundary</h2>
+    <details class="lst">
+      <summary>Your product decisions <span class="cnt">21</span></summary>
+      <ul>
+        <li>PWA, not native. Native is a future iteration</li>
+        <li>Anonymous nudging is the kernel, and the app is the messenger</li>
+        <li>Name, email and password sign-up, and housemates see only names. Look into a third-party sign-in provider in <code>4-spec</code></li>
+        <li>Join requests need the owner's approval</li>
+        <li>One active house: “You don't want to be randomly pinged by housemate A when you're on vacation”</li>
+        <li>Away quiet times are outlined, not filled</li>
+        <li>Quiet times are per house and optional, so people can join just to be mindful</li>
+        <li>Edit only in your active house, except during the join step</li>
+        <li>Day and week views only. Month view deferred</li>
+        <li>No “quiet time starting” reminders. Someone napping “might get startled”</li>
+        <li>Only two notifications: nudged, and join approved</li>
+        <li>Confirm before nudging someone in their quiet time, but allow it</li>
+        <li>Nudge at any time</li>
+        <li>Five rotating messages, picked at random (“Duolingo vibes”)</li>
+        <li>A 5-minute nudge limit against spam</li>
+        <li>The sender learns of the “got it” quietly, never by notification</li>
+        <li>Only the sender and the recipient know about a nudge</li>
+        <li>The Quiet Streak counts nudge-free days. Tradeoff accepted</li>
+        <li>Heads-ups: 200 characters, a time, the author's name, no notification</li>
+        <li>Demo: 3 locked accounts + 3 bots, reset nightly, instead of a public join link</li>
+        <li>No special demo UI: “it will look like a school project.” The demo streak is fixed at 10 days</li>
+      </ul>
+    </details>
+    <details class="lst">
+      <summary>Deferred from the PoC <span class="cnt">5</span></summary>
+      <ul>
+        <li>Month view<span class="why">Weekly quiet times repeat. You deferred it.</span></li>
+        <li>Owner powers beyond accept/decline (remove members, transfer ownership, delete a house) <span class="tag t-assume">assume</span></li>
+        <li>Leaving a house <span class="tag t-assume">assume</span><span class="why">Not discussed.</span></li>
+        <li>Password reset and account editing for normal accounts <span class="tag t-assume">assume</span><span class="why">These may come free with a sign-in provider (<code>4-spec</code>).</span></li>
+        <li>Time zones across houses <span class="tag t-assume">assume</span><span class="why">Same local time assumed for the PoC.</span></li>
+      </ul>
+    </details>
+    <details class="lst">
+      <summary>Later <span class="cnt">3</span></summary>
+      <ul>
+        <li>One-off quiet times announced ahead (interviews, calls)</li>
+        <li>Email notifications as a fallback</li>
+        <li>A native phone app for fuller notification support</li>
+      </ul>
+    </details>
+    <details class="lst">
+      <summary>Non-goals <span class="cnt">6</span></summary>
+      <ul>
+        <li>Noise detection (microphone, meters, hardware)<span class="why">The person trying to rest decides.</span></li>
+        <li>“Quiet time is starting” reminders<span class="why">Annoying, and they could startle someone napping.</span></li>
+        <li>AI-proposed quiet hours and AI-reworded nudges<span class="why">Agent suggestions you didn't take up.</span></li>
+        <li>Revealing senders, or showing nudge history to the house<span class="why">This would break the kernel.</span></li>
+        <li>A special demo login UI<span class="why">You rejected it.</span></li>
+        <li>Penalties or leaderboards<span class="why">Positive reinforcement, not enforcement.</span></li>
+      </ul>
+    </details>
+  </section>
+
+  <!-- To confirm -->
+  <section aria-labelledby="tc-h">
+    <h2 id="tc-h">To confirm at review</h2>
+    <div class="confirm">
+      <p class="small muted">Everything here was filled in by the agent or taken from the design spec. Say “all fine” or change any number.</p>
+      <ol class="small">
+        <li>First house becomes active automatically; houses joined later start inactive.</li>
+        <li>While waiting for approval, notification setup is offered right after the request.</li>
+        <li>House ID = the name you pick + 6 digits the app assigns.</li>
+        <li>Both the invite link and the ID search need the owner's approval.</li>
+        <li>The owner's only extra power is accept/decline. Removing members, transferring ownership, deleting a house, and leaving a house are deferred.</li>
+        <li>A declined request shows “Declined” and can be dismissed.</li>
+        <li>Crossing midnight: end earlier than start = ends the next morning, belonging to the night it starts.</li>
+        <li>“Just this day” splits that day off into its own quiet time.</li>
+        <li>Away housemates are listed but can't be nudged.</li>
+        <li>The 5-minute limit is per sender, across all housemates.</li>
+        <li>Several waiting nudges → one overlay; Got it clears them all.</li>
+        <li>The sender's “acknowledged” card stays 24 hours.</li>
+        <li>A heads-up disappears once its time has passed.</li>
+        <li>Waiting-for-approval and only-you-in-the-house empty states, as described.</li>
+        <li>Demo: fresh bot heads-ups each nightly reset; signing out stops nudges on that device.</li>
+        <li>Demo welcome card and streak note copy, as suggested.</li>
+        <li>Password reset and account editing deferred; one time zone for the PoC.</li>
+        <li>Design spec details: tab labels, Nudge button position, “Who's being loud?”, “Nudge sent quietly”, the cooldown countdown.</li>
+      </ol>
+      <p class="small muted" style="margin-top:10px">Still open but not blocking: which sign-in provider (<code>4-spec</code>), and what happens when two of your own quiet times overlap (decided during the build).</p>
+    </div>
+  </section>
+
+  <footer>
+    Review companion for <code>devpost/prd.md</code>, which is canonical. If they ever differ, the Markdown wins. Fonts load from Google Fonts when online and fall back to system fonts offline.
+  </footer>
+</main>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  root.classList.add('js');
+
+  // theme toggle: follows the device until clicked
+  var tb = document.getElementById('themeBtn');
+  tb.addEventListener('click', function () {
+    var cur = root.getAttribute('data-theme');
+    if (!cur) cur = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    root.setAttribute('data-theme', cur === 'light' ? 'dark' : 'light');
+  });
+
+  // journey stepper
+  var lists = { a: document.getElementById('ja'), b: document.getElementById('jb') };
+  var which = 'a', i = 0;
+  var prev = document.getElementById('jPrev'), next = document.getElementById('jNext'), pos = document.getElementById('jPos');
+  function items() { return Array.prototype.slice.call(lists[which].children); }
+  function render() {
+    lists.a.hidden = which !== 'a';
+    lists.b.hidden = which !== 'b';
+    var it = items();
+    it.forEach(function (li, k) { li.classList.toggle('cur', k === i); });
+    prev.disabled = i === 0;
+    next.disabled = i === it.length - 1;
+    pos.textContent = 'Step ' + (i + 1) + ' of ' + it.length;
+  }
+  prev.addEventListener('click', function () { if (i > 0) { i--; render(); } });
+  next.addEventListener('click', function () { if (i < items().length - 1) { i++; render(); } });
+  ['a', 'b'].forEach(function (k) {
+    Array.prototype.slice.call(lists[k].children).forEach(function (li, n) {
+      li.addEventListener('click', function () { i = n; render(); });
+    });
+  });
+  Array.prototype.slice.call(document.querySelectorAll('[data-j]')).forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      which = btn.getAttribute('data-j'); i = 0;
+      document.querySelectorAll('[data-j]').forEach(function (b) {
+        var on = b === btn; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      render();
+    });
+  });
+  render();
+})();
+</script>
+</body>
+</html>
