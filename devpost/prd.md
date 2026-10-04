@@ -14,6 +14,17 @@ Source: `scope.md > The Unique Kernel`, `scope.md > Who It's For`.
 
 Everything else is the learner's decision.
 
+**Updated in `4-spec` (2026-10-03), at the learner's direction:**
+- PWA wording restored.
+- Demo nudges are real notifications with a demo subtitle, and the welcome card warns judges to sign out.
+- Bots acknowledge nudges; a bot (Maya) owns the demo house, and join requests to it are refused.
+- Overlapping quiet times are blocked.
+- Name rules are set.
+- Invite links survive sign-up.
+- Profile gains a Notifications row.
+- The join-approved notification has copy.
+- After the 3 AM reset, bot nudges pause until the app is next opened.
+
 **Approved 2026-10-03.** At review the learner confirmed every item labelled *Assumption*, *agent suggestion* or *Design spec*. The labels stay to show where each detail came from.
 
 ## The Core Journey
@@ -85,6 +96,7 @@ Decided by the learner in the branding session (2026-10-03). Sources: `../planni
 ### Accounts and Sign-In
 Develops `scope.md > The POC Boundary` ("signing up as a house").
 - Sign up with name, email and password, and sign in with email and password.
+- **Name rules** (learner, 4-spec): display names 1–30 characters; house names 2–30 characters with no `#` (it separates the name from the number in `Name#123456`).
 - **Housemates only ever see each other's names.** Avatars are the initial on the person's pastel; there are no photos.
 - [ ] A new account can sign up, sign out and sign back in, and lands where it left off.
 - [ ] No screen shows a housemate's email.
@@ -93,7 +105,8 @@ Develops `scope.md > The POC Boundary` ("signing up as a house").
 Develops `scope.md > What "Working" Looks Like` ("onboarding shows how to turn on browser notifications").
 - First run: create a house or join one → optional first quiet times (skippable) → notification setup.
 - Joining your **first** house makes it active automatically at the end of onboarding. A house joined later starts **inactive** *(Assumption: confirm)*.
-- Notification setup explains the iPhone step: notifications need Hushmate added to the Home Screen.
+- Notification setup explains the iPhone step: notifications need Hushmate added to the Home Screen. On iPhone the Home Screen app keeps its own storage, so after adding it you **open Hushmate from the Home Screen and sign in again** (4-spec).
+- **An invite link opened while signed out is remembered** through sign-up or sign-in, then the join continues (learner, 4-spec).
 - **While a join request is pending,** onboarding offers notification setup right after you send the request, so you can hear when you're approved *(Assumption: confirm)*.
 - [ ] A first-time user can go from sign-up to the Schedule screen of a house they created, without leaving the flow.
 - [ ] Skipping quiet-time setup still completes onboarding.
@@ -132,6 +145,8 @@ Develops `scope.md > The Core Loop` ("set your weekly quiet times… they can di
 - [ ] Editing one day of a set and choosing "just this day" changes only that day; "all days" changes every day in the set.
 - [ ] Times can only be picked in 15-minute steps.
 - [ ] Quiet times in an inactive house can be viewed but not edited.
+- **Overlaps are blocked** (learner, 4-spec). Saving a quiet time that overlaps another of your own quiet times in the same house is refused, with a warning that names the overlapping day and time, e.g. "This overlaps your quiet time on Mon 11:00 PM → 7:00 AM (next day)."
+- [ ] Saving an overlapping quiet time is blocked, and the warning names the day and time it overlaps.
 
 ### Schedule (Calendar)
 Develops `scope.md > The Core Loop` ("open the app to see who's resting now").
@@ -192,34 +207,39 @@ Develops `scope.md > The Core Loop` ("give a heads-up…", "the house's quiet st
 ### Notifications
 Develops `scope.md > What "Working" Looks Like`.
 - **Only two notifications exist:** **you've been nudged**, and **your join request was approved**. There are no reminders, heads-up alerts, acknowledgement alerts or owner alerts.
+- The join-approved notification reads: "You're in! {House} approved your request." (learner, 4-spec)
 - Declining notifications is the user's choice, and the app stays fully usable.
 - [ ] With notifications enabled, a nudge arrives as a system notification while the app is closed.
 - [ ] No other action in the app produces a notification.
 
 ### Profile and Theme
-- Shows your name and email, **theme** (follow device, light or dark) and **Sign out**.
+- Shows your name and email, **theme** (follow device, light or dark), a **Notifications** row, and **Sign out**.
+- **Notifications row** (learner, 4-spec): shows whether notifications are on, with **Turn on notifications** (or the iPhone Home Screen steps). Someone who skipped it in onboarding, or added the app to the Home Screen later, can turn notifications on here.
+- [ ] The Notifications row shows the current state, and turning notifications on there works the same as in onboarding.
 - [ ] Changing the theme applies immediately and persists after signing out and back in.
 - [ ] By default, the theme matches the device's light or dark setting.
 
 ### Demo House
 Develops `scope.md > What "Working" Looks Like` (the demo).
 - **DevPost Demo House** has six members:
-  - **3 simulated ("bot") housemates** who feel like real people. They have names, weekly quiet times (one has a **morning** quiet time) and heads-ups on the board. The agent will propose names and schedules for the learner to change.
+  - **3 simulated ("bot") housemates** who feel like real people: Maya, Jordan and Priya. They have weekly quiet times (Priya has a **morning** one) and heads-ups on the board. **Maya owns the demo house** (4-spec), and **join requests to it are refused**.
   - **3 demo accounts for judges.** Judges sign in with an email and password listed on the Devpost page and in the README. Two judges on different demo accounts can nudge each other for real.
+  - **Bots acknowledge** (learner, 4-spec): when a judge nudges a bot, the bot taps **Got it** about a minute later. A solo judge can then see the sender side too: the quiet toast and the "acknowledged" card.
 - **Demo accounts are locked.** They can't:
   - change their name, email or password
   - delete the account
   - leave the demo house, create or join other houses, or switch the active house
 - **People sharing a demo account share its nudges and edits.** The learner accepted this.
 - **Nightly reset:** the demo house returns to its starting state every night. That covers quiet times, heads-ups, nudges and acknowledgements. Each reset gives the bots fresh heads-ups for the coming day *(fresh heads-ups: Assumption: confirm)*.
-- **Simulated nudges:** the bots nudge each signed-in demo account. The first comes **within 10 minutes** of signing in (after notification setup), then at **random intervals of 30 minutes to 2 hours**, and they **never stop**. Each one carries a **"Demo"** label. Signing out stops them on that device *(Assumption: confirm)*.
-- **Welcome card (option A)**, shown when a demo account signs in. Suggested copy: "Welcome to DevPost Demo House. [bot names] are simulated housemates. They'll nudge you every 30 minutes to 2 hours so you can feel how Hushmate works. Log out anytime to stop the nudges." *(copy: agent suggestion, confirm)*
+- **Simulated nudges:** the bots nudge each signed-in demo account. The first comes **within 10 minutes** of opening the app on a demo account, then at **random intervals of 30 minutes to 2 hours**. They keep coming until you sign out, except that **after the 3 AM reset they pause until the account next opens the app** (learner, 4-spec). Each one is a **real push notification**, like any nudge, and shows the random message followed by a subtitle: "This is a demo nudge from a simulated housemate in DevPost Demo House." (learner, 4-spec). Signing out stops them on that device *(Assumption: confirm)*.
+- **Welcome card (option A)**, shown when a demo account signs in. Suggested copy, which **warns judges to sign out** so they aren't spammed (learner, 4-spec): "Welcome to DevPost Demo House. [bot names] are simulated housemates. They'll nudge you every 30 minutes to 2 hours so you can feel how Hushmate works. When you're done, sign out, or the nudges will keep coming." *(copy: agent suggestion)*
 - **Quiet Streak is fixed at 10 days**, with a note. Suggested copy: "This is a demo house, so its Quiet Streak is fixed at 10 days. In your own house, it counts the days since anyone was nudged." *(copy: agent suggestion, confirm)*
 - [ ] Signing in with each of the three demo accounts lands in DevPost Demo House and shows the welcome card.
-- [ ] A Demo-labelled nudge arrives within 10 minutes of signing in, and the next arrives between 30 minutes and 2 hours later.
+- [ ] A demo nudge (random message + demo subtitle) arrives as a notification within 10 minutes of signing in, and the next arrives between 30 minutes and 2 hours later.
 - [ ] Demo accounts can't reach any control that changes credentials, deletes the account, or leaves or switches houses.
 - [ ] After the nightly reset, a quiet time a judge added the day before is gone, and the bots' schedules and fresh heads-ups are back.
 - [ ] The demo house's Quiet Streak always shows 10 days, with its note.
+- [ ] Nudging a bot shows the "acknowledged" card (and toast) on the judge's Summary within about 2 minutes.
 
 ## States and Boundaries
 - **First use:** onboarding (create or join → optional quiet times → notifications).
@@ -294,5 +314,5 @@ These are implied by the product but not built now. Each one is named so it does
 
 ## Open Questions
 - **Third-party sign-in provider:** which one, and does it cover password reset? *Answer in `4-spec`; doesn't block PRD approval.*
-- **Two of your own quiet times overlapping in the same house:** merge, warn or allow? *Can be decided during the build.*
+- ~~Two of your own quiet times overlapping in the same house.~~ *Resolved in `4-spec`: blocked, with a warning naming the overlap (see Quiet Times).*
 - ~~Every labelled assumption, suggestion and design-spec item above.~~ *Resolved: all confirmed by the learner at review (2026-10-03).*

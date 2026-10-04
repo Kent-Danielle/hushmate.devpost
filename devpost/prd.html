@@ -422,6 +422,7 @@
           <li>First house → active automatically. Houses joined later start inactive <span class="tag t-assume">assume</span></li>
           <li>Waiting for approval → notification setup is offered right after the request, so you hear when you're approved <span class="tag t-assume">assume</span></li>
           <li>Housemates only ever see your name</li>
+          <li>Names: display 1–30 characters; house 2–30 characters, no <code>#</code>. On iPhone, open the app from the Home Screen and sign in again. Invite links survive sign-up</li>
         </ul></div>
         <div><h4>Edge states</h4><ul>
           <li>Waiting for approval: Houses shows Pending, and Schedule shows an empty state inviting you to create a house or wait <span class="tag t-assume">assume</span></li>
@@ -453,6 +454,7 @@
         <div><h4>Edge states</h4><ul>
           <li>No quiet times yet → “No quiet times yet” → <strong>Add quiet time</strong></li>
           <li>Inactive house: viewable, not editable</li>
+          <li>Overlapping one of your own quiet times: blocked, with a warning naming the day and time it overlaps</li>
         </ul>
         <h4 style="margin-top:12px">How we'll know</h4><ul class="crit">
           <li>Three overlapping quiet times all show side by side</li>
@@ -553,8 +555,8 @@
       <summary>Profile <span class="sub">theme, sign out</span></summary>
       <div class="scr-body">
         <div><h4>On screen &amp; behaviour</h4><ul>
-          <li>Your name and email, the theme (follow device / light / dark), and <strong>Sign out</strong></li>
-          <li>Only two notifications exist in the whole app: <strong>you've been nudged</strong> and <strong>your join request was approved</strong></li>
+          <li>Your name and email, the theme (follow device / light / dark), a <strong>Notifications</strong> row (state + Turn on, or the iPhone Home Screen steps), and <strong>Sign out</strong></li>
+          <li>Only two notifications exist in the whole app: <strong>you've been nudged</strong> and <strong>your join request was approved</strong> (“You're in! {House} approved your request.”)</li>
         </ul></div>
         <div><h4>How we'll know</h4><ul class="crit">
           <li>Theme changes apply immediately and persist after signing back in</li>
@@ -568,12 +570,12 @@
       <summary>DevPost Demo House <span class="sub">for judges</span></summary>
       <div class="scr-body">
         <div><h4>On screen &amp; behaviour</h4><ul>
-          <li>6 members: <strong>3 bots</strong> that feel like real people (names, weekly quiet times including a morning one, heads-ups) and <strong>3 demo accounts</strong></li>
+          <li>6 members: <strong>3 bots</strong> (Maya, Jordan, Priya) that feel like real people and <strong>3 demo accounts</strong>. <strong>Maya owns the house</strong>, and join requests to it are refused</li>
           <li>Demo accounts are <strong>locked</strong>: no changes to name, email or password; no deleting; no leaving, creating, joining or switching houses</li>
           <li>People sharing an account share its nudges and edits (accepted)</li>
           <li>A <strong>nightly reset</strong> returns it to the starting state, with fresh bot heads-ups each day <span class="tag t-assume">fresh heads-ups</span></li>
-          <li>Bot nudges: the first within 10 minutes of signing in, then every 30 minutes to 2 hours, never stopping, each labelled <strong>“Demo”</strong>. Signing out stops them on that device <span class="tag t-assume">assume</span></li>
-          <li>Welcome card (option A) <span class="tag t-suggest">copy</span>: “Welcome to DevPost Demo House. [bot names] are simulated housemates. They'll nudge you every 30 minutes to 2 hours so you can feel how Hushmate works. Log out anytime to stop the nudges.”</li>
+          <li>Bot nudges: the first within 10 minutes of opening the app, then every 30 minutes to 2 hours until you sign out (paused after the 3 AM reset until the next open), each a real notification showing the random message plus the subtitle “This is a demo nudge from a simulated housemate in DevPost Demo House.”. Signing out stops them on that device <span class="tag t-assume">assume</span></li>
+          <li>Welcome card (option A) <span class="tag t-suggest">copy</span>: “Welcome to DevPost Demo House. [bot names] are simulated housemates. They'll nudge you every 30 minutes to 2 hours so you can feel how Hushmate works. When you're done, sign out, or the nudges will keep coming.”</li>
           <li>Streak fixed at 10 days <span class="tag t-suggest">note copy</span>: “This is a demo house, so its Quiet Streak is fixed at 10 days. In your own house, it counts the days since anyone was nudged.”</li>
           <li>No special demo UI: judges use the normal sign-in</li>
         </ul></div>
@@ -583,6 +585,7 @@
           <li>No locked control is reachable from a demo account</li>
           <li>After the reset, yesterday's judge edits are gone, and the bots' schedules and heads-ups are back</li>
           <li>The streak always shows 10 days, with its note</li>
+          <li>Nudging a bot → the “acknowledged” card and toast appear within about 2 minutes (bots tap Got it)</li>
         </ul></div>
       </div>
     </details>
@@ -718,7 +721,7 @@
         <li>Password reset and account editing deferred; one time zone for the PoC.</li>
         <li>Design spec details: tab labels, Nudge button position, “Who's being loud?”, “Nudge sent quietly”, the cooldown countdown.</li>
       </ol>
-      <p class="small muted" style="margin-top:10px">Still open but not blocking: which sign-in provider (<code>4-spec</code>), and what happens when two of your own quiet times overlap (decided during the build).</p>
+      <p class="small muted" style="margin-top:10px">Resolved in <code>4-spec</code>: own sign-in in NestJS (no provider); overlapping quiet times are blocked with a warning; bots acknowledge nudges.</p>
     </div>
   </section>
 
