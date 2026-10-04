@@ -1,0 +1,28 @@
+.screen {
+  min-height: 100dvh; display: flex; flex-direction: column; gap: 24px; max-width: 480px; margin: 0 auto;
+  padding: max(24px, env(safe-area-inset-top)) var(--hm-gutter) max(24px, env(safe-area-inset-bottom));
+}
+.head { display: grid; gap: 6px; }
+.title { font: var(--hm-text-title); overflow-wrap: anywhere; }
+.sub { font: var(--hm-text-body); color: var(--hm-text-2); }
+.choices { display: grid; gap: 12px; }
+.choice {
+  display: flex; align-items: center; gap: 12px; min-height: 72px; width: 100%; text-align: left; cursor: pointer;
+  background: var(--hm-surface-1); color: var(--hm-text); border: 1px solid var(--hm-line); border-radius: var(--hm-radius-lg); padding: 16px;
+  font: inherit;
+}
+.choice:active { background: var(--hm-surface-2); }
+.choice > svg { flex: none; color: var(--hm-brand-text); }
+.choice > svg:last-child { color: var(--hm-text-3); }
+.choiceText { flex: 1; display: grid; }
+.choiceText b { font: var(--hm-text-body-strong); }
+.choiceText span { font: var(--hm-text-caption); color: var(--hm-text-3); }
+.card { display: grid; gap: 12px; background: var(--hm-surface-1); border: 1px solid var(--hm-line); border-radius: var(--hm-radius-lg); padding: 16px; }
+.cardLabel { font: var(--hm-text-caption); color: var(--hm-text-3); }
+.cardRow { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.houseId { font: var(--hm-text-heading); overflow-wrap: anywhere; }
+.houseId span { color: var(--hm-text-3); }
+.iconBtn { width: var(--hm-touch); height: var(--hm-touch); flex: none; border: 0; border-radius: 50%; background: var(--hm-surface-2); color: var(--hm-text); display: grid; place-items: center; cursor: pointer; }
+.cardNote { font: var(--hm-text-caption); color: var(--hm-text-2); }
+.bottom { margin-top: auto; display: grid; gap: 8px; }
+.center { flex: 1; display: flex; flex-direction: column; justify-content: center; }

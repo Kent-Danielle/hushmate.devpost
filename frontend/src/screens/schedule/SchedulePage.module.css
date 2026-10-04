@@ -1,0 +1,1 @@
+.center { min-height: calc(100dvh - 220px); display: flex; flex-direction: column; justify-content: center; }

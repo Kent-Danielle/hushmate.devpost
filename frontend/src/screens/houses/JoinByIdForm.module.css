@@ -1,0 +1,6 @@
+.wrap { display: flex; flex-direction: column; gap: 16px; flex: 1; }
+.form { display: flex; flex-direction: column; gap: 16px; }
+.result { display: grid; gap: 12px; background: var(--hm-surface-1); border: 1px solid var(--hm-line); border-radius: var(--hm-radius-lg); padding: 16px; }
+.resultName { font: var(--hm-text-body-strong); overflow-wrap: anywhere; }
+.resultId { font: var(--hm-text-caption); color: var(--hm-text-3); overflow-wrap: anywhere; margin-top: -10px; }
+.note { font: var(--hm-text-caption); color: var(--hm-text-3); }

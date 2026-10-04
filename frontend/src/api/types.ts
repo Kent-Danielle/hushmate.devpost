@@ -48,6 +48,40 @@ export interface HouseListItem {
   setupDone: boolean;
 }
 
+export interface CreateHouseBody {
+  name: string;
+}
+
+export interface CreateHouseResponse {
+  house: House;
+}
+
+/** GET /invites/:token (public). */
+export interface InviteInfo {
+  name: string;
+  code: string;
+}
+
+export interface JoinResponse {
+  membershipId: string;
+  status: 'pending';
+}
+
+/** GET /houses/:id/requests (owner). */
+export interface JoinRequest {
+  membershipId: string;
+  name: string;
+  createdAt: string;
+}
+
+export interface ActivateResponse {
+  activeHouseId: string;
+}
+
+export interface InviteLinkResponse {
+  url: string;
+}
+
 export interface VapidKeyResponse {
   key: string;
 }

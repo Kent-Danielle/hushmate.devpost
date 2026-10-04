@@ -1,0 +1,1 @@
+export { HouseCard } from './HouseCard';

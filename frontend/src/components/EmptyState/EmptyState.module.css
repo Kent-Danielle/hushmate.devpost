@@ -1,0 +1,4 @@
+.empty { text-align: center; display: grid; justify-items: center; gap: 8px; padding: 28px 16px; }
+.voice { font: var(--hm-text-voice); }
+.caption { font: var(--hm-text-caption); color: var(--hm-text-3); max-width: 280px; }
+.action { margin-top: 12px; }
