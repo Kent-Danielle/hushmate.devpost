@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hushmate Scope</title>
+<meta name="description" content="Visual review companion for devpost/scope.md (Markdown is canonical).">
+<style>
+  :root {
+    --bg: #f6f6f2;
+    --surface: #ffffff;
+    --surface-2: #f0f0ea;
+    --ink: #1c1e23;
+    --muted: #5b616d;
+    --line: #dfdfd7;
+    --accent: #4b47d6;
+    --accent-ink: #ffffff;
+    --accent-soft: #ecebff;
+    --later: #9a6a12;
+    --later-soft: #fbf2df;
+    --cut: #a23a3a;
+    --cut-soft: #fbe9e9;
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #111216;
+      --surface: #1a1c22;
+      --surface-2: #22252d;
+      --ink: #e8e9ed;
+      --muted: #a2a8b4;
+      --line: #2e313b;
+      --accent: #8e8cff;
+      --accent-ink: #14142b;
+      --accent-soft: #24244a;
+      --later: #e2b45c;
+      --later-soft: #2e2615;
+      --cut: #ef8a8a;
+      --cut-soft: #321b1d;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #111216; --surface: #1a1c22; --surface-2: #22252d; --ink: #e8e9ed; --muted: #a2a8b4;
+    --line: #2e313b; --accent: #8e8cff; --accent-ink: #14142b; --accent-soft: #24244a;
+    --later: #e2b45c; --later-soft: #2e2615; --cut: #ef8a8a; --cut-soft: #321b1d;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.6 ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  main { max-width: 980px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1, h2, h3 { line-height: 1.25; margin: 0; }
+  h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); letter-spacing: -0.02em; }
+  h2 { font-size: 1.25rem; margin-bottom: 12px; }
+  h3 { font-size: 1rem; }
+  p { margin: 0 0 10px; }
+  a { color: var(--accent); }
+  .muted { color: var(--muted); }
+  .small { font-size: 0.9rem; }
+
+  header.top { margin-bottom: 28px; }
+  .eyebrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .pill {
+    display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 600;
+    border: 1px solid var(--line); background: var(--surface); color: var(--muted);
+  }
+  .pill.status { background: var(--later-soft); color: var(--later); border-color: transparent; }
+  .pill.status.approved { background: var(--accent-soft); color: var(--accent); }
+  .lede { font-size: 1.15rem; color: var(--muted); max-width: 60ch; margin-top: 8px; }
+
+  section { margin-top: 28px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px;
+  }
+  .kernel {
+    background: var(--accent-soft); border: 1px solid transparent; border-left: 5px solid var(--accent);
+  }
+  .kernel .label { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+  .kernel h2 { font-size: 1.6rem; margin: 4px 0 10px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media (min-width: 760px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+  blockquote {
+    margin: 12px 0 0; padding: 10px 14px; border-left: 3px solid var(--accent); background: var(--surface-2);
+    border-radius: 0 10px 10px 0; font-style: italic;
+  }
+  ul.clean { margin: 0; padding-left: 1.1em; }
+  ul.clean li { margin: 4px 0; }
+
+  /* Diagrams */
+  figure { margin: 0; }
+  figure svg { width: 100%; height: auto; display: block; max-width: 420px; margin: 0 auto; }
+  figcaption { margin-top: 10px; font-size: 0.9rem; color: var(--muted); text-align: center; }
+  .d-box { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+  .d-persona { fill: var(--surface-2); stroke: var(--line); stroke-width: 1.5; }
+  .d-kernel { fill: var(--accent); stroke: none; }
+  .d-title { fill: var(--ink); font: 600 15px ui-sans-serif, -apple-system, "Segoe UI", sans-serif; }
+  .d-sub { fill: var(--muted); font: 13px ui-sans-serif, -apple-system, "Segoe UI", sans-serif; }
+  .d-ktitle { fill: var(--accent-ink); font: 700 15px ui-sans-serif, -apple-system, "Segoe UI", sans-serif; }
+  .d-ksub { fill: var(--accent-ink); opacity: 0.85; font: 13px ui-sans-serif, -apple-system, "Segoe UI", sans-serif; }
+  .d-line { stroke: var(--muted); stroke-width: 1.6; fill: none; }
+  .d-accent-line { stroke: var(--accent); stroke-width: 2; fill: none; }
+  .d-dash { stroke: var(--line); stroke-width: 1.5; fill: none; stroke-dasharray: 6 6; }
+  .d-label { fill: var(--muted); font: 12.5px ui-sans-serif, -apple-system, "Segoe UI", sans-serif; }
+  .d-alabel { fill: var(--accent); font: 600 12.5px ui-sans-serif, -apple-system, "Segoe UI", sans-serif; }
+  .d-head { fill: var(--muted); }
+  .d-ahead { fill: var(--accent); }
+
+  /* Core loop phases */
+  .phases { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  @media (min-width: 760px) { .phases { grid-template-columns: repeat(3, 1fr); } }
+  .phase h3 { margin-bottom: 6px; }
+  .phase .tag { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  /* Demo stepper */
+  ol.steps { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+  ol.steps li {
+    counter-increment: s; position: relative; padding: 12px 14px 12px 52px; border: 1px solid var(--line);
+    border-radius: 12px; margin-bottom: 8px; background: var(--surface); cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  ol.steps li::before {
+    content: counter(s); position: absolute; left: 14px; top: 12px; width: 26px; height: 26px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 0.85rem; font-weight: 700; background: var(--surface-2); color: var(--muted);
+  }
+  ol.steps li.current { border-color: var(--accent); background: var(--accent-soft); }
+  ol.steps li.current::before { background: var(--accent); color: var(--accent-ink); }
+  ol.steps li.moment { border-style: dashed; }
+  .stepper-controls { display: none; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .js .stepper-controls { display: flex; }
+  button {
+    font: inherit; font-size: 0.9rem; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--surface); color: var(--ink); cursor: pointer;
+  }
+  button:hover { border-color: var(--accent); }
+  button:disabled { opacity: 0.4; cursor: default; }
+  .moment-note {
+    margin-top: 14px; padding: 14px 16px; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font-weight: 600;
+  }
+
+  /* Boundary reveals */
+  details {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden;
+  }
+  summary {
+    cursor: pointer; padding: 14px 18px; font-weight: 700; display: flex; gap: 10px; align-items: center; list-style: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; margin-left: auto; color: var(--muted); font-weight: 400; font-size: 1.2rem; }
+  details[open] summary::after { content: "−"; }
+  .count { font-size: 0.78rem; padding: 2px 9px; border-radius: 999px; font-weight: 700; }
+  .count.now { background: var(--accent-soft); color: var(--accent); }
+  .count.later { background: var(--later-soft); color: var(--later); }
+  .count.cut { background: var(--cut-soft); color: var(--cut); }
+  details ul { margin: 0; padding: 0 18px 16px 38px; }
+  details li { margin: 6px 0; }
+  li.is-kernel { font-weight: 700; color: var(--accent); }
+  .reason { display: block; color: var(--muted); font-size: 0.9rem; font-weight: 400; }
+
+  footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--muted); }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.88em; background: var(--surface-2); padding: 1px 5px; border-radius: 5px; }
+</style>
+</head>
+<body>
+<main>
+
+  <header class="top">
+    <div class="eyebrow">
+      <span class="pill status approved">Approved · 2026-10-02</span>
+      <span class="pill">Scope</span>
+      <span class="pill">Build With AI: Basics</span>
+    </div>
+    <h1>Hushmate <span class="muted" style="font-weight:400;font-size:0.55em">Less shush, more hush.</span></h1>
+    <p class="lede">A live web app where housemates share their quiet times and can nudge each other anonymously when someone's being loud.</p>
+  </header>
+
+  <!-- Kernel -->
+  <section class="card kernel" aria-labelledby="kernel-h">
+    <div class="label">The unique kernel</div>
+    <h2 id="kernel-h">Anonymous nudging</h2>
+    <p>When someone is being loud, you can nudge them without it coming from you. The reminder is phrased as if <strong>the app itself</strong> is speaking, never as a message from a housemate, so it stays anonymous for everyone, even in a two-person house.</p>
+    <ul class="clean">
+      <li>Housemates join the house together. In your words, “housemates agreeing to be on the platform means they acknowledge boundaries.” A nudge is a gentle reminder, not a confrontation.</li>
+      <li>Disturbance is judged by the person trying to rest, not by a meter: there's no hardware and no always-on microphone.</li>
+    </ul>
+  </section>
+
+  <!-- Diagrams -->
+  <section aria-labelledby="loop-h">
+    <h2 id="loop-h">How it fits together</h2>
+    <div class="grid-2">
+      <figure class="card">
+        <svg viewBox="0 0 400 540" role="img" aria-labelledby="d1t d1d">
+          <title id="d1t">The core loop</title>
+          <desc id="d1d">A student in shared housing joins a house and sets weekly quiet times once. Day to day they see who's resting now and give noise heads-ups. When someone is being loud, an anonymous nudge is sent in the app's voice, the loud housemate can reply got it, and the loop returns to day to day. The demo group is the proof.</desc>
+          <defs>
+            <marker id="ah1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+            <marker id="ah1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-ahead"/></marker>
+          </defs>
+
+          <rect x="30" y="8" width="300" height="62" rx="12" class="d-persona"/>
+          <text x="180" y="34" text-anchor="middle" class="d-title">A student in shared housing</text>
+          <text x="180" y="55" text-anchor="middle" class="d-sub">the quiet one who says nothing</text>
+
+          <line x1="180" y1="70" x2="180" y2="100" class="d-line" marker-end="url(#ah1)"/>
+          <text x="192" y="90" class="d-label">joins a house with housemates</text>
+
+          <rect x="30" y="104" width="300" height="56" rx="12" class="d-box"/>
+          <text x="180" y="128" text-anchor="middle" class="d-title">Sets weekly quiet times</text>
+          <text x="180" y="148" text-anchor="middle" class="d-sub">once · days can differ</text>
+
+          <line x1="180" y1="160" x2="180" y2="186" class="d-line" marker-end="url(#ah1)"/>
+
+          <rect x="30" y="190" width="300" height="92" rx="12" class="d-box"/>
+          <text x="180" y="220" text-anchor="middle" class="d-title">Day to day</text>
+          <text x="180" y="244" text-anchor="middle" class="d-sub">who's resting now</text>
+          <text x="180" y="264" text-anchor="middle" class="d-sub">noise heads-ups</text>
+
+          <line x1="180" y1="282" x2="180" y2="330" class="d-accent-line" marker-end="url(#ah1a)"/>
+          <text x="192" y="302" class="d-alabel">someone's being loud</text>
+          <text x="192" y="319" class="d-alabel">(nudge any time)</text>
+
+          <rect x="30" y="334" width="300" height="62" rx="12" class="d-kernel"/>
+          <text x="180" y="360" text-anchor="middle" class="d-ktitle">Anonymous nudge</text>
+          <text x="180" y="381" text-anchor="middle" class="d-ksub">spoken by the app, not by you</text>
+
+          <line x1="180" y1="396" x2="180" y2="422" class="d-line" marker-end="url(#ah1)"/>
+
+          <rect x="30" y="426" width="300" height="56" rx="12" class="d-box"/>
+          <text x="180" y="450" text-anchor="middle" class="d-title">“Got it” reply</text>
+          <text x="180" y="470" text-anchor="middle" class="d-sub">also anonymous</text>
+
+          <path d="M330,454 H368 V236 H336" class="d-line" marker-end="url(#ah1)"/>
+          <text x="384" y="345" class="d-label" text-anchor="middle" transform="rotate(90 384 345)">back to normal</text>
+
+          <text x="180" y="520" text-anchor="middle" class="d-alabel">Proof: a judge in the demo group gets a real nudge ↓</text>
+        </svg>
+        <figcaption>The core loop: set up once, then live alongside each other.</figcaption>
+      </figure>
+
+      <figure class="card">
+        <svg viewBox="0 0 400 430" role="img" aria-labelledby="d2t d2d">
+          <title id="d2t">Who sees what</title>
+          <desc id="d2d">Housemate B, trying to rest, sends a nudge to the app. The app delivers a gentle reminder in its own voice to housemate A, who is being loud. A replies got it to the app, which passes it back to B. A never learns who sent the nudge.</desc>
+          <defs>
+            <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+            <marker id="ah2a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-ahead"/></marker>
+          </defs>
+
+          <rect x="8" y="4" width="384" height="420" rx="18" class="d-dash"/>
+          <text x="24" y="412" class="d-label">the house · everyone opted in</text>
+
+          <rect x="110" y="22" width="180" height="60" rx="12" class="d-box"/>
+          <text x="200" y="47" text-anchor="middle" class="d-title">B · trying to rest</text>
+          <text x="200" y="68" text-anchor="middle" class="d-sub">sends the nudge</text>
+
+          <rect x="80" y="170" width="240" height="70" rx="14" class="d-kernel"/>
+          <text x="200" y="200" text-anchor="middle" class="d-ktitle">Hushmate</text>
+          <text x="200" y="222" text-anchor="middle" class="d-ksub">the app is the messenger</text>
+
+          <rect x="110" y="328" width="180" height="60" rx="12" class="d-box"/>
+          <text x="200" y="353" text-anchor="middle" class="d-title">A · being loud</text>
+          <text x="200" y="374" text-anchor="middle" class="d-sub">gets a gentle reminder</text>
+
+          <line x1="150" y1="82" x2="150" y2="166" class="d-accent-line" marker-end="url(#ah2a)"/>
+          <text x="140" y="128" text-anchor="end" class="d-alabel">nudge</text>
+
+          <line x1="150" y1="240" x2="150" y2="324" class="d-accent-line" marker-end="url(#ah2a)"/>
+          <text x="140" y="278" text-anchor="end" class="d-alabel">reminder in</text>
+          <text x="140" y="295" text-anchor="end" class="d-alabel">the app's voice</text>
+
+          <line x1="250" y1="328" x2="250" y2="244" class="d-line" marker-end="url(#ah2)"/>
+          <text x="260" y="290" class="d-label">“got it”</text>
+
+          <line x1="250" y1="170" x2="250" y2="86" class="d-line" marker-end="url(#ah2)"/>
+          <text x="260" y="124" class="d-label">“got it”,</text>
+          <text x="260" y="141" class="d-label">still anonymous</text>
+        </svg>
+        <figcaption>A never learns who sent the nudge, so it works even in a two-person house.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- Who + why -->
+  <section aria-labelledby="who-h">
+    <div class="grid-2">
+      <div class="card">
+        <h2 id="who-h">Who it's for</h2>
+        <p><strong>Students in shared housing first.</strong> More broadly, anyone sharing a place with housemates, which is common in Vancouver, where renting is more common than owning.</p>
+        <p>The picture: B is trying to sleep while A is loud in the living room. Today, B says nothing.</p>
+        <blockquote>“I had nothing because I was an introvert.”</blockquote>
+        <p class="small muted" style="margin-top:12px">Some students also move between places, like weekends with friends or family. They need the house they're currently in to be the one that counts.</p>
+      </div>
+      <div class="card">
+        <h2>Why it matters to you</h2>
+        <p>It comes from your own experience living with “louder than average housemates” as an introvert who said nothing. You think “most students who live in dorms can relate”, and you see it as “pretty novel and unique in this space”.</p>
+        <p class="muted">Your goal for this build: a first iteration that reaches <strong>80% or more</strong> of what you have in mind, with no features you aren't aware of.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Core loop -->
+  <section aria-labelledby="core-h">
+    <h2 id="core-h">The core loop</h2>
+    <div class="phases">
+      <div class="card phase">
+        <div class="tag">Once</div>
+        <h3>Set weekly quiet times</h3>
+        <p class="small">They can differ by day, for example one schedule for Monday, Wednesday and Friday and another for the rest of the week.</p>
+      </div>
+      <div class="card phase">
+        <div class="tag">Day to day</div>
+        <h3>Live alongside each other</h3>
+        <ul class="clean small">
+          <li>See <strong>who's resting now</strong></li>
+          <li>Give a heads-up before you're likely to make noise: “coming home late, might make late dinner”</li>
+        </ul>
+      </div>
+      <div class="card phase">
+        <div class="tag">When disturbed</div>
+        <h3>Nudge, anonymously</h3>
+        <p class="small">Someone being loud gets an anonymous nudge from you, in the app's voice, at any time, not only during your own quiet time. They can reply “got it”, also anonymously.</p>
+      </div>
+    </div>
+    <p class="small muted" style="margin-top:10px"><strong>Why people return:</strong> nudges come to them as notifications, and the house's quiet streak gives positive reinforcement.</p>
+  </section>
+
+  <!-- Working -->
+  <section aria-labelledby="work-h">
+    <h2 id="work-h">What “working” looks like</h2>
+    <div class="card">
+      <p><strong>A live, hosted app.</strong> Open the link and use it straight away, with nothing to install. Onboarding shows how to turn on browser notifications. On iPhone, notifications need the app added to the Home Screen, and onboarding teaches that.</p>
+      <h3 style="margin:16px 0 10px">The demo</h3>
+      <div class="stepper-controls" aria-label="Step through the demo">
+        <button type="button" id="prev">← Back</button>
+        <button type="button" id="next">Next →</button>
+        <span class="small muted" id="pos" aria-live="polite"></span>
+      </div>
+      <ol class="steps" id="steps">
+        <li>Open the link: no install. Onboarding turns on notifications (and teaches “add to Home Screen” on iPhone).</li>
+        <li>Join the <strong>demo group</strong>, preloaded with housemates, weekly quiet-time schedules (some in the morning too) and a historical streak.</li>
+        <li>See who's resting now, then <strong>nudge</strong> one of the preloaded housemates.</li>
+        <li class="moment">With no real housemate around, the demo group simulates one: a <strong>“TEST” nudge</strong> arrives within 10 minutes of finishing onboarding.</li>
+        <li>Reply <strong>“got it”</strong>.</li>
+        <li>More simulated nudges follow at random intervals of 30 minutes to 2 hours.</li>
+      </ol>
+      <div class="moment-note">The proving moment: a gentle, anonymous nudge arrives as a real notification on the judge's own device, from a house they joined minutes ago.</div>
+    </div>
+  </section>
+
+  <!-- Identity -->
+  <section aria-labelledby="id-h">
+    <h2 id="id-h">Inspiration &amp; identity</h2>
+    <div class="card">
+      <ul class="clean">
+        <li><strong>The app is the messenger.</strong> Nudges read as a gentle reminder from the app (third person), never as a complaint from a person.</li>
+        <li><strong>Simple, well executed.</strong> “Something simple that can be well executed.”</li>
+        <li><strong>Positive reinforcement over enforcement.</strong> A house streak, not penalties.</li>
+        <li><strong>Not a chores-and-bills app.</strong> Housemate apps like <a href="https://apps.apple.com/us/app/flatastic-the-roommate-app/id840810742">Flatastic</a> have no noise or quiet-time features. This one focuses only on quiet time.</li>
+        <li><strong>Name and identity (decided 2026-10-03):</strong> <strong>Hushmate</strong>, “Less shush, more hush.” A “cozy midnight” look: dark pastels, flat, no mascot, Fredoka and Nunito, dark and light mode. Details are in <code>prd.md</code> › Look and Feel.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Boundary -->
+  <section aria-labelledby="b-h">
+    <h2 id="b-h">The proof-of-concept boundary</h2>
+    <details open>
+      <summary>Now <span class="count now">10</span></summary>
+      <ul>
+        <li>A hosted PWA, usable straight from a link, with onboarding for notifications (and Home Screen on iPhone)</li>
+        <li>Signing up as a house and inviting housemates</li>
+        <li>Multiple groups per person, with one active at a time</li>
+        <li>Recurring weekly quiet times, with an intuitive per-day schedule editor</li>
+        <li>A “who's resting now” live view</li>
+        <li class="is-kernel">Anonymous nudge in the app's voice (the kernel)</li>
+        <li>An anonymous “got it” reply</li>
+        <li>Planned-noise heads-ups (“coming home late, might make late dinner”)</li>
+        <li>A house streak, with the demo group preloaded with a history</li>
+        <li>The demo group: preloaded housemates and schedules, plus simulated nudges</li>
+      </ul>
+    </details>
+    <details>
+      <summary>Later <span class="count later">3</span></summary>
+      <ul>
+        <li>One-off quiet times announced ahead, such as an interview or important call</li>
+        <li>Email notifications as a fallback</li>
+        <li>A native phone app, as a separate future iteration, for fuller notification support</li>
+      </ul>
+    </details>
+    <details>
+      <summary>Explicitly cut <span class="count cut">4</span></summary>
+      <ul>
+        <li>Housemates privately state their needs and AI proposes quiet hours<span class="reason">An agent suggestion; you didn't take it up.</span></li>
+        <li>AI rewording nudges to match how the recipient likes to be told<span class="reason">An agent suggestion; you didn't take it up.</span></li>
+        <li>Noise detection (microphone, decibel meters, hardware)<span class="reason">The person trying to rest decides what's disturbing.</span></li>
+        <li>“Quiet time is starting” reminders<span class="reason">Cut by you during <code>3-prd</code> (2026-10-03): “I feel like it will be annoying.” Someone napping outside their scheduled quiet time could be startled. Notifications are reserved for nudges.</span></li>
+      </ul>
+    </details>
+  </section>
+
+  <!-- Carried -->
+  <section aria-labelledby="c-h">
+    <h2 id="c-h">Carried to <code>3-prd</code></h2>
+    <div class="card">
+      <ul class="clean">
+        <li>What counts toward the streak, and how to keep it from discouraging people from nudging.</li>
+        <li>How the demo group's simulated nudges behave over time (e.g. whether they ever stop), and how the “TEST” label appears.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    Review companion for <code>devpost/scope.md</code>, which is canonical. If they ever differ, the Markdown wins.
+    This page's colours and layout are only for reviewing the plan; they are not the app's visual design.<br>
+    Revised 2026-10-03 during <code>3-prd</code>: “quiet time is starting” reminders moved from Now to Explicitly cut, at your request, and nudging is allowed at any time. Name set to Hushmate after the branding session.
+  </footer>
+</main>
+
+<script>
+  (function () {
+    var list = document.getElementById('steps');
+    if (!list) return;
+    document.documentElement.classList.add('js');
+    var items = Array.prototype.slice.call(list.children);
+    var prev = document.getElementById('prev');
+    var next = document.getElementById('next');
+    var pos = document.getElementById('pos');
+    var i = 0;
+    function render() {
+      items.forEach(function (li, k) { li.classList.toggle('current', k === i); });
+      prev.disabled = i === 0;
+      next.disabled = i === items.length - 1;
+      pos.textContent = 'Step ' + (i + 1) + ' of ' + items.length;
+    }
+    prev.addEventListener('click', function () { if (i > 0) { i--; render(); } });
+    next.addEventListener('click', function () { if (i < items.length - 1) { i++; render(); } });
+    items.forEach(function (li, k) { li.addEventListener('click', function () { i = k; render(); }); });
+    render();
+  })();
+</script>
+</body>
+</html>
