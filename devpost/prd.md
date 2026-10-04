@@ -1,6 +1,6 @@
 ---
 doc: prd
-status: draft
+status: approved
 ---
 
 # Hushmate: Product Requirements
@@ -13,6 +13,8 @@ Source: `scope.md > The Unique Kernel`, `scope.md > Who It's For`.
 - *(Design spec: confirm)*: a detail from `../planning/design-system/` that the learner has seen but hasn't ruled on individually.
 
 Everything else is the learner's decision.
+
+**Approved 2026-10-03.** At review the learner confirmed every item labelled *Assumption*, *agent suggestion* or *Design spec*. The labels stay to show where each detail came from.
 
 ## The Core Journey
 
@@ -293,4 +295,4 @@ These are implied by the product but not built now. Each one is named so it does
 ## Open Questions
 - **Third-party sign-in provider:** which one, and does it cover password reset? *Answer in `4-spec`; doesn't block PRD approval.*
 - **Two of your own quiet times overlapping in the same house:** merge, warn or allow? *Can be decided during the build.*
-- Every *(Assumption: confirm)*, *(agent suggestion: confirm)* and *(Design spec: confirm)* item above. *Confirm or change these at review, before approval.*
+- ~~Every labelled assumption, suggestion and design-spec item above.~~ *Resolved: all confirmed by the learner at review (2026-10-03).*
