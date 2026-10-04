@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../client';
-import type { Summary } from '../types';
+import type { HeadsUpBody, HeadsUpCreated, Summary } from '../types';
 
 export const summaryKey = (houseId: string) => ['houses', houseId, 'summary'] as const;
 
@@ -12,5 +12,14 @@ export function useSummary(houseId: string | null | undefined) {
     enabled: Boolean(houseId),
     refetchInterval: 30_000,
     refetchIntervalInBackground: false,
+  });
+}
+
+/** POST /houses/:id/heads-ups {text, at}. Refreshes the summary on success. */
+export function usePostHeadsUp(houseId: string | null | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: HeadsUpBody) => api<HeadsUpCreated>(`/houses/${houseId}/heads-ups`, { method: 'POST', body }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: summaryKey(houseId ?? '') }),
   });
 }

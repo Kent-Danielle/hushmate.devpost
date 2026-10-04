@@ -14,6 +14,7 @@
 .resting::after {
   content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid var(--hm-brand);
   animation: breathe var(--hm-dur-breathe) var(--hm-ease-breathe) infinite;
+  animation-delay: var(--ring-delay, 0ms);
 }
 @keyframes breathe { 0%, 100% { opacity: 0.35; transform: scale(0.96); } 50% { opacity: 1; transform: scale(1.04); } }
 @media (prefers-reduced-motion: reduce) { .resting::after { animation: none; opacity: 1; } }

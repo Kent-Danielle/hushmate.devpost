@@ -1,0 +1,13 @@
+.section { display: grid; gap: 8px; margin-top: 8px; }
+.h { font: var(--hm-text-heading); margin: 0; }
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.li { display: flex; gap: 12px; align-items: center; min-height: 56px; padding: 10px 14px; background: var(--hm-surface-1); border: 1px solid var(--hm-line); border-radius: var(--hm-radius-md); }
+.who { display: grid; min-width: 0; }
+.name { font: var(--hm-text-body-strong); overflow-wrap: anywhere; }
+.cap { font: var(--hm-text-caption); color: var(--hm-text-3); }
+.skeleton { height: 56px; border-radius: var(--hm-radius-md); background: var(--hm-surface-1); animation: pulse 1.6s var(--hm-ease-breathe) infinite; }
+.error { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--hm-radius-md); background: var(--hm-surface-1); border: 1.5px solid var(--hm-border-control); }
+.error svg { flex: none; margin-top: 2px; color: var(--hm-danger); }
+.errorTitle { font: var(--hm-text-label); margin: 0; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+@media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }

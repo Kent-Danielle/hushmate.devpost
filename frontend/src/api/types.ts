@@ -148,6 +148,16 @@ export interface SummaryHeadsUp {
   authorName: string;
 }
 
+/** POST /houses/:id/heads-ups body. `at` is an ISO instant in the future. */
+export interface HeadsUpBody {
+  text: string;
+  at: string;
+}
+
+export interface HeadsUpCreated {
+  headsUp: SummaryHeadsUp;
+}
+
 export interface SummaryAck {
   nudgeId: string;
   recipientName: string;

@@ -1,0 +1,5 @@
+.tile { display: grid; gap: 4px; padding: 16px; border-radius: var(--hm-radius-lg); background: var(--hm-surface-1); border: 1px solid var(--hm-line); }
+.chip { justify-self: start; font: var(--hm-text-micro); background: var(--hm-streak); color: var(--hm-on-pastel); padding: 3px 10px; border-radius: var(--hm-radius-pill); }
+.n { font: var(--hm-text-display); margin: 0; font-variant-numeric: tabular-nums; }
+.label { font: var(--hm-text-body); color: var(--hm-text-2); margin: 0; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

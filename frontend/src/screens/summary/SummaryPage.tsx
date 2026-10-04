@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Check, CircleAlert } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { useHouses } from '../../api/hooks/houses';
@@ -8,6 +8,10 @@ import { useAuth } from '../../auth/AuthContext';
 import { Button } from '../../components/Button';
 import { EmptyState } from '../../components/EmptyState';
 import { useToast } from '../../components/Toast';
+import { HeadsUpList } from './HeadsUpList';
+import { PostHeadsUpSheet } from './PostHeadsUpSheet';
+import { RestingNow } from './RestingNow';
+import { StreakTile } from './StreakTile';
 import { timeAgo } from './timeAgo';
 import placeholder from '../Placeholder.module.css';
 import styles from './SummaryPage.module.css';
@@ -38,7 +42,7 @@ function names(acks: SummaryAck[]): string {
   return `${unique.slice(0, -1).join(', ')} and ${unique[unique.length - 1]}`;
 }
 
-/** Summary. Slice 4: the "Your nudge was acknowledged" cards and their toast. Streak, resting now and heads-ups arrive in slice 6. */
+/** Summary: the Quiet Streak, acknowledgement cards (sender only), Resting now and heads-ups. Refetches every 30 s while visible. */
 export default function SummaryPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -46,6 +50,7 @@ export default function SummaryPage() {
   const houses = useHouses();
   const houseId = user?.activeHouseId ?? null;
   const summary = useSummary(houseId);
+  const [postOpen, setPostOpen] = useState(false);
   const houseName = houses.data?.find((h) => h.isActive)?.house.name;
 
   // A quiet toast for acknowledgements under an hour old that this device hasn't announced yet.
@@ -90,6 +95,7 @@ export default function SummaryPage() {
     const list = [...summary.data.myAcks].sort((a, b) => Date.parse(b.acknowledgedAt) - Date.parse(a.acknowledgedAt));
     body = (
       <>
+        <StreakTile days={summary.data.streakDays} />
         {list.length > 0 ? (
           <ul className={styles.acks} aria-label="Acknowledged nudges">
             {list.map((ack) => (
@@ -106,14 +112,9 @@ export default function SummaryPage() {
               </li>
             ))}
           </ul>
-        ) : (
-          <p className={styles.quiet}>No nudges acknowledged lately. When a housemate taps Got it on yours, it shows up here.</p>
-        )}
-        {/* Slice 6: the Quiet Streak tile, Resting now and Heads-ups go here. */}
-        <div className={placeholder.empty}>
-          <p className={placeholder.voice}>More on the way</p>
-          <p className={placeholder.caption}>Your Quiet Streak, who's resting and heads-ups arrive soon.</p>
-        </div>
+        ) : null}
+        {houseId && <RestingNow houseId={houseId} />}
+        <HeadsUpList headsUps={summary.data.headsUps} onPost={() => setPostOpen(true)} />
       </>
     );
   }
@@ -125,6 +126,7 @@ export default function SummaryPage() {
         {houseName && <p className={placeholder.caption}>{houseName}</p>}
       </div>
       {body}
+      {houseId && <PostHeadsUpSheet open={postOpen} onOpenChange={setPostOpen} houseId={houseId} />}
     </section>
   );
 }

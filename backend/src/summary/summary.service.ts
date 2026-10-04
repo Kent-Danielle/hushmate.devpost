@@ -1,10 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { vancouverDaysBetween } from '../common/vancouverTime.js';
 import { HousesService } from '../houses/houses.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 const DEMO_STREAK = 10;
 const ACK_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+export interface HeadsUpShape {
+  id: string;
+  text: string;
+  at: Date;
+  authorName: string;
+}
 
 export interface SummaryShape {
   streakDays: number;
@@ -44,5 +51,15 @@ export class SummaryService {
       headsUps: headsUps.map((h) => ({ id: h.id, text: h.text, at: h.at, authorName: h.author.name })),
       myAcks: acks.map((a) => ({ nudgeId: a.id, recipientName: a.recipient.name, acknowledgedAt: a.acknowledgedAt! })),
     };
+  }
+
+  /** Posts a heads-up to the user's active house. `at` must be in the future. */
+  async postHeadsUp(userId: string, houseId: string, text: string, at: Date): Promise<HeadsUpShape> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { name: true, activeHouseId: true } });
+    if (!user || user.activeHouseId !== houseId) throw new ForbiddenException('This is not your active house');
+    await this.houses.requireApprovedMember(userId, houseId);
+    if (!(at.getTime() > Date.now())) throw new BadRequestException('at must be in the future');
+    const created = await this.prisma.headsUp.create({ data: { houseId, authorId: userId, text, at } });
+    return { id: created.id, text: created.text, at: created.at, authorName: user.name };
   }
 }

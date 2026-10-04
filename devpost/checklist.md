@@ -61,7 +61,7 @@ Each `Build:` names the owning agent for each group of files (`database`, `backe
   Learner check: Add "11:00 PM → 7:00 AM, Mon/Wed/Fri" and see it run into the next morning. Add one that overlaps and read the warning. Edit one day with Just this day. On a second account, switch to another house and see that person's blocks outlined as "away". Nudge someone who's resting right now and check you're asked first.
   Commit: `feat(quiet-times): add the quiet-time editor, schedule views and setup`
 
-- [ ] **6. The Summary board shows the streak, who's resting, and heads-ups**
+- [x] **6. The Summary board shows the streak, who's resting, and heads-ups**
   Becomes usable: Summary's Quiet Streak counts up and drops to 0 after any nudge, naming nobody. Resting now lists housemates in a quiet time, with the breathing ring. You can post a heads-up (200-character counter, a future date and time), and every housemate sees it with your name and time until that time passes. Empty states invite rather than apologise.
   Why now: It reads from both quiet times (resting) and nudges (streak), so it comes after both. It's low risk: the summary endpoint already exists from slice 4, and only heads-up posting is new on the backend.
   PRD ref: `prd.md > Summary Board`, `prd.md > States and Boundaries` (nobody resting now, no heads-ups)
@@ -130,3 +130,4 @@ Activity mode: not started
 - 2026-10-04 (slice 5): Houses made before slice 5 have `setupDone: false`, so on the next open the learner's existing accounts are routed through setup once. This is intended: setup runs on the first open after approval or create.
 - 2026-10-04 (slice 5): The slice 4 Playwright round trip now finishes setup for its seeded users, because `SetupRedirect` would otherwise intercept them. Frontend test files sit outside `tsc -b` (tsconfig includes only `src`) and are type-checked only by Vitest and Playwright at run time.
 - 2026-10-04: Two slice 5 agents were cut off by an API session limit and resumed from their on-disk work. Nothing was lost.
+- 2026-10-04 (slice 6): Demo accounts may post heads-ups to the demo house. The spec doesn't lock them, and the PRD's nightly reset clears demo heads-ups. Post errors: `at` must be in the future (400), and only the active house is allowed (403). The streak-drop-after-nudge check is covered by e2e (`streakDays` is 0 after a nudge even in a 30-day-old house), not by a browser run. The "No nudges acknowledged lately" line was removed to match the mockup.

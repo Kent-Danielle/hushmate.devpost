@@ -1,0 +1,23 @@
+.form { display: grid; gap: 16px; }
+.field { display: grid; gap: 6px; border: 0; padding: 0; margin: 0; min-width: 0; }
+.label { font: var(--hm-text-label); padding: 0; }
+.area, .input {
+  font: var(--hm-text-body); color: var(--hm-text); background: var(--hm-surface-2); border: 1.5px solid var(--hm-border-control);
+  border-radius: var(--hm-radius-md); width: 100%; min-width: 0; color-scheme: inherit;
+}
+.area { padding: 12px 14px; min-height: 120px; resize: none; }
+.input { min-height: var(--hm-touch); padding: 0 14px; }
+.area::placeholder { color: var(--hm-text-3); }
+.area:focus-visible, .input:focus-visible { outline: 2px solid var(--hm-focus); outline-offset: 3px; }
+.counter { justify-self: end; font: var(--hm-text-caption); color: var(--hm-text-3); }
+.max { color: var(--hm-text); font-weight: 700; }
+.when { display: flex; gap: 8px; }
+.msg, .msgError { font: var(--hm-text-caption); color: var(--hm-text-3); display: flex; gap: 6px; align-items: flex-start; }
+.msgError { color: var(--hm-danger); }
+.invalid .input { border-color: var(--hm-danger); }
+.cap { font: var(--hm-text-caption); color: var(--hm-text-3); margin: 0; }
+.banner { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--hm-radius-md); background: var(--hm-surface-1); border: 1.5px solid var(--hm-danger); }
+.banner svg { flex: none; margin-top: 2px; color: var(--hm-danger); }
+.bannerTitle { font: var(--hm-text-label); margin: 0; }
+.bannerText { font: var(--hm-text-body); margin: 0; color: var(--hm-text-2); }
+.actions { display: grid; gap: 8px; }
