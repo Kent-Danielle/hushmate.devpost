@@ -10,5 +10,7 @@ export function useBoard(houseId: string | null | undefined, enabled = true) {
     queryKey: boardKey(houseId ?? ''),
     queryFn: () => api<Board>(`/houses/${houseId}/board`),
     enabled: enabled && Boolean(houseId),
+    refetchInterval: 15_000,
+    refetchIntervalInBackground: false,
   });
 }

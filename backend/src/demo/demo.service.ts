@@ -8,7 +8,7 @@ import { DEMO_HOUSE_CODE, DEMO_HOUSE_NAME, LAST_DEMO_RESET_KEY, resetDemoContent
 
 const MIN = 60_000;
 /** A bot taps "Got it" this long after it was nudged. */
-export const BOT_ACK_DELAY_MS = 60_000;
+export const BOT_ACK_DELAY_MS = 10_000;
 
 @Injectable()
 export class DemoService {
@@ -35,7 +35,7 @@ export class DemoService {
 
   /**
    * Claim, then send, for each demo user whose nudge is due: a conditional updateMany moves
-   * demoNextNudgeAt forward by 30-120 minutes, and only the winner sends (at most once).
+   * demoNextNudgeAt forward by 5-10 minutes, and only the winner sends (at most once).
    */
   async sendDueBotNudges(now: Date = new Date()): Promise<number> {
     const due = await this.prisma.user.findMany({
@@ -57,7 +57,7 @@ export class DemoService {
     for (const user of due) {
       const claim = await this.prisma.user.updateMany({
         where: { id: user.id, demoNextNudgeAt: { lte: now } },
-        data: { demoNextNudgeAt: new Date(now.getTime() + randomMinutes(30, 120) * MIN) },
+        data: { demoNextNudgeAt: new Date(now.getTime() + randomMinutes(5, 10) * MIN) },
       });
       if (claim.count !== 1 || !house || bots.length === 0) continue;
       try {
@@ -76,7 +76,7 @@ export class DemoService {
     return sent;
   }
 
-  /** Bots tap "Got it" about a minute after they're nudged. */
+  /** Bots tap "Got it" about 10 seconds after they're nudged. */
   async acknowledgeBotNudges(now: Date = new Date()): Promise<number> {
     const result = await this.prisma.nudge.updateMany({
       where: {

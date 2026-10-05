@@ -49,9 +49,9 @@ Everything else is the learner's decision.
 3. Onboarding guides you to turn on notifications on this device.
 4. See the house on **Schedule**. One simulated housemate has a morning quiet time.
 5. Nudge a housemate: a simulated one, or another judge logged into a different demo account.
-6. Within **10 minutes** you receive a **Demo** nudge as a real notification.
+6. Within **1 minute** you receive a **Demo** nudge as a real notification.
 7. Open it and tap **Got it**.
-8. More Demo nudges follow every 30 minutes to 2 hours until you log out.
+8. More Demo nudges follow every 5 to 10 minutes until you log out.
 
 **Success:** a gentle, anonymous nudge arrives as a real notification on someone's own device, they acknowledge it, and the sender quietly learns it landed. Nobody else in the house knows it happened.
 
@@ -229,18 +229,18 @@ Develops `scope.md > What "Working" Looks Like` (the demo).
 - **DevPost Demo House** has six members:
   - **3 simulated ("bot") housemates** who feel like real people: Maya, Jordan and Priya. They have weekly quiet times (Priya has a **morning** one) and heads-ups on the board. **Maya owns the demo house** (4-spec), and **join requests to it are refused**.
   - **3 demo accounts for judges.** Judges sign in with an email and password listed on the Devpost page and in the README. Two judges on different demo accounts can nudge each other for real.
-  - **Bots acknowledge** (learner, 4-spec): when a judge nudges a bot, the bot taps **Got it** about a minute later. A solo judge can then see the sender side too: the quiet toast and the "acknowledged" card.
+  - **Bots acknowledge** (learner, 4-spec): when a judge nudges a bot, the bot taps **Got it** about 10 seconds later (final review 2026-10-04). A solo judge can then see the sender side too: the quiet toast and the "acknowledged" card.
 - **Demo accounts are locked.** They can't:
   - change their name, email or password
   - delete the account
   - leave the demo house, create or join other houses, or switch the active house
 - **People sharing a demo account share its nudges and edits.** The learner accepted this.
 - **Nightly reset:** the demo house returns to its starting state every night. That covers quiet times, heads-ups, nudges and acknowledgements. Each reset gives the bots fresh heads-ups for the coming day *(fresh heads-ups: Assumption: confirm)*.
-- **Simulated nudges:** the bots nudge each signed-in demo account. The first comes **within 10 minutes** of opening the app on a demo account, then at **random intervals of 30 minutes to 2 hours**. They keep coming until you sign out, except that **after the 3 AM reset they pause until the account next opens the app** (learner, 4-spec). Each one is a **real push notification**, like any nudge, and shows the random message followed by a subtitle: "This is a demo nudge from a simulated housemate in DevPost Demo House." (learner, 4-spec). Signing out stops them on that device *(Assumption: confirm)*.
-- **Welcome card (option A)**, shown when a demo account signs in. Suggested copy, which **warns judges to sign out** so they aren't spammed (learner, 4-spec): "Welcome to DevPost Demo House. [bot names] are simulated housemates. They'll nudge you every 30 minutes to 2 hours so you can feel how Hushmate works. When you're done, sign out, or the nudges will keep coming." *(copy: agent suggestion)*
+- **Simulated nudges:** the bots nudge each signed-in demo account. The first comes **within 1 minute** of opening the app on a demo account, then at **random intervals of 5 to 10 minutes** (final review 2026-10-04). They keep coming until you sign out, except that **after the 3 AM reset they pause until the account next opens the app** (learner, 4-spec). Each one is a **real push notification**, like any nudge, and shows the random message followed by a subtitle: "This is a demo nudge from a simulated housemate in DevPost Demo House." (learner, 4-spec). Signing out stops them on that device *(Assumption: confirm)*.
+- **Welcome card (option A)**, shown when a demo account signs in. Suggested copy, which **warns judges to sign out** so they aren't spammed (learner, 4-spec): "Welcome to DevPost Demo House. [bot names] are simulated housemates. They'll nudge you every 5 to 10 minutes so you can feel how Hushmate works. When you're done, sign out, or the nudges will keep coming." *(copy: agent suggestion)*
 - **Quiet Streak is fixed at 10 days**, with a note. Suggested copy: "This is a demo house, so its Quiet Streak is fixed at 10 days. In your own house, it counts the days since anyone was nudged." *(copy: agent suggestion, confirm)*
 - [ ] Signing in with each of the three demo accounts lands in DevPost Demo House and shows the welcome card.
-- [ ] A demo nudge (random message + demo subtitle) arrives as a notification within 10 minutes of signing in, and the next arrives between 30 minutes and 2 hours later.
+- [ ] A demo nudge (random message + demo subtitle) arrives as a notification within 1 minute of signing in, and the next arrives between 5 and 10 minutes later.
 - [ ] Demo accounts can't reach any control that changes credentials, deletes the account, or leaves or switches houses.
 - [ ] After the nightly reset, a quiet time a judge added the day before is gone, and the bots' schedules and fresh heads-ups are back.
 - [ ] The demo house's Quiet Streak always shows 10 days, with its note.

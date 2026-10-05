@@ -31,6 +31,12 @@ export class SchedulerService implements OnModuleDestroy {
   minute(): Promise<unknown> {
     return this.runExclusive('minute', async () => {
       await this.demo.resetIfOverdue();
+    });
+  }
+
+  @Cron('*/10 * * * * *', { name: 'bots', waitForCompletion: true })
+  bots(): Promise<unknown> {
+    return this.runExclusive('bots', async () => {
       await this.demo.sendDueBotNudges();
       await this.demo.acknowledgeBotNudges();
     });
@@ -53,7 +59,7 @@ export class SchedulerService implements OnModuleDestroy {
     if (!getConfig().schedulerEnabled) return;
     await this.runExclusive('boot-reset', () => this.demo.resetIfOverdue());
     await this.heartbeat();
-    this.logger.log('Scheduler running (minute, demoReset, heartbeat)');
+    this.logger.log('Scheduler running (minute, bots, demoReset, heartbeat)');
   }
 
   /** Stop new ticks at once, then wait for the one in flight. */

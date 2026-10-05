@@ -19,7 +19,7 @@ describe('welcome card copy', () => {
 
   it('welcomeText matches the spec wording exactly', () => {
     expect(welcomeText(bots)).toBe(
-      "Welcome to DevPost Demo House. Maya, Jordan and Priya are simulated housemates. They'll nudge you every 30 minutes to 2 hours so you can feel how Hushmate works. When you're done, sign out, or the nudges will keep coming.",
+      "Welcome to DevPost Demo House. Maya, Jordan and Priya are simulated housemates. They'll nudge you every 5 to 10 minutes so you can feel how Hushmate works. When you're done, sign out, or the nudges will keep coming.",
     );
   });
 

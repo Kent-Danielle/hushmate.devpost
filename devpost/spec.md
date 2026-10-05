@@ -48,7 +48,7 @@ Hushmate is three pieces plus a database.
 **Why this shape:**
 - One backend owns all the rules, which is what keeps nudges anonymous and demo accounts locked.
 - One database holds everything.
-- There's no live-sync machinery. The web app re-checks when you open or refocus it, and a push brings the urgent thing, the nudge, instantly. While the app is on screen it also polls pending nudges every 15 s (Safari shows declarative pushes without waking the service worker, found in slice 4).
+- There's no live-sync machinery. The web app re-checks when you open or refocus it, and a push brings the urgent thing, the nudge, instantly. While the app is on screen it also polls pending nudges every 5 s and the house board every 15 s (Safari shows declarative pushes without waking the service worker, found in slice 4).
 
 ## The Core Journey Through the System
 PRD ref: `prd.md > The Core Journey`.
@@ -84,10 +84,10 @@ PRD ref: `prd.md > The Core Journey`.
 
 **B. A judge (a demo account)**
 1. Sign in with a demo account: `POST /auth/signin`. The user is flagged `isDemo`.
-2. `GET /me` returns `isDemo` and `demo.botNames`, and the web app shows the **welcome card**. On that call, if the account has no bot nudge scheduled, the backend schedules one **1–10 minutes from now**. → `Backend: Me`, `Backend: Demo module`
+2. `GET /me` returns `isDemo` and `demo.botNames`, and the web app shows the **welcome card**. On that call, if the account has no bot nudge scheduled, the backend schedules one **15–45 seconds from now**. → `Backend: Me`, `Backend: Demo module`
 3. Notification setup is the same as in A.6.
-4. The **every-minute timer** claims each demo account whose bot nudge is due. A random bot "sends" a nudge marked `isDemo` through the nudge pipeline (a real push, cooldown skipped), then the next one is scheduled 30–120 minutes later.
-5. Judges on different demo accounts can nudge each other (real nudges). When a judge nudges a bot, the bot taps **Got it** about a minute later, so the judge also sees the sender side.
+4. The **10-second bot timer** claims each demo account whose bot nudge is due. A random bot "sends" a nudge marked `isDemo` through the nudge pipeline (a real push, cooldown skipped), then the next one is scheduled 5–10 minutes later.
+5. Judges on different demo accounts can nudge each other (real nudges). When a judge nudges a bot, the bot taps **Got it** about 10 seconds later, so the judge also sees the sender side.
 6. **Sign out:** the web app deletes this device's push subscription (`DELETE /push/subscriptions`), or unsubscribes in the browser if that fails, then clears the token and cached data. That device stops receiving nudges.
 7. **3:00 AM Vancouver:** the reset restores the demo house, keeping every account's ID. Bot nudges pause until the account next opens the app. → `Backend: Demo module`
 
@@ -235,7 +235,7 @@ Lives in `app/frontend/src/`. Every screen is mobile-first (a 360–430px wide t
   - otherwise, an approved membership with `setupDone: false` → `/onboarding/setup/:houseId`
   - otherwise → `/schedule`
 - `GET /me` is fetched on **every app load** (and on refocus). It supplies `isDemo`, `demo.botNames`, `activeHouseId` and `nudgeCooldownUntil`.
-- On every load and refocus, on a service-worker message, and every 15 s while the page is visible (`refetchIntervalInBackground: false`), it checks `GET /nudges/pending`. If anything is waiting, it shows `NudgeOverlay` above everything. After that, an approved membership with `setupDone: false` (from `GET /houses`) routes to its setup.
+- On every load and refocus, on a service-worker message, and every 5 s while the page is visible (`refetchIntervalInBackground: false`), it checks `GET /nudges/pending`. The house board (`GET /houses/:id/board`) also refetches every 15 s while visible, so a housemate's new quiet time appears without a reload (final review 2026-10-04). If anything is waiting, it shows `NudgeOverlay` above everything. After that, an approved membership with `setupDone: false` (from `GET /houses`) routes to its setup.
 - A `message` listener on `navigator.serviceWorker` invalidates the pending-nudges query when a push arrives.
 - **On every load with notification permission granted,** it re-sends the current push subscription (`POST /push/subscriptions`). That moves the device to the signed-in account and repairs rotated subscriptions.
 - `TabBar`: Schedule · Summary · Houses · Profile.
@@ -365,7 +365,7 @@ PRD ref: `prd.md > Onboarding`.
 
 #### Frontend: Demo welcome card
 - Shown after each demo sign-in on this device.
-- Copy from `lib/copy.ts`, with the bot names from `GET /me.demo.botNames`: "Welcome to DevPost Demo House. {Maya, Jordan and Priya} are simulated housemates. They'll nudge you every 30 minutes to 2 hours so you can feel how Hushmate works. When you're done, sign out, or the nudges will keep coming."
+- Copy from `lib/copy.ts`, with the bot names from `GET /me.demo.botNames`: "Welcome to DevPost Demo House. {Maya, Jordan and Priya} are simulated housemates. They'll nudge you every 5 to 10 minutes so you can feel how Hushmate works. When you're done, sign out, or the nudges will keep coming."
 - PRD ref: `prd.md > Demo House`.
 
 #### Frontend: Shared UI components
@@ -448,7 +448,7 @@ Lives in `app/backend/src/`, as NestJS modules.
 - `GET /me` → the `User` shape (see the API contract):
   - **`nudgeCooldownUntil`:** the sender's latest nudge time + 5 minutes, if that's still in the future, else `null`.
   - **`demo`** (demo accounts only): `{houseName, botNames}`. The bot names come from the database (`users.isBot` members of the demo house, in seed order). That's the single source of truth (learner decision).
-- **Arming bot nudges** (demo accounts): a conditional `updateMany({ where: { id, isDemo: true, demoNextNudgeAt: null }, data: { demoNextNudgeAt: now + random(1–10 min) } })`, so concurrent opens can't overwrite each other.
+- **Arming bot nudges** (demo accounts): a conditional `updateMany({ where: { id, isDemo: true, demoNextNudgeAt: null }, data: { demoNextNudgeAt: now + random(15–45 s) } })`, so concurrent opens can't overwrite each other.
 - PRD ref: `prd.md > Demo House`, `prd.md > Nudging (the kernel)`.
 
 #### Backend: Houses module
@@ -557,12 +557,12 @@ PRD ref: `prd.md > Houses and the Active House`.
   | **Priya** (night shifts) | 6:00 → 9:00 AM on weekdays (**the morning one**), plus 10:30 PM → 6:00 AM Friday and Saturday |
 
   Heads-ups refreshed at each reset (Vancouver time): Priya "Coming home late, might make late dinner" (today at 11:30 PM); Maya "Friends over for a movie" (tomorrow at 8:00 PM).
-- **Bot nudges** (minute tick), **claim, then send:**
-  1. For each demo user, a conditional `updateMany({ where: { id, demoNextNudgeAt: { lte: now } }, data: { demoNextNudgeAt: now + random(30–120 min) } })`.
+- **Bot nudges** (10-second `bots` tick), **claim, then send:**
+  1. For each demo user, a conditional `updateMany({ where: { id, demoNextNudgeAt: { lte: now } }, data: { demoNextNudgeAt: now + random(5–10 min) } })`.
   2. If it updated a row (the claim succeeded): pick a random bot, then `createAndSend({ isDemo: true, skipCooldown: true })`.
 
   This is at most once: a crash between the steps drops a single nudge.
-- **Bot acknowledgements** (minute tick): `updateMany({ where: { acknowledgedAt: null, createdAt: { lte: now − 60 s }, recipient: { isBot: true } }, data: { acknowledgedAt: now } })`.
+- **Bot acknowledgements** (10-second bot tick): `updateMany({ where: { acknowledgedAt: null, createdAt: { lte: now − 10 s }, recipient: { isBot: true } }, data: { acknowledgedAt: now } })`.
 - **The nightly reset** (`resetDemoContent`), inside one `$transaction` with `timeout: 20_000`:
   1. **Guard:** `INSERT INTO system_state (key, value) VALUES ('lastDemoResetAt', now()) ON CONFLICT (key) DO UPDATE SET value = now() WHERE system_state.value < <latest 03:00 Vancouver> RETURNING key`. No row back → it's already done, so stop.
   2. Delete the demo house's nudges and heads-ups, and the demo accounts' quiet times.
@@ -575,7 +575,8 @@ PRD ref: `prd.md > Houses and the Active House`.
 
 | Job | Schedule | Work |
 |---|---|---|
-| `minute` | `* * * * *` | 1. **Reset overdue?** If `lastDemoResetAt` is before the latest 03:00 Vancouver → reset (catch-up). 2. Bot nudges. 3. Bot acks. |
+| `minute` | `* * * * *` | **Reset overdue?** If `lastDemoResetAt` is before the latest 03:00 Vancouver → reset (catch-up). |
+| `bots` | `*/10 * * * * *` | 1. Bot nudges. 2. Bot acks. (Split from `minute` at the final review 2026-10-04 so the first demo nudge lands within a minute and bots ack in ~10 s.) |
 | `demoReset` | `0 3 * * *`, `timeZone: 'America/Vancouver'` | The nightly reset (the primary trigger) |
 | `heartbeat` | `0 12 * * *`, `timeZone: 'America/Vancouver'` | Upsert `system_state.heartbeatAt = now()`. A belt-and-braces activity signal for Supabase; normal traffic already counts |
 
@@ -605,7 +606,7 @@ PRD ref: `prd.md > Houses and the Active House`.
   - files run sequentially; the app is built through the same `configureApp()` that `main.ts` uses
   - **auth:** sign-up `{token, user}` without `passwordHash`; a duplicate email in different case → 409; a 7-character password → 400; wrong password and unknown email give identical 401s; a bot can't sign in; the 6th sign-in within 60 s → 429; no, garbage, wrong-secret and expired tokens → 401
   - **demo locks:** a demo user gets 403 on create, both joins, activate and dismiss, but can still `GET /me` and add quiet times; joining the demo house → 403
-  - **kernel:** cooldown 429 with `cooldownUntil`; `GET /me.nudgeCooldownUntil`; pending never contains the sender; only the sender sees acks; a nudge across different active houses → 403; a bot ack after 60 s; bot nudges skip the cooldown
+  - **kernel:** cooldown 429 with `cooldownUntil`; `GET /me.nudgeCooldownUntil`; pending never contains the sender; only the sender sees acks; a nudge across different active houses → 403; a bot ack after 10 s; bot nudges skip the cooldown
   - **quiet times:** overlap → 409 with `conflicts`; scope day vs set
   - **push:** an unknown host → 400; upsert reassigns the user; a 410 deletes the row (mocked `web-push`)
   - **reset:** IDs are unchanged after the reset; the guard makes a second run a no-op
@@ -898,7 +899,7 @@ app/
 - **Bot nudges are real notifications**, with the demo subtitle. The welcome card warns judges to sign out.
 - **Accepted stack recommendations:** Vite, React Router, TanStack Query, CSS Modules + tokens, Radix primitives, hand-built calendar, date-fns, Prisma, @nestjs/schedule, web-push.
 - **Decided at the first review:**
-  1. Bots acknowledge a judge's nudge after about a minute.
+  1. Bots acknowledge a judge's nudge after about 10 seconds (final review 2026-10-04; was about a minute).
   2. Overlapping quiet times are blocked, with a warning showing the clash.
   3. The bots Maya, Jordan and Priya, as proposed.
   4. Bots pause after the 3 AM reset until the app is next opened.

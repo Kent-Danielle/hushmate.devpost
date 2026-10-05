@@ -17,7 +17,7 @@ Three shared demo accounts sign you into **DevPost Demo House**, a house with th
 | `judge2@example.com` | `HushmateDemo2026` |
 | `judge3@example.com` | `HushmateDemo2026` |
 
-- The first demo nudge arrives within about 10 minutes of opening the app, then one every 30 minutes to 2 hours. Nudge a housemate and the simulated housemate taps "Got it" about a minute later.
+- The first demo nudge arrives within about a minute of opening the app, then one every 5 to 10 minutes. Nudge a housemate and the simulated housemate taps "Got it" about 10 seconds later.
 - The demo house resets every night at 3 AM Vancouver time. Demo accounts are locked: they can't change the house, their profile or their password.
 - **Sign out when you are done.** The accounts are shared, and nudges keep arriving on any device that is still signed in. Signing out stops them on that device.
 

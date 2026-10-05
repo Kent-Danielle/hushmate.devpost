@@ -13,7 +13,7 @@ export function usePendingNudges() {
     queryFn: () => api<PendingNudge[]>('/nudges/pending'),
     refetchOnMount: 'always',
     // Desktop Safari shows the push itself but never fires the service worker event, so poll while the page is visible.
-    refetchInterval: 15_000,
+    refetchInterval: 5_000,
     refetchIntervalInBackground: false,
   });
 }

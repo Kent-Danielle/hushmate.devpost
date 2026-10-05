@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { randomMinutes } from '../common/random.js';
+import { randomSeconds } from '../common/random.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 export const NUDGE_COOLDOWN_MS = 5 * 60 * 1000;
@@ -47,7 +47,7 @@ export class MeService {
   private async demoInfo(userId: string): Promise<{ houseName: string; botNames: string[] }> {
     await this.prisma.user.updateMany({
       where: { id: userId, isDemo: true, demoNextNudgeAt: null },
-      data: { demoNextNudgeAt: new Date(Date.now() + randomMinutes(1, 10) * 60_000) },
+      data: { demoNextNudgeAt: new Date(Date.now() + randomSeconds(15, 45) * 1000) },
     });
     const house = await this.prisma.house.findFirst({
       where: { isDemo: true, memberships: { some: { userId, status: 'approved' } } },

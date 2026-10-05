@@ -27,7 +27,7 @@ export function welcomeParts(botNames: readonly string[], houseName: string = DE
   return {
     title: `Welcome to ${houseName}`,
     names: joinNames(botNames),
-    intro: " are simulated housemates. They'll nudge you every 30 minutes to 2 hours so you can feel how Hushmate works.",
+    intro: " are simulated housemates. They'll nudge you every 5 to 10 minutes so you can feel how Hushmate works.",
     before: "When you're done, ",
     emphasis: 'sign out',
     after: ', or the nudges will keep coming.',

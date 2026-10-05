@@ -119,7 +119,7 @@ describe('demo e2e (demo house, simulated housemates, nightly reset)', () => {
   });
 
   describe('GET /me for demo accounts', () => {
-    it('returns the demo shape and arms demoNextNudgeAt 1-10 minutes ahead, once', async () => {
+    it('returns the demo shape and arms demoNextNudgeAt 15-45 seconds ahead, once', async () => {
       const judge = await signIn('judge1@example.com');
       const id = await judgeId(0);
       // Signing in already returns the User shape, which arms; clear it to test GET /me itself.
@@ -132,8 +132,8 @@ describe('demo e2e (demo house, simulated housemates, nightly reset)', () => {
       expect(res.body.passwordHash).toBeUndefined();
 
       const armed = (await prisma.user.findUniqueOrThrow({ where: { id } })).demoNextNudgeAt!;
-      expect(armed.getTime() - t0).toBeGreaterThanOrEqual(MIN - 2000);
-      expect(armed.getTime() - Date.now()).toBeLessThanOrEqual(10 * MIN);
+      expect(armed.getTime() - t0).toBeGreaterThanOrEqual(13_000);
+      expect(armed.getTime() - Date.now()).toBeLessThanOrEqual(45_000 + 2000);
 
       await request(http).get('/me').set(bearer(judge)).expect(200);
       expect((await prisma.user.findUniqueOrThrow({ where: { id } })).demoNextNudgeAt).toEqual(armed);
@@ -148,7 +148,7 @@ describe('demo e2e (demo house, simulated housemates, nightly reset)', () => {
   });
 
   describe('simulated housemates', () => {
-    it('a due judge gets a demo nudge from a bot on the tick, with the subtitle; the next one is 30-120 min away', async () => {
+    it('a due judge gets a demo nudge from a bot on the tick, with the subtitle; the next one is 5-10 min away', async () => {
       const judge = await signIn('judge1@example.com');
       const id = await judgeId(0);
       await prisma.user.update({ where: { id }, data: { demoNextNudgeAt: new Date(Date.now() - 1000) } });
@@ -167,8 +167,8 @@ describe('demo e2e (demo house, simulated housemates, nightly reset)', () => {
       expect(row.isDemo).toBe(true);
 
       const next = (await prisma.user.findUniqueOrThrow({ where: { id } })).demoNextNudgeAt!;
-      expect(next.getTime() - now.getTime()).toBeGreaterThanOrEqual(30 * MIN);
-      expect(next.getTime() - now.getTime()).toBeLessThanOrEqual(120 * MIN);
+      expect(next.getTime() - now.getTime()).toBeGreaterThanOrEqual(5 * MIN);
+      expect(next.getTime() - now.getTime()).toBeLessThanOrEqual(10 * MIN);
       // Not due again: a second tick sends nothing.
       expect(await demo.sendDueBotNudges(new Date())).toBe(0);
       expect(await prisma.nudge.count({ where: { recipientId: id } })).toBe(1);
@@ -190,7 +190,7 @@ describe('demo e2e (demo house, simulated housemates, nightly reset)', () => {
       expect(nudges.every((n) => n.isDemo)).toBe(true);
     });
 
-    it('a bot acks a judge nudge only after 60 s, on the tick', async () => {
+    it('a bot acks a judge nudge only after 10 s, on the tick', async () => {
       const judge = await signIn('judge1@example.com');
       const maya = await botId(0);
       const sent = await request(http).post('/nudges').set(bearer(judge)).send({ recipientId: maya });
@@ -199,10 +199,10 @@ describe('demo e2e (demo house, simulated housemates, nightly reset)', () => {
 
       expect(await demo.acknowledgeBotNudges(new Date())).toBe(0);
       expect((await prisma.nudge.findUniqueOrThrow({ where: { id: nudgeId } })).acknowledgedAt).toBeNull();
-      await prisma.nudge.update({ where: { id: nudgeId }, data: { createdAt: new Date(Date.now() - 30_000) } });
+      await prisma.nudge.update({ where: { id: nudgeId }, data: { createdAt: new Date(Date.now() - 5_000) } });
       expect(await demo.acknowledgeBotNudges(new Date())).toBe(0);
 
-      await prisma.nudge.update({ where: { id: nudgeId }, data: { createdAt: new Date(Date.now() - 61_000) } });
+      await prisma.nudge.update({ where: { id: nudgeId }, data: { createdAt: new Date(Date.now() - 11_000) } });
       expect(await demo.acknowledgeBotNudges(new Date())).toBe(1);
       expect((await prisma.nudge.findUniqueOrThrow({ where: { id: nudgeId } })).acknowledgedAt).not.toBeNull();
 

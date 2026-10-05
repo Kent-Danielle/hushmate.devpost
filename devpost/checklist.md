@@ -89,6 +89,11 @@ Each `Build:` names the owning agent for each group of files (`database`, `backe
 
 ## Final Review
 
+- [ ] Demo: first Demo nudge within 1 minute of signing in (armed 15–45 s ahead; bot job every 10 s)
+- [ ] Demo: follow-up Demo nudges every 5–10 minutes, random (welcome card copy and README updated)
+- [ ] Demo: bots tap Got it about 10 seconds after a judge's nudge
+- [ ] Pending-nudge polling every 5 s, only while the app is visible (verified with a hidden-page check)
+- [ ] Schedule board refetches every 15 s while visible, so a housemate's new quiet time appears without a reload
 - [ ] Final review complete — feedback resolved and learner confirms ready to ship
 
 ## Code Tour and App Map

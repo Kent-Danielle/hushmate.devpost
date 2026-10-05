@@ -14,3 +14,8 @@ export function randomInviteToken(): string {
 export function randomMinutes(min: number, max: number): number {
   return randomInt(min, max + 1);
 }
+
+/** A random whole number of seconds in [min, max], inclusive. */
+export function randomSeconds(min: number, max: number): number {
+  return randomInt(min, max + 1);
+}
