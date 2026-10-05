@@ -8,7 +8,7 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import type { SignInDto } from './dto/signin.dto.js';
 import type { SignUpDto } from './dto/signup.dto.js';
 
-const HASH_OPTIONS = { type: argon2.argon2id, memoryCost: 19456, timeCost: 2, parallelism: 1 } as const;
+export const HASH_OPTIONS = { type: argon2.argon2id, memoryCost: 19456, timeCost: 2, parallelism: 1 } as const;
 
 export interface AuthResult {
   token: string;

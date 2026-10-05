@@ -1,6 +1,7 @@
 import { Module, ValidationPipe } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthGuard } from './auth/auth.guard.js';
 import { AuthModule } from './auth/auth.module.js';
@@ -13,12 +14,14 @@ import { PrismaExceptionFilter } from './prisma-exception.filter.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { PushModule } from './push/push.module.js';
 import { QuietTimesModule } from './quiet-times/quiet-times.module.js';
+import { SchedulerModule } from './scheduler/scheduler.module.js';
 import { SummaryModule } from './summary/summary.module.js';
 
-// Later slices add here: ScheduleModule.forRoot (once, here only) and the feature modules.
 @Module({
   imports: [
     PrismaModule,
+    // Imported once, here only: a second forRoot() would register every job twice.
+    ScheduleModule.forRoot({ cronJobs: process.env.SCHEDULER_ENABLED !== 'false' }),
     JwtModule.registerAsync({
       global: true,
       useFactory: () => ({
@@ -45,6 +48,7 @@ import { SummaryModule } from './summary/summary.module.js';
     QuietTimesModule,
     NudgesModule,
     SummaryModule,
+    SchedulerModule,
   ],
   providers: [
     {

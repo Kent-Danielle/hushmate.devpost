@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { LogOut, SunMoon } from 'lucide-react';
 import { useAuth } from '../../auth/AuthContext';
 import { Button } from '../../components/Button';
+import { DEMO_SIGN_OUT_NOTE } from '../../lib/copy';
 import { NotificationSetup } from '../../components/NotificationSetup';
 import { useToast } from '../../components/Toast';
 import { applyTheme, readTheme, type ThemeChoice } from './theme';
@@ -75,6 +76,7 @@ export default function ProfilePage() {
       <Button variant="secondary" block busy={signingOut} icon={<LogOut size={24} aria-hidden="true" />} onClick={() => void handleSignOut()}>
         {signingOut ? 'Signing out…' : 'Sign out'}
       </Button>
+      {user?.isDemo && <p className={styles.caption}>{DEMO_SIGN_OUT_NOTE}</p>}
     </div>
   );
 }

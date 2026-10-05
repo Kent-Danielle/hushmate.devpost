@@ -1,4 +1,5 @@
 import { Outlet } from 'react-router';
+import { DemoWelcomeCard } from '../DemoWelcomeCard';
 import TabBar from './TabBar';
 import styles from './TabBar.module.css';
 
@@ -10,6 +11,7 @@ export default function AppShell() {
         <Outlet />
       </main>
       <TabBar />
+      <DemoWelcomeCard />
     </div>
   );
 }

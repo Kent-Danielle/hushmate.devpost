@@ -45,7 +45,7 @@ function offsetMs(date: Date): number {
 }
 
 /** The instant for a Vancouver wall-clock time (valid for times that aren't in a DST gap or overlap, like 03:00). */
-function vancouverToInstant(year: number, month: number, day: number, hour: number): Date {
+export function vancouverToInstant(year: number, month: number, day: number, hour: number): Date {
   const guess = Date.UTC(year, month - 1, day, hour);
   let result = guess - offsetMs(new Date(guess));
   // The offset at the guess can differ from the offset at the result around a transition.

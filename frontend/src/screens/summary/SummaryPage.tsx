@@ -95,7 +95,7 @@ export default function SummaryPage() {
     const list = [...summary.data.myAcks].sort((a, b) => Date.parse(b.acknowledgedAt) - Date.parse(a.acknowledgedAt));
     body = (
       <>
-        <StreakTile days={summary.data.streakDays} />
+        <StreakTile days={summary.data.streakDays} demo={user?.isDemo} />
         {list.length > 0 ? (
           <ul className={styles.acks} aria-label="Acknowledged nudges">
             {list.map((ack) => (

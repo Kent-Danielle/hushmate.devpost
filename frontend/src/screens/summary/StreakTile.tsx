@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { DEMO_STREAK_NOTE } from '../../lib/copy';
 import styles from './StreakTile.module.css';
 
 const COUNT_MS = 700;
@@ -38,10 +39,12 @@ interface StreakTileProps {
   days: number;
   /** A slot under the number (slice 7 puts the demo note here). */
   note?: ReactNode;
+  /** Demo house: adds the fixed-streak note (lib/copy.ts). */
+  demo?: boolean;
 }
 
 /** The Quiet Streak: whole days since anyone in the house was nudged. Butter is used here and nowhere else. */
-export function StreakTile({ days, note }: StreakTileProps) {
+export function StreakTile({ days, note, demo }: StreakTileProps) {
   const shown = useCountUp(days);
   return (
     <section className={styles.tile} aria-label="Quiet Streak">
@@ -53,6 +56,7 @@ export function StreakTile({ days, note }: StreakTileProps) {
         <span className={styles.sr}>{days} </span>
         {days === 1 ? 'day' : 'days'} without a nudge
       </p>
+      {demo && <p className={styles.note}>{DEMO_STREAK_NOTE}</p>}
       {note}
     </section>
   );

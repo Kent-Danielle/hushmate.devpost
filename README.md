@@ -2,7 +2,39 @@
 
 Less shush, more hush. A mobile-first web app (PWA) for housemates to share quiet hours and send gentle nudges.
 
-> This README covers local setup only for now. The live URL, demo logins and iPhone steps are added when the app ships.
+## Try it
+
+- Web app: https://hushmate-kappa.vercel.app
+- API: https://hushmate-api.fly.dev
+
+### Demo logins
+
+Three shared demo accounts sign you into **DevPost Demo House**, a house with three simulated housemates (Maya, Jordan and Priya). Their quiet times, heads-ups and nudges are scripted.
+
+| Email | Password |
+|---|---|
+| `judge1@example.com` | `HushmateDemo2026` |
+| `judge2@example.com` | `HushmateDemo2026` |
+| `judge3@example.com` | `HushmateDemo2026` |
+
+- The first demo nudge arrives within about 10 minutes of opening the app, then one every 30 minutes to 2 hours. Nudge a housemate and the simulated housemate taps "Got it" about a minute later.
+- The demo house resets every night at 3 AM Vancouver time. Demo accounts are locked: they can't change the house, their profile or their password.
+- **Sign out when you are done.** The accounts are shared, and nudges keep arriving on any device that is still signed in. Signing out stops them on that device.
+
+### iPhone
+
+Notifications on iPhone need the app on the Home Screen:
+
+1. Open the live URL in Safari, tap Share, then **Add to Home Screen**.
+2. Open Hushmate from the Home Screen icon (not from Safari).
+3. Sign in again; the Home Screen app keeps its own session.
+4. Turn on notifications when the app asks.
+
+### Notifications on desktop
+
+- **Brave:** enable "Use Google services for push messaging" at `brave://settings/privacy`.
+- **Chrome on macOS:** allow notifications for Chrome in System Settings, then Notifications.
+- **Safari:** nudges are shown, but the in-app overlay can take up to about 15 seconds to appear while the app is open.
 
 ## Run it locally
 
@@ -23,3 +55,7 @@ docker compose exec backend npx prisma migrate dev
 Stop with `docker compose down` (keeps data) or `docker compose down -v` (wipes the local database).
 
 A local backend must only ever use the compose database. Never put the production `DATABASE_URL` in `backend/.env`.
+
+## License
+
+Unlicensed. Built for the Devpost Build With AI: Basics hackathon; all rights reserved.
