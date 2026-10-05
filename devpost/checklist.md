@@ -85,28 +85,28 @@ Each `Build:` names the owning agent for each group of files (`database`, `backe
 
 - [x] Phone push confirmed on the learner's own devices — after slice 2: iPhone from the Home Screen and Android in Chrome (the spec's verify-early risk)
 - [x] Early usable behavior explored — after slice 4: the nudge round trip on two phones, while feedback can still shape slices 5–7
-- [ ] Final kick-the-tires exploration and feedback completed
+- [x] Final kick-the-tires exploration and feedback completed
 
 ## Final Review
 
-- [ ] Demo: first Demo nudge within 1 minute of signing in (armed 15–45 s ahead; bot job every 10 s)
-- [ ] Demo: follow-up Demo nudges every 5–10 minutes, random (welcome card copy and README updated)
-- [ ] Demo: bots tap Got it about 10 seconds after a judge's nudge
-- [ ] Pending-nudge polling every 5 s, only while the app is visible (verified with a hidden-page check)
-- [ ] Schedule board refetches every 15 s while visible, so a housemate's new quiet time appears without a reload
-- [ ] Final review complete — feedback resolved and learner confirms ready to ship
+- [x] Demo: first Demo nudge within 1 minute of signing in (armed 15–45 s ahead; bot job every 10 s)
+- [x] Demo: follow-up Demo nudges every 5–10 minutes, random (welcome card copy and README updated)
+- [x] Demo: bots tap Got it about 10 seconds after a judge's nudge
+- [x] Pending-nudge polling every 5 s, only while the app is visible (verified with a hidden-page check)
+- [x] Schedule board refetches every 15 s while visible, so a housemate's new quiet time appears without a reload
+- [x] Final review complete — feedback resolved and learner confirms ready to ship
 
 ## Code Tour and App Map
 
-- [ ] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
-- [ ] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
-- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+- [x] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
+- [x] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
+- [x] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
 
-Activity and evidence: not started
-Route and stops: not started
-Edit outcome: not started
-Reflection: not started
-Activity mode: not started
+Activity and evidence: brief evidence-based recap (learner asked to wrap up), tied to the learner's goal of a strong first iteration. Evidence: every PRD feature shipped as specified; the final review only tuned demo timing and refresh rates. The real surprises (Apple `BadWebPushTopic`; Safari not waking the service worker for declarative push) were platform facts caught at the planned device checkpoints, and the second was already flagged in `docs/forge/research/web-push.md`.
+Route and stops: reference route only, not toured: `NudgeSheet.tsx` → `nudges.service.ts` (`send`/`createAndSend`) → `sw.js` + `NudgeOverlay.tsx`.
+Edit outcome: not applicable (the learner chose to wrap up).
+Reflection: optional transfer question offered at hand-off.
+Activity mode: fast mode, recap. App map at `devpost/app-map.html` (snapshot of `4a04aec`).
 
 ## Revisions
 
@@ -139,3 +139,4 @@ Activity mode: not started
 - 2026-10-04 (slice 7): The published demo password is `HushmateDemo2026` (learner's choice; in the README and as a Fly secret). The live boot check ran the first demo reset, so `fly ssh console -C "node dist/prisma/seed.js"` reported "up to date". Live database check: the 6 demo accounts are in DevPost Demo House, there are 20 bot quiet times and 2 heads-ups, `lastDemoResetAt` and `heartbeatAt` are set, `fly logs` shows one "Scheduler running", and there's one machine. The live "judge1 gets a Demo nudge push within 10 min" check needs a real device subscription, so it moves to the final review (the agent doesn't sign in to production).
 - 2026-10-04 (slice 7): Verification found a seed bug: `NOT (activeHouseId = demo)` skipped NULLs, leaving judges without an active house on a fresh database. Fixed with an explicit `OR activeHouseId IS NULL`. The duplicated argon2 options and Vancouver-time helper were replaced by exports from `auth.service.ts` and `vancouverTime.ts`. `/me` arming also runs on sign-in (it shares `getUser`), which is harmless. `DemoService` finds the demo house by code and name, not just `isDemo`.
 - 2026-10-04 (slice 7): The README license line is a placeholder ("Unlicensed, all rights reserved"). The learner decides the license in `6-ship`. The README also covers desktop notification notes (Brave, Chrome on macOS, Safari's up-to-15 s overlay).
+- 2026-10-04 (final review): The learner's kick-the-tires feedback was implemented and retried: first Demo nudge within 1 minute, follow-ups every 5–10 min, bot Got it in about 10 s (new 10-second `bots` job; `minute` keeps only the overdue reset), pending-nudge polling every 5 s and board polling every 15 s, both visible-only. A headless check counted 6 pending and 2 board requests per 31 s visible, and 0 while hidden. prd.md, spec.md, the welcome copy and the README were updated. The learner confirmed the PoC is ready to ship.

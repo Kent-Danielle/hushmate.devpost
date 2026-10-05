@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hushmate App Map</title>
+<style>
+  :root {
+    --bg: #F7F3EE; --surface: #FFFFFF; --text: #1B1F3B; --text-2: #4A4F6A; --line: #D9D3CB;
+    --accent: #5B57C9; --peach: #F6B49A; --mint: #9FD8B8; --code-bg: #EFEAE3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #161A33; --surface: #1F2445; --text: #F2EEE8; --text-2: #B9B6CC; --line: #343A63;
+            --accent: #B7B4F5; --peach: #F6B49A; --mint: #9FD8B8; --code-bg: #262C52; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 16px/1.55 ui-rounded, "Nunito", system-ui, -apple-system, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 1.9rem; margin: 0 0 4px; }
+  h2 { font-size: 1.25rem; margin: 36px 0 10px; }
+  p.lede { color: var(--text-2); margin: 0 0 8px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; margin: 12px 0; }
+  code { background: var(--code-bg); border-radius: 6px; padding: 1px 6px; font: 0.88em ui-monospace, SFMono-Regular, Menlo, monospace; word-break: break-word; }
+  pre { background: var(--code-bg); border-radius: 10px; padding: 12px 14px; overflow-x: auto; font: 0.86em/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  ol.route > li { margin: 14px 0; }
+  .stop { font-weight: 700; }
+  .muted { color: var(--text-2); font-size: 0.92rem; }
+  ul.pieces { padding-left: 18px; }
+  ul.pieces li { margin: 6px 0; }
+  svg { width: 100%; height: auto; display: block; }
+  svg text { fill: var(--text); font: 13px ui-rounded, system-ui, sans-serif; }
+  svg .box { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+  svg .nudge { fill: var(--peach); stroke: none; }
+  svg .ack { fill: var(--mint); stroke: none; }
+  svg .dark { fill: #1B1F3B; }
+  svg .arrow { stroke: var(--accent); stroke-width: 2; fill: none; marker-end: url(#a); }
+  svg .lbl { fill: var(--text-2); font-size: 11.5px; }
+  details { margin: 8px 0; }
+  summary { cursor: pointer; font-weight: 700; }
+  summary:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Hushmate: App Map</h1>
+  <p class="lede">A take-home guide to where things live. It's a snapshot of the code at commit <code>4a04aec</code> (2026-10-04), so it can drift as the code changes.</p>
+
+  <h2>What it is</h2>
+  <div class="card">
+    <p>Hushmate is a mobile-first web app for housemates. Everyone shares their weekly <strong>quiet times</strong>. When it gets loud, you can send a housemate an <strong>anonymous nudge</strong>: a real phone notification in the app's own voice, never with your name. They tap <strong>Got it</strong>, and only you see that they did.</p>
+    <ul class="pieces">
+      <li><strong>Frontend:</strong> React + Vite in <code>frontend/</code>, hosted on Vercel. Screens, the service worker (<code>public/sw.js</code>) and the time maths (<code>src/lib/</code>).</li>
+      <li><strong>Backend:</strong> NestJS in <code>backend/src/</code>, on one always-on Fly.io machine. Sign-in, houses, quiet times, nudges, push, and the demo scheduler.</li>
+      <li><strong>Database:</strong> Postgres on Supabase, accessed through Prisma (<code>backend/prisma/schema.prisma</code>).</li>
+      <li><strong>Push services:</strong> Apple, Google and Mozilla deliver the notifications, signed with VAPID keys.</li>
+    </ul>
+  </div>
+
+  <h2>One action, end to end: sending a nudge</h2>
+  <div class="card">
+    <svg viewBox="0 0 720 300" role="img" aria-labelledby="dgT dgD">
+      <title id="dgT">How a nudge travels</title>
+      <desc id="dgD">Sender's phone posts to the backend, which saves the nudge in Postgres and sends a push through Apple or Google to the recipient's phone. The recipient's app shows the overlay and posts Got it back, and the sender's Summary shows the acknowledgement.</desc>
+      <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor" style="color: var(--accent)"/></marker></defs>
+      <rect class="nudge" x="10" y="20" width="160" height="62" rx="12"/>
+      <text class="dark" x="22" y="45">Sender's phone</text>
+      <text class="dark" x="22" y="66">NudgeSheet → Nudge</text>
+      <rect class="box" x="280" y="20" width="170" height="62" rx="12"/>
+      <text x="292" y="45">Backend (Fly.io)</text>
+      <text x="292" y="66">POST /nudges</text>
+      <rect class="box" x="545" y="20" width="160" height="62" rx="12"/>
+      <text x="557" y="45">Postgres</text>
+      <text x="557" y="66">nudges table</text>
+      <rect class="box" x="280" y="130" width="170" height="62" rx="12"/>
+      <text x="292" y="155">Push service</text>
+      <text x="292" y="176">Apple / Google</text>
+      <rect class="ack" x="545" y="130" width="160" height="62" rx="12"/>
+      <text class="dark" x="557" y="155">Recipient's phone</text>
+      <text class="dark" x="557" y="176">overlay → Got it</text>
+      <rect class="box" x="10" y="225" width="160" height="62" rx="12"/>
+      <text x="22" y="250">Sender's Summary</text>
+      <text x="22" y="271">"Maya tapped Got it"</text>
+      <path class="arrow" d="M170 51 H276"/>
+      <path class="arrow" d="M450 51 H541"/>
+      <path class="arrow" d="M365 82 V126"/>
+      <path class="arrow" d="M450 161 H541"/>
+      <path class="arrow" d="M600 192 C600 262, 380 258, 174 256"/>
+      <text class="lbl" x="190" y="40">createAndSend</text>
+      <text class="lbl" x="375" y="110">sendToUser (no sender data)</text>
+      <text class="lbl" x="458" y="150">notification</text>
+      <text class="lbl" x="330" y="248">POST /nudges/acknowledge → summary.myAcks</text>
+    </svg>
+  </div>
+
+  <h2>The route (three stops)</h2>
+  <p class="muted">This is a reference route. Search for the quoted anchor in your editor to land on each spot.</p>
+  <ol class="route">
+    <li>
+      <span class="stop">Picking someone: <code>frontend/src/screens/schedule/NudgeSheet.tsx</code></span><br>
+      Anchor: <code>function NudgeSheet</code> and <code>function NudgeRow</code>. This lists housemates from the board, asks first if they're resting, and blocks anyone away. Tapping a row calls <code>useSendNudge</code> in <code>frontend/src/api/hooks/nudges.ts</code>, which posts to <code>/nudges</code> and starts the "Nudge again in m:ss" countdown.
+    </li>
+    <li>
+      <span class="stop">The kernel: <code>backend/src/nudges/nudges.service.ts</code></span><br>
+      Anchor: <code>async send(</code>, then <code>async createAndSend(</code>. This checks that both people share an active house (403 if not), enforces the 5-minute cooldown (429), saves the nudge with a random message from <code>messages.ts</code> (<code>NUDGE_MESSAGES</code>), and hands it to <code>PushService.sendToUser</code> in <code>backend/src/push/push.service.ts</code>. The push payload comes from <code>buildEnvelope</code> in <code>push-payload.ts</code> and never includes the sender.
+    </li>
+    <li>
+      <span class="stop">Receiving it: <code>frontend/public/sw.js</code> and <code>frontend/src/components/NudgeOverlay/NudgeOverlay.tsx</code></span><br>
+      Anchors: <code>addEventListener('push'</code> and <code>function NudgeOverlay</code>. The service worker shows the notification. The app finds the nudge through <code>usePendingNudges</code> (on open, on switch-back, and every 5 s while visible) and shows the overlay. <strong>Got it</strong> calls <code>useAcknowledge</code>, and the sender's Summary then lists it.
+    </li>
+  </ol>
+
+  <h2>To change this, start here</h2>
+  <div class="card">
+    <ul class="pieces">
+      <li><strong>The five nudge messages or the demo subtitle:</strong> <code>backend/src/nudges/messages.ts</code></li>
+      <li><strong>Nudge cooldown length:</strong> <code>NUDGE_COOLDOWN_MS</code> in <code>backend/src/me/me.service.ts</code> (the nudges service reuses it)</li>
+      <li><strong>How often the open app checks for nudges or schedule changes:</strong> <code>refetchInterval</code> in <code>frontend/src/api/hooks/nudges.ts</code> and <code>board.ts</code></li>
+      <li><strong>Demo timing</strong> (first nudge, follow-ups, bot Got it): <code>backend/src/me/me.service.ts</code> (arming), <code>backend/src/demo/demo.service.ts</code> (<code>BOT_ACK_DELAY_MS</code>, next-nudge minutes), and the job table in <code>backend/src/scheduler/scheduler.service.ts</code></li>
+      <li><strong>Demo world</strong> (bots, quiet times, heads-ups, nightly reset): <code>backend/src/demo/demo-data.ts</code></li>
+      <li><strong>Welcome card and other demo copy:</strong> <code>frontend/src/lib/copy.ts</code></li>
+      <li><strong>Colours, type and spacing:</strong> <code>frontend/src/styles/tokens.css</code></li>
+      <li><strong>Quiet-time overlap maths:</strong> <code>frontend/src/lib/quietTime.ts</code> and <code>backend/src/common/quietTimeOverlap.ts</code>. Change both together; their tests mirror each other.</li>
+    </ul>
+  </div>
+
+  <h2>A practice to reuse</h2>
+  <div class="card">
+    <p><strong>Plan the product in detail, then schedule early hands-on checks for the things only real devices can answer.</strong></p>
+    <p>Every feature in this build shipped as the PRD described it. The final review only tuned demo timings and refresh rates. The surprises were platform facts no document could settle:</p>
+    <ul class="pieces">
+      <li>Apple rejects the Web Push <code>Topic</code> header. This showed up at the slice 4 two-phone check, and the fix is in <code>push-payload.ts</code>.</li>
+      <li>Desktop Safari shows declarative pushes without waking the service worker. This was already marked "needs a device check" in <code>docs/forge/research/web-push.md</code>, and the fix is visible-only polling.</li>
+    </ul>
+    <p>Mocked tests passed throughout (the e2e suite mocks <code>web-push</code>). The device checkpoints in <code>devpost/checklist.md &gt; Hands-on Checkpoints</code> caught both. On the next project, while planning, list the unknowns only hardware or a third party can answer, and put a hands-on check right after the slice that first depends on each one.</p>
+  </div>
+
+  <h2>Run it again</h2>
+  <div class="card">
+    <p>From <code>app/</code> (needs Docker / OrbStack):</p>
+<pre>./scripts/init-env.sh
+docker compose up --build -d
+docker compose exec backend npx prisma migrate dev
+docker compose exec backend npm run seed</pre>
+    <p>Then open <code>http://localhost:5173</code>. To stop: <code>docker compose down</code> (keeps data), or add <code>-v</code> to wipe it.</p>
+    <details>
+      <summary>Tests</summary>
+<pre>docker compose exec backend npm test
+docker compose exec backend npm run test:e2e
+docker compose exec frontend npm test
+cd frontend &amp;&amp; npx playwright test</pre>
+    </details>
+    <details>
+      <summary>Live</summary>
+      <p>App: <a href="https://hushmate-kappa.vercel.app">hushmate-kappa.vercel.app</a> · API health: <a href="https://hushmate-api.fly.dev/health">hushmate-api.fly.dev/health</a>. Demo logins are in <code>README.md</code>.</p>
+    </details>
+  </div>
+</main>
+</body>
+</html>
