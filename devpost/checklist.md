@@ -94,7 +94,7 @@ Each `Build:` names the owning agent for each group of files (`database`, `backe
 - [x] Demo: bots tap Got it about 10 seconds after a judge's nudge
 - [x] Pending-nudge polling every 5 s, only while the app is visible (verified with a hidden-page check)
 - [x] Schedule board refetches every 15 s while visible, so a housemate's new quiet time appears without a reload
-- [ ] Landing: housemate avatar circles removed (not meaningful to new visitors); mockup `sign-in.html#landing-default` and the app updated, live at 390px in dark and light
+- [x] Landing: housemate avatar circles removed (not meaningful to new visitors); mockup `sign-in.html#landing-default` and the app updated, live at 390px in dark and light
 - [x] Final review complete — feedback resolved and learner confirms ready to ship
 
 ## Code Tour and App Map
