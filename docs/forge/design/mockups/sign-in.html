@@ -271,14 +271,6 @@ h1 { font: var(--hm-text-title); margin: 28px 0 6px; }
 .badge.off { background: transparent; color: var(--hm-text-2); box-shadow: inset 0 0 0 1.5px var(--hm-border-control); }
 .chip-peach { background: var(--hm-nudge); color: var(--hm-on-pastel); }
 
-/* avatar: initial on the person's pastel; ring = resting now */
-.avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font: 600 15px/1 var(--hm-font-display); color: var(--hm-on-pastel); flex: none; position: relative; }
-.avatar.sm { width: 28px; height: 28px; font-size: 13px; }
-.avatar.lg { width: 48px; height: 48px; font-size: 20px; }
-.avatar.resting::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid var(--hm-brand); animation: breathe var(--hm-dur-breathe) var(--hm-ease-breathe) infinite; }
-@keyframes breathe { 0%, 100% { opacity: 0.35; transform: scale(0.96); } 50% { opacity: 1; transform: scale(1.04); } }
-.m-you { background: var(--hm-mate-you); } .m1 { background: var(--hm-mate-1); } .m2 { background: var(--hm-mate-2); }
-.m3 { background: var(--hm-mate-3); } .m4 { background: var(--hm-mate-4); } .m5 { background: var(--hm-mate-5); }
 
 /* segmented control */
 .seg { display: inline-flex; background: var(--hm-surface-2); border-radius: var(--hm-radius-pill); padding: 4px; gap: 2px; }
@@ -406,7 +398,6 @@ h1 { font: var(--hm-text-title); margin: 28px 0 6px; }
 .lockup { width: 220px; height: 73px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .avatar.resting::after { animation: none; opacity: 1; }
   .skel { animation: none; }
   .spin { animation: none; }
 }
@@ -426,10 +417,9 @@ h1 { font: var(--hm-text-title); margin: 28px 0 6px; }
 <p class="lede">The public front door: Landing, Sign up and Sign in. Demo accounts use this exact screen (the PRD forbids a special demo login UI), so there is no "try as judge" affordance anywhere here.</p>
 <p class="lede t-cap">Static mockup, 390px phone frames, dark and light side by side. Values come from tokens.css (a copy of the design system's). Frames are labelled with the spec.md and prd.md headings they implement.</p>
 <ul class="toc"><li><a href="#landing" style="color:var(--hm-text);border-color:var(--hm-border-control)">Landing</a></li><li><a href="#landing-default">Landing</a></li><li><a href="#signin" style="color:var(--hm-text);border-color:var(--hm-border-control)">Sign in</a></li><li><a href="#signin-default">Sign in: default</a></li><li><a href="#signin-error">Sign in: wrong email or password (401)</a></li><li><a href="#signin-throttled">Sign in: too many tries (429)</a></li><li><a href="#signin-loading">Sign in: submitting</a></li><li><a href="#signin-network">Sign in: server unreachable</a></li><li><a href="#signup" style="color:var(--hm-text);border-color:var(--hm-border-control)">Sign up</a></li><li><a href="#signup-default">Sign up: default</a></li><li><a href="#signup-errors">Sign up: field errors (400 / 409)</a></li><li><a href="#signup-loading">Sign up: submitting</a></li><li><a href="#signup-throttled">Sign up: too many tries (429)</a></li></ul>
-<h2 class="group" id="landing">Landing</h2><p class="lede">Route /. Signed-out visitors only.</p><section class="state" id="landing-default"><h3 class="t-heading" style="margin:0 0 4px">Landing</h3><p class="desc">Tagline lockup, one line of what it is, and two buttons. The four avatars are the design system's housemate pastels (lavender = you); one breathes. No mascot, no illustration.</p><p class="refs">Spec: Frontend: Auth screens > Landing · PRD: Core Journey A.1; Screens and Layout > Before sign-in</p><div class="pair"><figure><figcaption>Dark</figcaption><div class="phone  notab" data-theme="dark"><div class="status" aria-hidden="true"><span>9:41</span><i></i></div><div class="screen">
-    <div class="stack center" style="flex:1;justify-content:center;gap:28px;align-items:center">
-      <div class="stack g24" style="align-items:center"><svg class="lockup on-dark" viewBox="0 0 1028 341" role="img" aria-label="hushmate, Less shush, more hush."><use href="#lk-dark"/></svg><svg class="lockup on-light" viewBox="0 0 1028 341" role="img" aria-label="hushmate, Less shush, more hush."><use href="#lk-light"/></svg>
-        <div class="row" style="gap:14px;justify-content:center;padding-top:6px"><div class="avatar m1 lg resting" aria-hidden="true">M</div><div class="avatar m2 lg" aria-hidden="true">J</div><div class="avatar m3 lg" aria-hidden="true">P</div><div class="avatar m-you lg" aria-hidden="true">A</div></div></div>
+<h2 class="group" id="landing">Landing</h2><p class="lede">Route /. Signed-out visitors only.</p><section class="state" id="landing-default"><h3 class="t-heading" style="margin:0 0 4px">Landing</h3><p class="desc">Tagline lockup, one line of what it is, and two buttons. No avatars (they would mean nothing to a new visitor), no mascot, no illustration.</p><p class="refs">Spec: Frontend: Auth screens > Landing · PRD: Core Journey A.1; Screens and Layout > Before sign-in</p><div class="pair"><figure><figcaption>Dark</figcaption><div class="phone  notab" data-theme="dark"><div class="status" aria-hidden="true"><span>9:41</span><i></i></div><div class="screen">
+    <div class="stack center" style="flex:1;justify-content:center;gap:40px;align-items:center">
+      <div class="stack g24" style="align-items:center"><svg class="lockup on-dark" viewBox="0 0 1028 341" role="img" aria-label="hushmate, Less shush, more hush."><use href="#lk-dark"/></svg><svg class="lockup on-light" viewBox="0 0 1028 341" role="img" aria-label="hushmate, Less shush, more hush."><use href="#lk-light"/></svg></div>
       <p class="t-body c2" style="max-width:300px">Share your quiet times with your housemates. When it gets loud, nudge them gently. They'll never know it was you.</p>
     </div>
     <div class="stack g12">
@@ -437,9 +427,8 @@ h1 { font: var(--hm-text-title); margin: 28px 0 6px; }
       <button class="btn secondary block" type="button">Sign in</button>
       <p class="t-cap center">Works right in your browser. Nothing to install.</p>
     </div></div></div></figure><figure><figcaption>Light</figcaption><div class="phone  notab" data-theme="light"><div class="status" aria-hidden="true"><span>9:41</span><i></i></div><div class="screen">
-    <div class="stack center" style="flex:1;justify-content:center;gap:28px;align-items:center">
-      <div class="stack g24" style="align-items:center"><svg class="lockup on-dark" viewBox="0 0 1028 341" role="img" aria-label="hushmate, Less shush, more hush."><use href="#lk-dark"/></svg><svg class="lockup on-light" viewBox="0 0 1028 341" role="img" aria-label="hushmate, Less shush, more hush."><use href="#lk-light"/></svg>
-        <div class="row" style="gap:14px;justify-content:center;padding-top:6px"><div class="avatar m1 lg resting" aria-hidden="true">M</div><div class="avatar m2 lg" aria-hidden="true">J</div><div class="avatar m3 lg" aria-hidden="true">P</div><div class="avatar m-you lg" aria-hidden="true">A</div></div></div>
+    <div class="stack center" style="flex:1;justify-content:center;gap:40px;align-items:center">
+      <div class="stack g24" style="align-items:center"><svg class="lockup on-dark" viewBox="0 0 1028 341" role="img" aria-label="hushmate, Less shush, more hush."><use href="#lk-dark"/></svg><svg class="lockup on-light" viewBox="0 0 1028 341" role="img" aria-label="hushmate, Less shush, more hush."><use href="#lk-light"/></svg></div>
       <p class="t-body c2" style="max-width:300px">Share your quiet times with your housemates. When it gets loud, nudge them gently. They'll never know it was you.</p>
     </div>
     <div class="stack g12">

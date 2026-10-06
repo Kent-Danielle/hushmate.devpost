@@ -94,6 +94,7 @@ Each `Build:` names the owning agent for each group of files (`database`, `backe
 - [x] Demo: bots tap Got it about 10 seconds after a judge's nudge
 - [x] Pending-nudge polling every 5 s, only while the app is visible (verified with a hidden-page check)
 - [x] Schedule board refetches every 15 s while visible, so a housemate's new quiet time appears without a reload
+- [ ] Landing: housemate avatar circles removed (not meaningful to new visitors); mockup `sign-in.html#landing-default` and the app updated, live at 390px in dark and light
 - [x] Final review complete — feedback resolved and learner confirms ready to ship
 
 ## Code Tour and App Map
@@ -140,3 +141,4 @@ Activity mode: fast mode, recap. App map at `devpost/app-map.html` (snapshot of 
 - 2026-10-04 (slice 7): Verification found a seed bug: `NOT (activeHouseId = demo)` skipped NULLs, leaving judges without an active house on a fresh database. Fixed with an explicit `OR activeHouseId IS NULL`. The duplicated argon2 options and Vancouver-time helper were replaced by exports from `auth.service.ts` and `vancouverTime.ts`. `/me` arming also runs on sign-in (it shares `getUser`), which is harmless. `DemoService` finds the demo house by code and name, not just `isDemo`.
 - 2026-10-04 (slice 7): The README license line is a placeholder ("Unlicensed, all rights reserved"). The learner decides the license in `6-ship`. The README also covers desktop notification notes (Brave, Chrome on macOS, Safari's up-to-15 s overlay).
 - 2026-10-04 (final review): The learner's kick-the-tires feedback was implemented and retried: first Demo nudge within 1 minute, follow-ups every 5–10 min, bot Got it in about 10 s (new 10-second `bots` job; `minute` keeps only the overdue reset), pending-nudge polling every 5 s and board polling every 15 s, both visible-only. A headless check counted 6 pending and 2 board requests per 31 s visible, and 0 while hidden. prd.md, spec.md, the welcome copy and the README were updated. The learner confirmed the PoC is ready to ship.
+- 2026-10-05 (final review, follow-up): The learner asked to remove the four housemate avatar circles from Landing, because they could confuse new visitors. Updated the mockup (`docs/forge/design/mockups/sign-in.html#landing-default`, dark and light, lockup-to-pitch gap 40px) and the app (`Landing.tsx`, `Landing.module.css`, avatar-only CSS removed). The shared `Avatar` component is unchanged. Frontend unit tests (45) and Playwright (4) pass, and the change is deployed to Vercel.
