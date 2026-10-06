@@ -2,7 +2,7 @@
   "name": "hushmate-backend",
   "version": "0.1.0",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "build": "prisma generate && nest build",

@@ -58,4 +58,4 @@ A local backend must only ever use the compose database. Never put the productio
 
 ## License
 
-Unlicensed. Built for the Devpost Build With AI: Basics hackathon; all rights reserved.
+MIT. See [LICENSE](LICENSE).
