@@ -182,7 +182,12 @@ Versions verified on 2026-10-03 against npm: Vite 8.3, React 19.3, React Router 
 - Supabase Free: $0 (Vercel and Supabase stop at their limits rather than bill).
 - Web Push: free.
 
-**Custom domain:** later. Then update `APP_URL`, `FRONTEND_ORIGINS`, `VITE_API_URL` and the CSP.
+**Custom domain** (added after the final review, 2026-10-05): `hushmate.online`, registered at Porkbun with DNS kept at Porkbun.
+- Web app: `https://hushmate.online` on Vercel (two `A` records on the root); `www` is a `CNAME` to Vercel and redirects to the root via `vercel.json`.
+- API: `https://api.hushmate.online` on Fly (`A` + `AAAA` to the app's shared IPv4 and IPv6; certificate via `fly certs add`).
+- `APP_URL` and `VAPID_SUBJECT` are `https://hushmate.online`. `VITE_API_URL` is `https://api.hushmate.online`.
+- `FRONTEND_ORIGINS` and the CSP `connect-src` keep the old `hushmate-kappa.vercel.app` / `hushmate-api.fly.dev` during the transition.
+- Push subscriptions are per origin, so devices re-enable notifications on the new domain, and an iPhone re-adds the Home Screen app from it.
 
 ### The demo video (required) and the repo
 - Record on **two devices**: e.g. an Android phone in Chrome, and an iPhone with Hushmate on the Home Screen. Sign into two demo accounts, nudge from one, and show the notification, the overlay and **Got it**, then the sender's quiet toast and Summary card.

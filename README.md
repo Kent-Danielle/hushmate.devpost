@@ -4,8 +4,8 @@ Less shush, more hush. A mobile-first web app (PWA) for housemates to share quie
 
 ## Try it
 
-- Web app: https://hushmate-kappa.vercel.app
-- API: https://hushmate-api.fly.dev
+- Web app: https://hushmate.online
+- API: https://api.hushmate.online
 
 ### Demo logins
 
