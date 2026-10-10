@@ -38,6 +38,15 @@ export interface SignInBody {
   password: string;
 }
 
+export interface DemoAssignBody {
+  preferredEmail?: string;
+}
+
+export interface DemoAssignResponse {
+  email: string;
+  password: string;
+}
+
 export interface HouseListItem {
   membershipId: string;
   status: 'pending' | 'approved' | 'declined';

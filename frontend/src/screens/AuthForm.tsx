@@ -1,5 +1,5 @@
 import type { InputHTMLAttributes, ReactNode } from 'react';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Info } from 'lucide-react';
 import { Button } from '../components/Button';
 import styles from './AuthForm.module.css';
 
@@ -49,6 +49,16 @@ export function Field({ label, id, hint, error, counter, invalid, ...input }: Fi
           {counter && <span className={styles.counter}>{counter}</span>}
         </div>
       )}
+    </div>
+  );
+}
+
+/** A calm heads-up (not an error): the demo screen's "shared account" note. */
+export function InfoNote({ children }: { children: ReactNode }) {
+  return (
+    <div className={styles.note} role="note">
+      <Info size={20} aria-hidden="true" />
+      <p>{children}</p>
     </div>
   );
 }

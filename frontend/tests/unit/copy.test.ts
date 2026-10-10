@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEMO_HOUSE_NAME, DEMO_SIGN_OUT_NOTE, DEMO_STREAK_NOTE, iosSteps, joinNames, welcomeParts, welcomeText } from '../../src/lib/copy';
+import { DEMO_ASSIGN_PROBLEMS, DEMO_HOUSE_NAME, DEMO_SIGN_IN, DEMO_SIGN_IN_NOTE, DEMO_SIGN_OUT_NOTE, DEMO_STREAK_NOTE, iosSteps, joinNames, welcomeParts, welcomeText } from '../../src/lib/copy';
 
 describe('joinNames', () => {
   it('handles none, one, two and three names', () => {
@@ -51,5 +51,23 @@ describe('iosSteps', () => {
     expect(steps).toHaveLength(4);
     expect(steps[0]).toBe('Tap Share in Safari.');
     expect(steps[3]).toBe('Then turn on notifications.');
+  });
+});
+
+describe('demo sign-in copy', () => {
+  it('the note matches the spec wording exactly', () => {
+    expect(DEMO_SIGN_IN_NOTE).toBe(
+      "This is a shared demo account in DevPost Demo House. Someone else may be using it too. When you're done, sign out from Profile so the demo nudges stop.",
+    );
+  });
+
+  it('bolds "sign out" and titles the screen', () => {
+    expect(DEMO_SIGN_IN.emphasis).toBe('sign out');
+    expect(DEMO_SIGN_IN.title).toBe('Try the demo');
+  });
+
+  it('has the spec wording for the 429 and 503 states', () => {
+    expect(DEMO_ASSIGN_PROBLEMS.busy).toEqual({ title: 'Too many tries', text: 'Give it a minute, then try again.' });
+    expect(DEMO_ASSIGN_PROBLEMS.unavailable.title).toBe("The demo isn't available right now.");
   });
 });

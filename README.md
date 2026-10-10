@@ -9,13 +9,17 @@ Less shush, more hush. A mobile-first web app (PWA) for housemates to share quie
 
 ### Demo logins
 
-Three shared demo accounts sign you into **DevPost Demo House**, a house with three simulated housemates (Maya, Jordan and Priya). Their quiet times, heads-ups and nudges are scripted.
+Five shared demo accounts sign you into **DevPost Demo House**, a house with three simulated housemates (Maya, Jordan and Priya). Their quiet times, heads-ups and nudges are scripted.
 
 | Email | Password |
 |---|---|
 | `judge1@example.com` | `HushmateDemo2026` |
 | `judge2@example.com` | `HushmateDemo2026` |
 | `judge3@example.com` | `HushmateDemo2026` |
+| `judge4@example.com` | `HushmateDemo2026` |
+| `judge5@example.com` | `HushmateDemo2026` |
+
+Or skip the typing: https://hushmate.online/demo opens a sign-in screen prefilled with a demo account, handing out the least recently used one.
 
 - The first demo nudge arrives within about a minute of opening the app, then one every 5 to 10 minutes. Nudge a housemate and the simulated housemate taps "Got it" about 10 seconds later.
 - The demo house resets every night at 3 AM Vancouver time. Demo accounts are locked: they can't change the house, their profile or their password.

@@ -28,6 +28,7 @@ model User {
   isBot           Boolean   @default(false)
   activeHouseId   String?   @db.Uuid
   demoNextNudgeAt DateTime? @db.Timestamptz(3)
+  demoAssignedAt  DateTime? @db.Timestamptz(3)
   createdAt       DateTime  @default(now()) @db.Timestamptz(3)
 
   activeHouse        House?             @relation("UserActiveHouse", fields: [activeHouseId], references: [id], onDelete: SetNull)

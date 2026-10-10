@@ -45,6 +45,34 @@ export const DEMO_STREAK_NOTE =
 
 export const DEMO_SIGN_OUT_NOTE = 'Signing out stops the demo nudges on this device.';
 
+export interface DemoSignInParts {
+  title: string;
+  subtitle: string;
+  /** The info note is `before` + bold `emphasis` + `after`. */
+  before: string;
+  emphasis: string;
+  after: string;
+}
+
+/** The /demo sign-in screen (spec: Frontend: Demo sign-in). The note is split so "sign out" can be set in bold, like the welcome card. */
+export const DEMO_SIGN_IN: DemoSignInParts = {
+  title: 'Try the demo',
+  subtitle: `Sign in to ${DEMO_HOUSE_NAME}.`,
+  before: `This is a shared demo account in ${DEMO_HOUSE_NAME}. Someone else may be using it too. When you're done, `,
+  emphasis: 'sign out',
+  after: ' from Profile so the demo nudges stop.',
+};
+
+/** The whole /demo note as one string (same words as the screen). */
+export const DEMO_SIGN_IN_NOTE = `${DEMO_SIGN_IN.before}${DEMO_SIGN_IN.emphasis}${DEMO_SIGN_IN.after}`;
+
+/** Why /demo can't hand out an account: [title, text]. */
+export const DEMO_ASSIGN_PROBLEMS = {
+  busy: { title: 'Too many tries', text: 'Give it a minute, then try again.' },
+  unavailable: { title: "The demo isn't available right now.", text: 'Try again in a little while, or go back home.' },
+  other: { title: "Couldn't set up the demo", text: 'Something went wrong. Try again in a moment.' },
+} as const;
+
 /** The Add to Home Screen steps (prd.md > Onboarding). `last` differs by where it is shown. */
 export function iosSteps(last: string): string[] {
   return [

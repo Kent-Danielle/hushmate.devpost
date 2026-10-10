@@ -41,3 +41,13 @@
 .net .bannerTitle { flex: 1; }
 .actions { margin-top: auto; display: flex; flex-direction: column; gap: 12px; }
 .switch { display: flex; align-items: center; justify-content: center; gap: 4px; font: var(--hm-text-body); color: var(--hm-text-2); }
+.note {
+  display: flex; gap: 10px; align-items: flex-start; background: var(--hm-surface-1); border: 1px solid var(--hm-line);
+  border-radius: var(--hm-radius-md); padding: 12px 14px; font: var(--hm-text-body); color: var(--hm-text-2);
+}
+.note > svg { flex: none; margin-top: 2px; color: var(--hm-brand-text); }
+.note p { margin: 0; }
+.note b { color: var(--hm-text); font-weight: 700; }
+.skeleton { height: 78px; border-radius: var(--hm-radius-md); background: var(--hm-surface-1); animation: skeletonPulse 1.6s var(--hm-ease-breathe) infinite; }
+@keyframes skeletonPulse { 50% { opacity: 0.55; } }
+@media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }

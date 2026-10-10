@@ -54,13 +54,13 @@ describe('demo e2e (demo house, simulated housemates, nightly reset)', () => {
     await prisma.user.updateMany({ data: { demoNextNudgeAt: null } });
   });
 
-  it('the demo world is seeded: house 202610 owned by Maya, 3 bots, 3 judges, all approved with setup done', async () => {
+  it('the demo world is seeded: house 202610 owned by Maya, 3 bots, 5 judges, all approved with setup done', async () => {
     const house = await prisma.house.findUniqueOrThrow({ where: { id: houseId }, include: { owner: true, memberships: true } });
     expect(house.name).toBe(DEMO_HOUSE_NAME);
     expect(house.code).toBe(DEMO_HOUSE_CODE);
     expect(house.isDemo).toBe(true);
     expect(house.owner.email).toBe('maya.bot@example.com');
-    expect(house.memberships).toHaveLength(6);
+    expect(house.memberships).toHaveLength(8);
     expect(house.memberships.every((m) => m.status === 'approved' && m.setupDoneAt)).toBe(true);
   });
 
@@ -247,7 +247,7 @@ describe('demo e2e (demo house, simulated housemates, nightly reset)', () => {
       await request(http).post(`/houses/${houseId}/join`).set(auth).expect(403);
       const invite = await prisma.house.findUniqueOrThrow({ where: { id: houseId } });
       await request(http).post(`/invites/${invite.inviteToken}/join`).set(auth).expect(403);
-      expect(await prisma.membership.count({ where: { houseId } })).toBe(6);
+      expect(await prisma.membership.count({ where: { houseId } })).toBe(8);
     });
 
     it('the demo summary has streakDays 10 and isDemo true', async () => {
@@ -255,6 +255,133 @@ describe('demo e2e (demo house, simulated housemates, nightly reset)', () => {
       const res = await request(http).get(`/houses/${houseId}/summary`).set(bearer(judge)).expect(200);
       expect(res.body.streakDays).toBe(10);
       expect(res.body.isDemo).toBe(true);
+    });
+  });
+
+  describe('POST /demo/assign', () => {
+    const judgeEmails = DEMO_JUDGES.map((j) => j.email);
+    const assign = (body: Record<string, unknown> = {}) =>
+      request(http).post('/demo/assign').set('Fly-Client-IP', `10.8.0.${++ip}`).send(body);
+    const stamped = async (email: string) => (await prisma.user.findUniqueOrThrow({ where: { email } })).demoAssignedAt;
+
+    beforeEach(async () => {
+      await prisma.user.updateMany({ data: { demoAssignedAt: null } });
+    });
+
+    it('hands out five distinct judges, then the one stamped earliest, with the configured password', async () => {
+      const emails: string[] = [];
+      for (let i = 0; i < 5; i++) {
+        const res = await assign().expect(200);
+        expect(res.body).toEqual({ email: expect.any(String), password: PASSWORD });
+        emails.push(res.body.email as string);
+      }
+      expect([...emails].sort()).toEqual([...judgeEmails].sort());
+
+      const sixth = await assign().expect(200);
+      expect(sixth.body.email).toBe(emails[0]);
+      // And it's now the most recent, so the next one is the second.
+      expect((await assign().expect(200)).body.email).toBe(emails[1]);
+    });
+
+    it('the account it hands out can sign in', async () => {
+      const res = await assign().expect(200);
+      await request(http).post('/auth/signin').set('Fly-Client-IP', `10.8.1.${++ip}`).send(res.body).expect(200);
+    });
+
+    it('a preferred judge is returned again and becomes the most recently assigned', async () => {
+      const first = (await assign().expect(200)).body.email as string;
+      const second = (await assign().expect(200)).body.email as string;
+      const before = (await stamped(first))!;
+
+      const again = await assign({ preferredEmail: first }).expect(200);
+      expect(again.body).toEqual({ email: first, password: PASSWORD });
+      expect((await stamped(first))!.getTime()).toBeGreaterThan(before.getTime());
+
+      // second is now the oldest stamped of the two, but three judges are unstamped and go first.
+      const rest: string[] = [];
+      for (let i = 0; i < 3; i++) rest.push((await assign().expect(200)).body.email as string);
+      expect(new Set([first, second, ...rest]).size).toBe(5);
+      expect((await assign().expect(200)).body.email).toBe(second);
+    });
+
+    it('normalises the preferred email (trim, lower case)', async () => {
+      const res = await assign({ preferredEmail: '  JUDGE4@Example.com ' }).expect(200);
+      expect(res.body.email).toBe('judge4@example.com');
+      expect(await stamped('judge4@example.com')).not.toBeNull();
+    });
+
+    it('ignores a bot or a non-demo user as preferredEmail and falls back to the least recently used judge', async () => {
+      await prisma.user.create({ data: { name: 'Plain', email: 'plain@example.com', passwordHash: 'x' } });
+      for (const preferredEmail of ['maya.bot@example.com', 'plain@example.com', 'nobody@example.com']) {
+        const res = await assign({ preferredEmail }).expect(200);
+        expect(judgeEmails).toContain(res.body.email);
+      }
+      expect(await stamped('maya.bot@example.com')).toBeNull();
+      expect(await stamped('plain@example.com')).toBeNull();
+    });
+
+    it('never returns an extra demo account that is not one of the canonical judges', async () => {
+      const extra = 'extra-demo@example.com';
+      await prisma.user.create({ data: { name: 'Extra', email: extra, isDemo: true, passwordHash: 'x' } });
+      try {
+        // As a preferred email: ignored.
+        const res = await assign({ preferredEmail: extra }).expect(200);
+        expect(judgeEmails).toContain(res.body.email);
+        expect(await stamped(extra)).toBeNull();
+        // Through least recently used: it is unstamped, so it would go first if it were eligible.
+        for (let i = 0; i < 8; i++) expect(judgeEmails).toContain((await assign().expect(200)).body.email);
+        expect(await stamped(extra)).toBeNull();
+      } finally {
+        await prisma.user.delete({ where: { email: extra } });
+      }
+    });
+
+    it('never returns a bot, or a demo account without a password', async () => {
+      await prisma.user.updateMany({ where: { email: { in: judgeEmails.slice(1) } }, data: { passwordHash: null } });
+      for (let i = 0; i < 3; i++) expect((await assign().expect(200)).body.email).toBe('judge1@example.com');
+      await prisma.user.update({ where: { email: 'judge1@example.com' }, data: { passwordHash: null } });
+      const res = await assign().expect(503);
+      expect(res.body.message).toBe("The demo isn't available right now");
+      // Put the passwords back for the rest of the file.
+      await upsertDemoWorld(prisma, { password: PASSWORD });
+    });
+
+    it('is 503 when no demo password is configured', async () => {
+      const config = await import('../src/config.js');
+      const spy = vi.spyOn(config, 'getConfig').mockReturnValue({ ...config.getConfig(), demoAccountPassword: undefined });
+      try {
+        await assign().expect(503);
+      } finally {
+        spy.mockRestore();
+      }
+    });
+
+    it('rejects a malformed preferredEmail and unknown fields', async () => {
+      await assign({ preferredEmail: 'not-an-email' }).expect(400);
+      await assign({ preferredEmail: `${'a'.repeat(250)}@example.com` }).expect(400);
+      await assign({ extra: 1 }).expect(400);
+    });
+
+    it('is public (no token) and throttled to 5 a minute per IP', async () => {
+      const sameIp = () => request(http).post('/demo/assign').set('Fly-Client-IP', '10.8.9.9').send({});
+      for (let i = 0; i < 5; i++) await sameIp().expect(200);
+      await sameIp().expect(429);
+    });
+
+    it('concurrent requests never get the same account', async () => {
+      const results = await Promise.all(judgeEmails.map(() => assign()));
+      const statuses = results.map((r) => r.status);
+      const emails = results.filter((r) => r.status === 200).map((r) => r.body.email as string);
+      expect(new Set(emails).size).toBe(emails.length);
+      expect(statuses.every((c) => c === 200 || c === 503)).toBe(true);
+    });
+
+    it('the nightly reset leaves demoAssignedAt alone', async () => {
+      const email = (await assign().expect(200)).body.email as string;
+      const before = await stamped(email);
+      await prisma.systemState.deleteMany({ where: { key: LAST_DEMO_RESET_KEY } });
+      expect(await resetDemoContent(prisma)).toBe(true);
+      expect(await stamped(email)).toEqual(before);
     });
   });
 });

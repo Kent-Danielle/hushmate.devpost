@@ -24,14 +24,16 @@ export const DEMO_BOTS: readonly DemoPerson[] = [
   { name: 'Priya', email: 'priya.bot@example.com' },
 ];
 
-/** Judge accounts, colorIndex 3, 4, then 0 (the sixth member repeats sky). */
+/** Judge accounts, colorIndex 3, 4, then 0, 1, 2 (members six to eight repeat the first three pastels). */
 export const DEMO_JUDGES: readonly DemoPerson[] = [
   { name: 'Judge 1', email: 'judge1@example.com' },
   { name: 'Judge 2', email: 'judge2@example.com' },
   { name: 'Judge 3', email: 'judge3@example.com' },
+  { name: 'Judge 4', email: 'judge4@example.com' },
+  { name: 'Judge 5', email: 'judge5@example.com' },
 ];
 
-const MEMBER_COLORS = [0, 1, 2, 3, 4, 0] as const;
+const MEMBER_COLORS = [0, 1, 2, 3, 4, 0, 1, 2] as const;
 
 export interface BotQuietTime {
   days: readonly number[]; // 0 = Sunday; the night the block starts
@@ -110,7 +112,7 @@ export interface UpsertOptions {
 
 /**
  * Create or refresh the demo world, upserted by email so IDs stay stable:
- * 3 bots, 3 judge accounts, the demo house (owned by Maya), six approved memberships
+ * 3 bots, 5 judge accounts, the demo house (owned by Maya), eight approved memberships
  * with setup done, and the demo house as everyone's active house. Idempotent.
  */
 export async function upsertDemoWorld(db: DemoDb, options: UpsertOptions = {}): Promise<{ houseId: string }> {

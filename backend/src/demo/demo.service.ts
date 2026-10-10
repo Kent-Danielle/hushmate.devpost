@@ -1,14 +1,21 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { randomInt } from 'node:crypto';
+import { Prisma } from '../generated/prisma/client.js';
+import { getConfig } from '../config.js';
 import { latestVancouver3am } from '../common/vancouverTime.js';
 import { randomMinutes } from '../common/random.js';
 import { NudgesService } from '../nudges/nudges.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { DEMO_HOUSE_CODE, DEMO_HOUSE_NAME, LAST_DEMO_RESET_KEY, resetDemoContent } from './demo-data.js';
+import { DEMO_HOUSE_CODE, DEMO_HOUSE_NAME, DEMO_JUDGES, LAST_DEMO_RESET_KEY, resetDemoContent } from './demo-data.js';
 
 const MIN = 60_000;
 /** A bot taps "Got it" this long after it was nudged. */
 export const BOT_ACK_DELAY_MS = 10_000;
+
+export interface DemoAssignment {
+  email: string;
+  password: string;
+}
 
 @Injectable()
 export class DemoService {
@@ -18,6 +25,43 @@ export class DemoService {
     private readonly prisma: PrismaService,
     private readonly nudges: NudgesService,
   ) {}
+
+  /**
+   * Hand out a demo login. A preferred demo account (isDemo, not a bot, has a password) is
+   * returned again; otherwise the least recently assigned one. The pick and the stamp are one
+   * statement with SKIP LOCKED, so concurrent requests can't get the same account.
+   */
+  async assign(preferredEmail?: string): Promise<DemoAssignment> {
+    const password = getConfig().demoAccountPassword;
+    const judgeEmails = DEMO_JUDGES.map((j) => j.email);
+    if (!password) throw this.unavailable();
+
+    if (preferredEmail) {
+      const preferred = await this.prisma.user.updateManyAndReturn({
+        where: { email: preferredEmail, AND: { email: { in: judgeEmails } }, isDemo: true, isBot: false, passwordHash: { not: null } },
+        data: { demoAssignedAt: new Date() },
+        select: { email: true },
+      });
+      if (preferred[0]) return { email: preferred[0].email, password };
+    }
+
+    const picked = await this.prisma.$queryRaw<{ email: string }[]>`
+      UPDATE users SET "demoAssignedAt" = now()
+      WHERE id = (
+        SELECT id FROM users
+        WHERE "isDemo" AND NOT "isBot" AND "passwordHash" IS NOT NULL
+          AND email IN (${Prisma.join(judgeEmails)})
+        ORDER BY "demoAssignedAt" ASC NULLS FIRST, random()
+        LIMIT 1
+        FOR UPDATE SKIP LOCKED)
+      RETURNING email`;
+    if (!picked[0]) throw this.unavailable();
+    return { email: picked[0].email, password };
+  }
+
+  private unavailable(): ServiceUnavailableException {
+    return new ServiceUnavailableException("The demo isn't available right now");
+  }
 
   /** Run the nightly reset. Guarded in the database, so it's a no-op (false) when already done since the latest 03:00. */
   reset(now: Date = new Date()): Promise<boolean> {

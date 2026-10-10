@@ -190,11 +190,14 @@ Versions verified on 2026-10-03 against npm: Vite 8.3, React 19.3, React Router 
 - Push subscriptions are per origin, so devices re-enable notifications on the new domain, and an iPhone re-adds the Home Screen app from it.
 
 ### The demo video (required) and the repo
+- **Public repo:** https://github.com/Kent-Danielle/hushmate.devpost (public; checked without auth 2026-10-10).
+- **Demo video:** not yet recorded.
 - Record on **two devices**: e.g. an Android phone in Chrome, and an iPhone with Hushmate on the Home Screen. Sign into two demo accounts, nudge from one, and show the notification, the overlay and **Got it**, then the sender's quiet toast and Summary card.
 - Also show a bot's Demo nudge arriving, and a bot acknowledging a nudge.
 - The README lists:
   - the live URL
-  - the three demo logins (`judge1@example.com`, `judge2@example.com`, `judge3@example.com` with the published `DEMO_ACCOUNT_PASSWORD`)
+  - the demo link `https://hushmate.online/demo`
+  - the five demo logins (`judge1@example.com` … `judge5@example.com` with the published `DEMO_ACCOUNT_PASSWORD`)
   - the sign-out warning
   - the iPhone steps: add to the Home Screen, open it from there, sign in again, turn on notifications
 
@@ -231,7 +234,7 @@ Lives in `app/frontend/src/`. Every screen is mobile-first (a 360–430px wide t
 
 #### Frontend: App shell and routing
 - `App.tsx` routes:
-  - public: `/` (landing), `/signup`, `/signin`, `/join/:inviteToken`
+  - public: `/` (landing), `/signup`, `/signin`, `/join/:inviteToken`, `/demo` (outside `PublicOnly`, so a signed-in visitor isn't redirected away; see `Frontend: Demo sign-in`)
   - signed in: `/onboarding/*` and the tabs `/schedule`, `/summary`, `/houses`, `/profile`
 - `RequireAuth`: no token → `/signin` with **return-to** (the requested path).
 - **After sign-up or sign-in:**
@@ -261,6 +264,18 @@ Lives in `app/frontend/src/`. Every screen is mobile-first (a 360–430px wide t
 - **Sign in:** email and password, with the same error for any failure.
 - Field errors come from the API's validation messages.
 - PRD ref: `prd.md > Accounts and Sign-In`.
+
+#### Frontend: Demo sign-in
+Added at the final review (2026-10-10).
+- `/demo` → `screens/DemoSignIn.tsx`.
+  1. **Signed in (any account)?** Run the normal `signOut()` first (it unregisters this device's push), and wait for it.
+  2. Read the remembered account from `localStorage['hushmate-demo-account']`. `clearLocalKeys()` keeps this key, like the theme, so it survives that sign-out.
+  3. `POST /demo/assign {preferredEmail?}` → `{email, password}`. Store `email` under that key.
+  4. Show the sign-in form **prefilled** with both values. Submitting runs the same sign-in flow as `/signin` (same errors, same destination after sign-in).
+- The screen says it's for the demo: title "Try the demo", plus an info note (not an error banner): "This is a shared demo account in DevPost Demo House. Someone else may be using it too. When you're done, sign out from Profile so the demo nudges stop." *(copy: agent suggestion, in `copy.ts`)*
+- A **Back to home** button goes to `/`. It replaces the "Sign up" switch link.
+- States: a loading state while assigning; network error → the usual "Can't reach Hushmate" banner with Try again; 429 → "Too many tries"; 503 (no demo accounts or password configured) → "The demo isn't available right now."
+- PRD ref: `prd.md > Demo House` (Demo link).
 
 #### Frontend: Join by link
 - `/join/:inviteToken` is public. It shows the house name from `GET /invites/:token`.
@@ -551,8 +566,8 @@ PRD ref: `prd.md > Houses and the Active House`.
 - **The demo world** (upserted **by email**, so IDs stay stable and judges' tokens survive the reset):
   - **DevPost Demo House**, code `202610` (`DevPost Demo House#202610`), `isDemo = true`, **owned by the bot Maya** (learner decision: nobody can approve anyone in).
   - **3 bots** (`isBot`, `passwordHash = null`): `maya.bot@example.com`, `jordan.bot@example.com`, `priya.bot@example.com`.
-  - **3 demo accounts** (`isDemo`): `judge1@example.com`, `judge2@example.com`, `judge3@example.com` (names "Judge 1", "Judge 2", "Judge 3"), with the password from `DEMO_ACCOUNT_PASSWORD`.
-  - All six are approved members, with `colorIndex` 0–4 then 0 (the sixth repeats sky), and `setupDoneAt` set, so demo accounts never see setup. The demo house is everyone's active house.
+  - **5 demo accounts** (`isDemo`): `judge1@example.com` … `judge5@example.com` (names "Judge 1" … "Judge 5"), with the password from `DEMO_ACCOUNT_PASSWORD` (3 until the final review, 2026-10-10).
+  - All eight are approved members, with `colorIndex` 0–4 then 0–2 (the palette has five pastels, so the last three repeat), and `setupDoneAt` set, so demo accounts never see setup. The demo house is everyone's active house.
 - **Bots** (accepted). `dayOfWeek`: 0 = Sunday.
 
   | Bot | Quiet times |
@@ -574,6 +589,12 @@ PRD ref: `prd.md > Houses and the Active House`.
   3. Upsert the demo world, restore the bots' quiet times, and insert fresh bot heads-ups.
   4. Set `demoNextNudgeAt = null` for demo users. They're re-armed by the next `GET /me` (learner decision: bots pause until the app is next opened).
 - PRD ref: `prd.md > Demo House`.
+
+- **Demo link assignment** (final review 2026-10-10): `DemoController` → `POST /demo/assign`, **public**, behind `ThrottlerGuard` (5 a minute per IP, like auth).
+  - Body `{preferredEmail?}`. If it names one of the five judge accounts (`DEMO_JUDGES`, `isDemo`, not a bot), that account is returned again and its `demoAssignedAt` set to now.
+  - Otherwise, one statement picks and stamps the account given out least recently, so two concurrent requests can't get the same one: `UPDATE users SET "demoAssignedAt" = now() WHERE id = (SELECT id FROM users WHERE "isDemo" AND NOT "isBot" AND "passwordHash" IS NOT NULL AND email IN (<the five judge emails>) ORDER BY "demoAssignedAt" ASC NULLS FIRST, random() LIMIT 1 FOR UPDATE SKIP LOCKED) RETURNING email`.
+  - Returns `{email, password}`, where `password` is `DEMO_ACCOUNT_PASSWORD` (already published in the README). No demo accounts or no password configured → 503.
+  - The nightly reset doesn't touch `demoAssignedAt`.
 
 #### Backend: Scheduler
 `scheduler/scheduler.service.ts` has three named `@Cron`s. Each has `waitForCompletion: true`, and every handler runs through **one in-process `runExclusive()`** promise chain.
@@ -698,7 +719,7 @@ Prisma schema in `backend/prisma/schema.prisma`, Postgres. Times are `timestampt
 
 | Table | Fields | Constraints and indexes |
 |---|---|---|
-| **users** | `id`, `name` (1–30), `email`, `passwordHash` **nullable** (bots), `isDemo` bool, `isBot` bool, `activeHouseId` → houses (nullable), `demoNextNudgeAt` (nullable), `createdAt` | `email` unique (stored trimmed and lower-case) |
+| **users** | `id`, `name` (1–30), `email`, `passwordHash` **nullable** (bots), `isDemo` bool, `isBot` bool, `activeHouseId` → houses (nullable), `demoNextNudgeAt` (nullable), `demoAssignedAt` (nullable; when the demo link last handed this account out), `createdAt` | `email` unique (stored trimmed and lower-case) |
 | **houses** | `id`, `name` (2–30, no spaces, no `#`; the seeded demo house is the exception), `nameKey` (lower-case name), `code` char(6), `inviteToken`, `ownerId` → users, `isDemo` bool, `createdAt` | unique(`nameKey`, `code`); `inviteToken` unique |
 | **memberships** | `id`, `userId`, `houseId`, `status` (`pending`/`approved`/`declined`), `colorIndex` int (nullable until approved), `createdAt`, `decidedAt` (nullable), `setupDoneAt` (nullable: the post-approval setup) | unique(`userId`, `houseId`); index(`houseId`, `status`) |
 | **quiet_times** | `id`, `userId`, `houseId`, `setId` uuid, `dayOfWeek` 0–6 (the night it **starts**), `startMinute`, `endMinute` (0–1425, step 15) | index(`houseId`); index(`userId`, `houseId`); `end <= start` = ends the next morning |
@@ -746,6 +767,7 @@ app/
 │   │   │   CooldownPill  NotificationSetup  NudgeOverlay  DemoWelcomeCard
 │   │   └── screens/
 │   │       ├── Landing.tsx  SignUp.tsx  SignIn.tsx           [Frontend: Auth screens]
+│   │       ├── DemoSignIn.tsx                                [Frontend: Demo sign-in]
 │   │       ├── JoinByLink.tsx                                [Frontend: Join by link]
 │   │       ├── onboarding/ HouseStep  RequestSentStep  SetupIntro  QuietTimeStep  NotificationsStep   [Frontend: Onboarding]
 │   │       ├── schedule/ SchedulePage  DayView  WeekView     [Frontend: Calendar]
@@ -771,7 +793,7 @@ app/
     │   ├── nudges/ controller  service  messages.ts          [Backend: Nudges module (the kernel)]
     │   ├── summary/ controller  service  dto/                [Backend: Heads-ups and Summary module]
     │   ├── push/ controller  push.service  dto/              [Backend: Push module]
-    │   ├── demo/ demo.service  demo-data.ts                  [Backend: Demo module]
+    │   ├── demo/ demo.service  demo.controller  demo-data.ts [Backend: Demo module]
     │   ├── scheduler/scheduler.service.ts                    [Backend: Scheduler]
     │   ├── health/ controller                                [Backend: Health]
     │   └── common/ vancouverTime  quietTimeOverlap  random   [Backend: Common utilities]
@@ -847,6 +869,7 @@ app/
 | `GET /houses` | none | `[{membershipId, status, house: House, isActive, isOwner, pendingCount, setupDone}]` | |
 | `GET /houses/lookup?id=` | none (`#` sent as `%23`) | `House` | 404 |
 | `GET /invites/:token` **public** | none | `{name, code}` | 404 |
+| `POST /demo/assign` **public** | `{preferredEmail?}` | `200 {email, password}` | 400, 429, 503 |
 | `POST /houses/:id/join` · `POST /invites/:token/join` | none | `201 {membershipId, status: "pending"}` | 403 (demo account or demo house), 404, 409 |
 | `GET /houses/:id/requests` | none | `[{membershipId, name, createdAt}]` | 403 |
 | `POST /memberships/:id/approve` · `/decline` | none | `{status}` | 403, 404 |
@@ -941,7 +964,7 @@ Mockups in `docs/forge/design/`. Each line is one decision; the sections above a
 - The JWT is stored in local storage as a bearer token, because cross-site cookies between `vercel.app` and `fly.dev` would be blocked by Safari.
 - `GET /invites/:token` is public, so a signed-out invitee sees the house name. Any approved member can share the invite link.
 - Fly at 512 MB rather than 256 MB, to leave NestJS and Prisma headroom.
-- Demo logins `judge1–3@example.com`, and bot emails `*.bot@example.com` (a reserved domain that can never receive mail). The demo house code is `202610`.
+- Demo logins `judge1–5@example.com`, and bot emails `*.bot@example.com` (a reserved domain that can never receive mail). The demo house code is `202610`.
 - The theme is stored per device.
 
 ### Things the learner was unsure about (the useful unknowns)

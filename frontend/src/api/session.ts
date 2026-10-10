@@ -2,6 +2,8 @@
 const TOKEN_KEY = 'hushmate-token';
 export const RETURN_TO_KEY = 'hushmate-return-to';
 const THEME_KEY = 'hushmate-theme';
+/** The demo account this browser was last handed (/demo). Like the theme, it survives sign-out so a return visit gets the same account. */
+export const DEMO_ACCOUNT_KEY = 'hushmate-demo-account';
 
 export function getToken(): string | null {
   try {
@@ -46,11 +48,28 @@ export function takeReturnTo(): string | null {
   }
 }
 
-/** Sign-out step 4: clear every `hushmate-*` key (welcome card, toasted acks, return-to, token) except the theme, which is a device setting. */
+export function getDemoAccount(): string | null {
+  try {
+    const email = localStorage.getItem(DEMO_ACCOUNT_KEY);
+    return email && email.trim() ? email : null;
+  } catch {
+    return null;
+  }
+}
+
+export function setDemoAccount(email: string): void {
+  try {
+    localStorage.setItem(DEMO_ACCOUNT_KEY, email);
+  } catch {
+    // a return visit may get another demo account, nothing worse
+  }
+}
+
+/** Sign-out step 4: clear every `hushmate-*` key (welcome card, toasted acks, return-to, token) except the theme (a device setting) and the remembered demo account. */
 export function clearLocalKeys(): void {
   try {
     for (const key of Object.keys(localStorage)) {
-      if (key.startsWith('hushmate-') && key !== THEME_KEY) localStorage.removeItem(key);
+      if (key.startsWith('hushmate-') && key !== THEME_KEY && key !== DEMO_ACCOUNT_KEY) localStorage.removeItem(key);
     }
   } catch {
     // nothing to clear
