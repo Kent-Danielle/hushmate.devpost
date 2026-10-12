@@ -21,3 +21,9 @@
 .titles { flex: 1; min-width: 0; }
 .titleText { font: var(--hm-text-heading); margin: 0; }
 .caption { font: var(--hm-text-caption); color: var(--hm-text-3); margin: 0; }
+
+@media (hover: hover) and (pointer: fine) {
+  .close:hover { background: color-mix(in srgb, var(--hm-text) 10%, transparent); }
+  /* On mouse devices the grab bar suggests a drag that does nothing, so it is hidden. */
+  .handle { display: none; }
+}

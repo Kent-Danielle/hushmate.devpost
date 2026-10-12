@@ -31,3 +31,8 @@
 .primary { background: var(--hm-brand); color: var(--hm-on-brand); }
 .secondary { background: transparent; color: var(--hm-text); box-shadow: inset 0 0 0 1.5px var(--hm-border-control); }
 .note { font: var(--hm-text-caption); color: var(--hm-text-3); text-align: center; }
+
+@media (hover: hover) and (pointer: fine) {
+  .primary:hover:not(:active) { filter: brightness(1.07); }
+  .secondary:hover:not(:active) { background: color-mix(in srgb, var(--hm-text) 9%, transparent); }
+}

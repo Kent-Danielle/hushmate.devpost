@@ -39,3 +39,8 @@
 .error { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--hm-radius-md); background: var(--hm-surface-1); border: 1.5px solid var(--hm-danger); }
 .error svg { flex: none; margin-top: 2px; color: var(--hm-danger); }
 .error p { margin: 0; font: var(--hm-text-body); color: var(--hm-text-2); }
+
+@media (hover: hover) and (pointer: fine) {
+  .choice:hover { background: var(--hm-surface-2); }
+  .iconBtn:hover { background: color-mix(in srgb, var(--hm-text) 12%, var(--hm-surface-2)); }
+}

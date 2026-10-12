@@ -12,3 +12,8 @@
 .pill { width: 56px; height: 32px; border-radius: var(--hm-radius-pill); display: grid; place-items: center; transition: background var(--hm-dur-base) var(--hm-ease-out); }
 .tab[aria-current="page"] { color: var(--hm-text); }
 .tab[aria-current="page"] .pill { background: color-mix(in srgb, var(--hm-brand) 26%, transparent); color: var(--hm-brand-text); }
+
+@media (hover: hover) and (pointer: fine) {
+  .tab:not([aria-current="page"]):hover { color: var(--hm-text); }
+  .tab:not([aria-current="page"]):hover .pill { background: color-mix(in srgb, var(--hm-text) 9%, transparent); }
+}

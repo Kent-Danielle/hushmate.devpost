@@ -31,3 +31,7 @@
 .foot { display: flex; justify-content: flex-end; }
 @media (prefers-reduced-motion: reduce) { .spin, .skeleton { animation: none; } .row { transition: none; } }
 .chip { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--hm-nudge); color: var(--hm-on-pastel); }
+
+@media (hover: hover) and (pointer: fine) {
+  .row:not([aria-disabled="true"]):hover { background: color-mix(in srgb, var(--hm-text) 7%, var(--hm-surface-1)); }
+}

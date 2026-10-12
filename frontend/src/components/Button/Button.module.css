@@ -20,3 +20,13 @@
 .spin { flex: none; animation: spin 1.4s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+
+/* Desktop hover (mouse only): a gentle tint or lift, no movement. Press feedback above still wins while pressed. */
+@media (hover: hover) and (pointer: fine) {
+  .btn:not([aria-disabled="true"]):not(:active):hover { filter: brightness(1.07); }
+  .secondary:not([aria-disabled="true"]):not(:active):hover,
+  .ghost:not([aria-disabled="true"]):not(:active):hover { filter: none; background-color: color-mix(in srgb, var(--hm-text) 9%, transparent); }
+  .ghost:not([aria-disabled="true"]):not(:active):hover { background-color: color-mix(in srgb, var(--hm-brand) 14%, transparent); }
+  .ghost.danger:not([aria-disabled="true"]):not(:active):hover { background-color: color-mix(in srgb, var(--hm-danger) 14%, transparent); }
+  .secondary.danger:not([aria-disabled="true"]):not(:active):hover { background-color: color-mix(in srgb, var(--hm-danger) 12%, transparent); }
+}

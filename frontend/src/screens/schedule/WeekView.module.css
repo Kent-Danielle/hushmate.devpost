@@ -20,3 +20,8 @@
 .sw { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
 .swOut { background: transparent; border: 2px solid currentColor; }
 .note { font: var(--hm-text-caption); color: var(--hm-text-3); margin-top: 8px; }
+
+@media (hover: hover) and (pointer: fine) {
+  .wd:hover { background: color-mix(in srgb, var(--hm-text) 9%, transparent); }
+  .hit:hover { background: color-mix(in srgb, var(--hm-text) 7%, transparent); }
+}
