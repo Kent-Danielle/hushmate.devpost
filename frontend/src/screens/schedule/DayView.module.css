@@ -7,6 +7,12 @@
 .hours .nowLabel { right: 4px; transform: translateY(-50%); background: var(--hm-brand); color: var(--hm-on-brand); border-radius: var(--hm-radius-sm); padding: 0 4px; z-index: 4; }
 .lanesWrap { flex: 1; min-width: 0; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
 .lanesWrap::-webkit-scrollbar { display: none; }
+/* Mouse click-and-drag panning (see useDragScroll); touch keeps native swiping. */
+@media (hover: hover) and (pointer: fine) {
+  .lanesWrap[data-overflow] { cursor: grab; }
+}
+.lanesWrap[data-pressing] { user-select: none; -webkit-user-select: none; }
+.lanesWrap[data-dragging], .lanesWrap[data-dragging] .btn { cursor: grabbing; }
 .lanesScroll { display: flex; min-width: 100%; position: relative; }
 .lane { flex: 1 0 76px; min-width: 76px; }
 .laneHead { height: 60px; display: grid; justify-items: center; align-content: center; gap: 6px; font: var(--hm-text-micro); }

@@ -5,6 +5,7 @@ import { mateFill, mateInk } from '../../lib/colors';
 import { restingSegment, segmentsForDay } from '../../lib/quietTime';
 import { MINUTES_PER_DAY, formatHour, formatMinutes, formatRange, isSameDay, minuteOfDay } from '../../lib/time';
 import styles from './DayView.module.css';
+import { useDragScroll } from './useDragScroll';
 
 export const HOUR_PX = 48;
 const PX_PER_MINUTE = HOUR_PX / 60;
@@ -54,6 +55,7 @@ export default function DayView({ members, quietTimes, date, now, onEdit }: DayV
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateKey]);
 
+  const lanesRef = useDragScroll<HTMLDivElement>();
   const ordered = [...members].sort((a, b) => Number(b.isYou) - Number(a.isYou));
 
   return (
@@ -75,7 +77,7 @@ export default function DayView({ members, quietTimes, date, now, onEdit }: DayV
           )}
         </div>
       </div>
-      <div className={styles.lanesWrap}>
+      <div className={styles.lanesWrap} ref={lanesRef}>
         <div className={styles.lanesScroll}>
           {ordered.map((member) => {
             const rows = quietTimes.filter((q) => q.userId === member.id);
