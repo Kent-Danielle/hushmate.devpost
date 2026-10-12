@@ -40,7 +40,7 @@ export default function SchedulePage() {
   if (user && user.activeHouseId === null && houses.data) {
     const pending = houses.data.find((h) => h.status === 'pending');
     return (
-      <section className={styles.wrap}>
+      <section className={`${styles.wrap} ${local.page}`}>
         <div>
           <h1 className={styles.title}>Schedule</h1>
           <p className={styles.caption}>No active house yet</p>
@@ -82,7 +82,7 @@ export default function SchedulePage() {
   }
 
   return (
-    <section className={styles.wrap}>
+    <section className={`${styles.wrap} ${local.page}`}>
       <div className={local.head}>
         <div>
           <h1 className={styles.title}>Schedule</h1>

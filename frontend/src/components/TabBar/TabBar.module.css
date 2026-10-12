@@ -1,5 +1,9 @@
 .shell { min-height: 100dvh; display: flex; flex-direction: column; max-width: 480px; margin: 0 auto; }
 .main { flex: 1; padding: max(12px, env(safe-area-inset-top)) var(--hm-gutter) 24px; }
+/* Schedule only: the shell is exactly one screen tall and never scrolls; the page inside fills .main and scrolls its own grid. */
+.fixed { height: 100dvh; overflow: hidden; }
+.fixed .main { display: flex; flex-direction: column; min-height: 0; overflow: hidden; padding-bottom: 0; }
+.fixed .main > * { flex: 1; min-height: 0; }
 .bar {
   position: sticky; bottom: 0; z-index: 7; display: grid; grid-template-columns: repeat(4, 1fr);
   border-top: 1px solid var(--hm-line); background: var(--hm-surface-1);

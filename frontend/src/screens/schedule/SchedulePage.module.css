@@ -1,4 +1,8 @@
-.center { min-height: calc(100dvh - 220px); display: flex; flex-direction: column; justify-content: center; }
+/* The Schedule screen is one screen tall (see AppShell .fixed): header rows keep their size, the grid area takes the rest. */
+.page > * { flex: none; }
+.page > .gridWrap, .page > .skeleton, .page > .center { flex: 1 1 0; min-height: 0; }
+.center { display: flex; flex-direction: column; overflow-y: auto; }
+.center > * { margin-block: auto; }
 /* The floating Nudge button sits above the tab bar, inside the 480px app column. */
 .fab {
   position: fixed; z-index: 6; bottom: calc(96px + env(safe-area-inset-bottom));
@@ -20,10 +24,16 @@
 .stripText { flex: 1; display: grid; }
 .stripText b { font: var(--hm-text-body-strong); }
 .stripText span { font: var(--hm-text-caption); color: var(--hm-text-3); }
-.gridWrap { position: relative; padding-bottom: 72px; }
+.gridWrap { position: relative; display: flex; flex-direction: column; }
 .overlay { position: absolute; left: 40px; right: 0; top: 80px; z-index: 5; }
 .card { background: var(--hm-surface-1); border: 1px solid var(--hm-line); border-radius: var(--hm-radius-lg); padding: 4px; }
-.skeleton { display: flex; gap: 8px; }
-.skLane { flex: 1; height: 360px; border-radius: var(--hm-radius-md); background: var(--hm-surface-1); animation: pulse 1.6s var(--hm-ease-breathe) infinite; }
+.skeleton { display: flex; gap: 8px; max-height: 360px; }
+.skLane { flex: 1; border-radius: var(--hm-radius-md); background: var(--hm-surface-1); animation: pulse 1.6s var(--hm-ease-breathe) infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
 @media (prefers-reduced-motion: reduce) { .skLane { animation: none; } }
+
+@media (hover: hover) and (pointer: fine) {
+  .iconBtn:hover { background: color-mix(in srgb, var(--hm-text) 9%, transparent); }
+  .filled:hover { background: color-mix(in srgb, var(--hm-text) 12%, var(--hm-surface-2)); }
+  .seg button:not([aria-pressed="true"]):hover { background: color-mix(in srgb, var(--hm-text) 9%, transparent); color: var(--hm-text); }
+}

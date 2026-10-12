@@ -1,21 +1,27 @@
-.cal { display: flex; margin-top: 8px; position: relative; isolation: isolate; } /* keeps the now line's z-index local, so the tab bar paints over it */
-.gutter { width: 40px; flex: none; }
-.spacer { height: 60px; }
+/* The scroll area reaches out over the page's left gutter so the now-time pill (wider than the 40px hour gutter) is not clipped.
+   The day grid is its own scroll area (.cal) that fills the space between the header rows and the tab bar.
+   Gutter, lane heads and the corner cell are position: sticky inside it, so the lane heads stay aligned with their lanes for free. */
+.wrap { position: relative; isolation: isolate; margin: 8px 0 0 calc(var(--hm-gutter) * -1); flex: 1; min-height: 0; } /* isolate keeps the inner z-indexes local, so the tab bar paints over them */
+.cal { position: absolute; inset: 0; overflow: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.cal::-webkit-scrollbar { display: none; }
+.cal:focus-visible { outline-offset: -2px; }
+/* Mouse click-and-drag panning (see useDragScroll); touch keeps native swiping. */
+@media (hover: hover) and (pointer: fine) {
+  .cal[data-overflow] { cursor: grab; }
+}
+.cal[data-pressing] { user-select: none; -webkit-user-select: none; }
+.cal[data-dragging], .cal[data-dragging] .btn { cursor: grabbing; }
+.grid { display: flex; position: relative; min-width: 100%; width: calc(var(--hm-gutter) + 40px + var(--lanes) * 76px); padding: 0 0 72px var(--hm-gutter); } /* the bottom space keeps the last hours clear of the floating Nudge button */
+
+.gutter { position: sticky; left: var(--hm-gutter); z-index: 5; width: 40px; flex: none; background: var(--hm-bg); box-shadow: calc(var(--hm-gutter) * -1) 0 0 var(--hm-bg); } /* the shadow fills the strip to its left, so lanes never show there */
+.corner { position: sticky; top: 0; z-index: 2; height: 60px; background: var(--hm-bg); box-shadow: calc(var(--hm-gutter) * -1) 0 0 var(--hm-bg); } /* covers the time pill where it overhangs the strip */
 .hours { position: relative; }
 .hours span { position: absolute; right: 6px; font: var(--hm-text-micro); color: var(--hm-text-3); transform: translateY(-50%); white-space: nowrap; }
 .hours span:first-child { transform: translateY(0); }
-.hours .nowLabel { right: 4px; transform: translateY(-50%); background: var(--hm-brand); color: var(--hm-on-brand); border-radius: var(--hm-radius-sm); padding: 0 4px; z-index: 4; }
-.lanesWrap { flex: 1; min-width: 0; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
-.lanesWrap::-webkit-scrollbar { display: none; }
-/* Mouse click-and-drag panning (see useDragScroll); touch keeps native swiping. */
-@media (hover: hover) and (pointer: fine) {
-  .lanesWrap[data-overflow] { cursor: grab; }
-}
-.lanesWrap[data-pressing] { user-select: none; -webkit-user-select: none; }
-.lanesWrap[data-dragging], .lanesWrap[data-dragging] .btn { cursor: grabbing; }
-.lanesScroll { display: flex; min-width: 100%; position: relative; }
+.hours .nowLabel { right: 4px; transform: translateY(-50%); background: var(--hm-brand); color: var(--hm-on-brand); border-radius: var(--hm-radius-sm); padding: 0 4px; z-index: 1; }
+
 .lane { flex: 1 0 76px; min-width: 76px; }
-.laneHead { height: 60px; display: grid; justify-items: center; align-content: center; gap: 6px; font: var(--hm-text-micro); }
+.laneHead { position: sticky; top: 0; z-index: 4; height: 60px; background: var(--hm-bg); display: grid; justify-items: center; align-content: center; gap: 6px; font: var(--hm-text-micro); } /* opaque, so blocks and the now line pass under it */
 .name { max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .laneBody { position: relative; border-left: 1px solid var(--hm-line); }
 .hl { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--hm-line); }
@@ -28,5 +34,18 @@
 .contTop { border-top-left-radius: 0; border-top-right-radius: 0; }
 .contBot { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
 .tiny { padding-top: 2px; padding-bottom: 2px; line-height: 14px; }
-.now { position: absolute; left: 0; right: 0; height: 0; border-top: 2px solid var(--hm-brand); z-index: 3; pointer-events: none; }
-.now::before { content: ""; position: absolute; left: -6px; top: -6px; width: 10px; height: 10px; border-radius: 50%; background: var(--hm-brand); }
+/* Above the blocks, below the lane heads and the gutter (which holds the time pill). */
+.now { position: absolute; left: calc(var(--hm-gutter) + 40px); right: 0; height: 0; border-top: 2px solid var(--hm-brand); z-index: 3; pointer-events: none; }
+.now::before { content: ""; position: absolute; left: 0; top: -6px; width: 10px; height: 10px; border-radius: 50%; background: var(--hm-brand); }
+
+/* "More lanes" edge fades: in the page background color, over the lanes (heads included) but never the hour gutter. */
+.fade { position: absolute; top: 0; bottom: 0; width: 28px; z-index: 6; pointer-events: none; opacity: 0; transition: opacity var(--hm-dur-base) var(--hm-ease-out); }
+.fadeStart { left: calc(var(--hm-gutter) + 40px); background: linear-gradient(to right, var(--hm-bg), transparent); }
+.fadeEnd { right: 0; background: linear-gradient(to left, var(--hm-bg), transparent); }
+.cal[data-more-start] ~ .fadeStart, .cal[data-more-end] ~ .fadeEnd { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .fade { transition: none; } }
+
+/* Desktop hover on your own blocks: a soft ring in the ink color, no movement. */
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--hm-on-pastel) 32%, transparent); }
+}

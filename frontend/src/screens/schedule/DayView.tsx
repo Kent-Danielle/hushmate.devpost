@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type CSSProperties } from 'react';
 import type { BoardMember, BoardQuietTime } from '../../api/types';
 import { Avatar } from '../../components/Avatar';
 import { mateFill, mateInk } from '../../lib/colors';
@@ -6,10 +6,12 @@ import { restingSegment, segmentsForDay } from '../../lib/quietTime';
 import { MINUTES_PER_DAY, formatHour, formatMinutes, formatRange, isSameDay, minuteOfDay } from '../../lib/time';
 import styles from './DayView.module.css';
 import { useDragScroll } from './useDragScroll';
+import { useScrollEdges } from './useScrollEdges';
 
 export const HOUR_PX = 48;
 const PX_PER_MINUTE = HOUR_PX / 60;
 const GRID_HEIGHT = 24 * HOUR_PX;
+/** Height of the pinned lane heads (and the corner cell); keep in sync with `.laneHead` in DayView.module.css. */
 const HEAD_H = 60;
 
 interface DayViewProps {
@@ -23,14 +25,15 @@ interface DayViewProps {
 
 /** One lane per person, "you" first. Overnight quiet times are drawn as two pieces that join across midnight. */
 export default function DayView({ members, quietTimes, date, now, onEdit }: DayViewProps) {
-  const nowRef = useRef<HTMLDivElement>(null);
   const isToday = isSameDay(date, now);
   const nowTop = minuteOfDay(now) * PX_PER_MINUTE;
 
-  // Once per date shown: today -> the now line about a third from the top; other days -> the earliest block, else about 7 AM.
+  // Once per date shown: today -> the now line about a third down the visible grid; other days -> the earliest block, else about 7 AM.
+  // The grid scrolls inside its own container (the page itself never scrolls on this screen).
   const dateKey = date.toDateString();
   const scrolledFor = useRef<string | null>(null);
-  const calRef = useRef<HTMLDivElement>(null);
+  const calRef = useDragScroll<HTMLDivElement>();
+  useScrollEdges(calRef);
   useEffect(() => {
     if (scrolledFor.current === dateKey) return;
     const frame = requestAnimationFrame(() => {
@@ -47,38 +50,38 @@ export default function DayView({ members, quietTimes, date, now, onEdit }: DayV
         minute = starts.length > 0 ? Math.min(...starts) : 7 * 60;
         fraction = 0.1;
       }
-      const top = cal.getBoundingClientRect().top + window.scrollY + HEAD_H + minute * PX_PER_MINUTE;
-      window.scrollTo({ top: Math.max(0, top - window.innerHeight * fraction), behavior: 'auto' });
+      // The pinned lane heads cover the top HEAD_H of the scroller, so measure the fraction against the visible grid below them.
+      const visibleGrid = Math.max(0, cal.clientHeight - HEAD_H);
+      cal.scrollTo({ top: Math.max(0, minute * PX_PER_MINUTE - visibleGrid * fraction), behavior: 'auto' });
     });
     return () => cancelAnimationFrame(frame);
     // only when a new date is first shown
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateKey]);
 
-  const lanesRef = useDragScroll<HTMLDivElement>();
   const ordered = [...members].sort((a, b) => Number(b.isYou) - Number(a.isYou));
 
   return (
-    <div className={styles.cal} ref={calRef} role="group" aria-label="Day view, 24 hours, one lane per person">
-      <div className={styles.gutter}>
-        <div className={styles.spacer} />
-        <div className={styles.hours} style={{ height: GRID_HEIGHT }}>
-          {Array.from({ length: 24 }, (_, h) => h)
-            .filter((h) => !(isToday && Math.abs(h * HOUR_PX - nowTop) < 16))
-            .map((h) => (
-              <span key={h} style={{ top: h * HOUR_PX }}>
-                {formatHour(h)}
-              </span>
-            ))}
-          {isToday && (
-            <span className={styles.nowLabel} style={{ top: nowTop }}>
-              {formatMinutes(minuteOfDay(now))}
-            </span>
-          )}
-        </div>
-      </div>
-      <div className={styles.lanesWrap} ref={lanesRef}>
-        <div className={styles.lanesScroll}>
+    <div className={styles.wrap}>
+      <div className={styles.cal} ref={calRef} tabIndex={0} role="group" aria-label="Day view, 24 hours, one lane per person">
+        <div className={styles.grid} style={{ '--lanes': ordered.length } as CSSProperties}>
+          <div className={styles.gutter}>
+            <div className={styles.corner} />
+            <div className={styles.hours} style={{ height: GRID_HEIGHT }}>
+              {Array.from({ length: 24 }, (_, h) => h)
+                .filter((h) => !(isToday && Math.abs(h * HOUR_PX - nowTop) < 16))
+                .map((h) => (
+                  <span key={h} style={{ top: h * HOUR_PX }}>
+                    {formatHour(h)}
+                  </span>
+                ))}
+              {isToday && (
+                <span className={styles.nowLabel} style={{ top: nowTop }}>
+                  {formatMinutes(minuteOfDay(now))}
+                </span>
+              )}
+            </div>
+          </div>
           {ordered.map((member) => {
             const rows = quietTimes.filter((q) => q.userId === member.id);
             const resting = !member.isAway && isToday && restingSegment(rows, now) !== null;
@@ -138,9 +141,12 @@ export default function DayView({ members, quietTimes, date, now, onEdit }: DayV
               </div>
             );
           })}
-          {isToday && <div className={styles.now} ref={nowRef} style={{ top: HEAD_H + nowTop }} aria-hidden="true" />}
+          {isToday && <div className={styles.now} style={{ top: HEAD_H + nowTop }} aria-hidden="true" />}
         </div>
       </div>
+      {/* "More lanes this way" hints: soft edge fades, shown while there is more to scroll to on that side. */}
+      <div className={`${styles.fade} ${styles.fadeStart}`} aria-hidden="true" />
+      <div className={`${styles.fade} ${styles.fadeEnd}`} aria-hidden="true" />
     </div>
   );
 }

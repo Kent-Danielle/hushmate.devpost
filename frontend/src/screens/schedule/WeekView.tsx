@@ -23,7 +23,7 @@ export default function WeekView({ members, quietTimes, weekStart, now, onOpenDa
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
   return (
-    <div>
+    <div className={styles.root}>
       <div className={styles.weekDays}>
         {days.map((d) => (
           <button key={d.toISOString()} type="button" className={`${styles.wd} ${isSameDay(d, now) ? styles.today : ''}`} aria-label={`Open ${formatDate(d)}`} onClick={() => onOpenDay(d)}>

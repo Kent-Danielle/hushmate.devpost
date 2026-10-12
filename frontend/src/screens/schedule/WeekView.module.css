@@ -1,3 +1,5 @@
+/* The side padding lets the hour labels (which overhang the gutter) and focus rings show instead of being clipped. If the week is taller than the space under the header rows, it scrolls inside that space (the page itself never does). */
+.root { flex: 1; min-height: 0; overflow-y: auto; margin-inline: calc(var(--hm-gutter) * -1); padding: 4px var(--hm-gutter) 72px; } /* the bottom space keeps the note clear of the floating Nudge button */
 .weekDays { display: flex; margin-left: 32px; }
 .wd {
   flex: 1; min-height: var(--hm-touch); display: grid; justify-items: center; align-content: center; gap: 2px; padding: 4px 0; border: 0; background: transparent;

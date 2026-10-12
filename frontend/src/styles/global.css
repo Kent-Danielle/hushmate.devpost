@@ -10,7 +10,10 @@ body {
 #root { min-height: 100dvh; }
 h1, h2, h3, p { margin: 0; }
 a { color: inherit; }
+/* Keyboard focus ring for every focusable element (never shown for mouse clicks). Local rules only adjust the offset where a clipping parent would cut it off. */
 :focus-visible { outline: 2px solid var(--hm-focus); outline-offset: 3px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
 }
+/* The fixed-height Schedule screen must not rubber-band or chain scrolling to the page. */
+html:has([data-fixed]), html:has([data-fixed]) body { overscroll-behavior: none; }
