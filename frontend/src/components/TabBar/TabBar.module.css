@@ -1,7 +1,7 @@
 .shell { min-height: 100dvh; display: flex; flex-direction: column; max-width: 480px; margin: 0 auto; }
 .main { flex: 1; padding: max(12px, env(safe-area-inset-top)) var(--hm-gutter) 24px; }
 .bar {
-  position: sticky; bottom: 0; display: grid; grid-template-columns: repeat(4, 1fr);
+  position: sticky; bottom: 0; z-index: 7; display: grid; grid-template-columns: repeat(4, 1fr);
   border-top: 1px solid var(--hm-line); background: var(--hm-surface-1);
   padding: 8px 8px max(22px, env(safe-area-inset-bottom));
 }

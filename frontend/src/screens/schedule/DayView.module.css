@@ -1,4 +1,4 @@
-.cal { display: flex; margin-top: 8px; position: relative; }
+.cal { display: flex; margin-top: 8px; position: relative; isolation: isolate; } /* keeps the now line's z-index local, so the tab bar paints over it */
 .gutter { width: 40px; flex: none; }
 .spacer { height: 60px; }
 .hours { position: relative; }
